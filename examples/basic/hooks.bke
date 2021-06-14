@@ -1,0 +1,13 @@
+@beforeEachRule (context) {
+  print(`Running ${context.rule}`)
+  shell echo -e "\e[34m"
+}
+
+@afterEachRule (context) {
+  shell echo -e "\e[0m" && clear
+  print(`Ran ${context.rule}`)
+}
+
+@beforeEachCommand (context) {
+  print(context.command)
+}

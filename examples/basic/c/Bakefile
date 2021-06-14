@@ -1,0 +1,14 @@
+import (
+  "github.com/AlexGustafsson/bake/stdlib/c"
+)
+
+// Build a static library for lib.c using standard library functions
+library.so : c::static_library([
+  lib.c
+])
+
+// Build and link the executable without using standard library functions
+app {
+  in main.c, library.so
+  shell $CC -o $@ $<
+}

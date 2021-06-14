@@ -1,0 +1,3 @@
+.phony main {
+  print("Hello, world!")
+}

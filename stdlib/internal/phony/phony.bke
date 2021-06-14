@@ -1,0 +1,9 @@
+package phony
+
+// Mark a function as being "phony" - that is, it will not create any files.
+func phony() {
+  context.tags.add("phony")
+  // Clear the output of the context so that the dependency resolver
+  // does not assume that the file will be created
+  context.out = nil
+}

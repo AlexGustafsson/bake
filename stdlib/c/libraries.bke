@@ -1,0 +1,6 @@
+package c
+
+// static_library builds a statically linked library from a set of c files
+export static_library(dependencies: list): rule {
+  $CC $@ $(expand dependencies)
+}

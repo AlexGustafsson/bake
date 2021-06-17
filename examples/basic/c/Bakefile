@@ -1,14 +1,25 @@
+// Import the standard libray
 import (
   "github.com/AlexGustafsson/bake/stdlib/c"
 )
 
-// Build a static library for lib.c using standard library functions
-library.so : c::static_library([
-  lib.c
-])
+# Default to building the main application
+.phony build {
+  in main
+}
 
-// Build and link the executable without using standard library functions
-app {
-  in main.c, library.so
-  shell $CC -o $@ $<
+// Build a static library for lib.c using standard library functions
+lib.so : c::static_library {
+  in lib.c lib.h
+}
+
+// Build the main application
+main {
+  in main.c, lib.so
+  shell gcc -o $@ $<
+}
+
+// Delete any output files
+.phony clean {
+  shell rm lib.o lib.so main &>/dev/null || true
 }

@@ -11,4 +11,16 @@ var Commands = []*cli.Command{
 		Usage:  "Show the application's version",
 		Action: versionCommand,
 	},
+	{
+		Name:   "parse",
+		Usage:  "Parse a Bakefile",
+		Action: parseCommand,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "input",
+				Aliases: []string{"i"},
+				Usage:   "Path to input file",
+			},
+		},
+	},
 }

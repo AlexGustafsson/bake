@@ -3,7 +3,7 @@ import (
   "github.com/AlexGustafsson/bake/stdlib/c"
 )
 
-# Default to building the main application
+// Default to building the main application
 .phony build {
   in main
 }

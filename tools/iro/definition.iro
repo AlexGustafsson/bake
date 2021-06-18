@@ -2,10 +2,6 @@
 ## Iro
 ################################################################
 ##
-## * Press Ctrl + '+'/'-' To Zoom in
-## * Press Ctrl + S to save and recalculate...
-## * Documents are saved to web storage.
-## * Only one save slot supported.
 ## * Matches cannot span lines.
 ## * Unicode chars must be defined in \u0000 to \uffff format.
 ## * All matches must be contained by a single group ( ... )
@@ -15,201 +11,199 @@
 ## * The \= format allows unescaped regular expressions
 ## * Constants referenced by match \= $${__my_const}
 ## * Constants can reference other constants
-## * You are free to delete all the default scopes.
-## * Twitter : ainslec , Web: http://eeyo.io/iro
 ##
 ################################################################
 
-name                   = Bake
-file_extensions []     = bke;
-
-################################################################
-## Constants
-################################################################
-
-__MY_CONSTANT \= (\b[a-z][a-z0-9]*)
-
-################################################################
-## Styles
-################################################################
+name = Bake
+file_extensions [] = bke;
 
 styles [] {
+   .comment : style {
+      color = grey
+      italic = true
+      textmate_scope = comment
+      pygments_scope = Comment
+   }
 
-.comment : style {
-   color                 = light_green
-   italic                = true
-   ace_scope             = comment
-   textmate_scope        = comment
-   pygments_scope        = Comment
+   .keyword : style {
+      color = cyan
+      textmate_scope = keyword
+      pygments_scope = Keyword
+   }
+
+   .numeric : style {
+      color = gold
+      textmate_scope = constant.numeric
+      pygments_scope = Number
+   }
+
+   .punctuation : style {
+      color = red_2
+      textmate_scope = punctuation
+      pygments_scope = Punctuation
+   }
+
+   .text : style {
+      color = light_green
+      textmate_scope = text
+      pygments_scope = String
+   }
+
+   .illegal : style {
+      color = white
+      background_color = red
+      textmate_scope = invalid
+      pygments_scope = Generic.Error
+   }
+
+   .import : style {
+      color = purple
+      textmate_scope = keyword.control.import
+      pygments_scope = Name.Namespace
+   }
+
+   .function_name : style {
+      color = cyan
+      textmate_scope = entity.name.function
+      pygments_scope = Name.Function
+   }
+
+   .whitespace : style {
+      # NOOP
+   }
+
+   .variable : style {
+      color = gold
+      textmate_scope = variable
+      pygments_scope = Name.Variable
+   }
 }
-
-.keyword : style {
-   color     = cyan
-   ace_scope             = keyword
-   textmate_scope        = keyword
-   pygments_scope        = Keyword
-}
-
-.numeric : style {
-   color                 = gold
-   ace_scope             = constant.numeric
-   textmate_scope        = constant.numeric
-   pygments_scope        = Number
-}
-
-.punctuation : style {
-   color     = red_2
-   ace_scope             = punctuation
-   textmate_scope        = punctuation
-   pygments_scope        = Punctuation
-}
-
-.text : style {
-   color                 = brown
-   ace_scope             = text
-   textmate_scope        = text
-   pygments_scope        = String
-}
-
-.illegal : style {
-   color                 = white
-   background_color      = red
-   ace_scope             = invalid
-   textmate_scope        = invalid
-   pygments_scope        = Generic.Error
-}
-
-}
-
-#################################################
-## Parse contexts
-#################################################
 
 contexts [] {
+   main : context {
+      : include "comment" ;
 
-##############################################
-## Main Context - Entry point context
-##############################################
+      : include "import" ;
 
-main : context {
+      : include "function_declaration" ;
 
-   : pattern {
-      regex \= ([a-z_]+::[a-z_]+)
-      styles [] = .keyword;
+      : include "rule" ;
+
+      : include "illegal" ;
    }
 
-   : pattern {
-      regex \= ([a-zA-Z_0-9\/]+\.[a-zA-Z_0-9]+)
-      styles [] = .keyword;
-   }
-
-   : pattern {
-      regex          \= $${__MY_CONSTANT}
-      styles []       = .keyword;
-   }
-
-   : include "numeric" ;
-
-   : inline_push {
-      regex          \= (\{)
-      styles []       = .punctuation;
-      : pop {
-         regex       \= (\})
-         styles []    = .punctuation;
+   import : context {
+      : inline_push {
+         regex          \= (import)([ \t]*)(\()
+         styles []       = .import, .whitespace, .punctuation;
+         : pop {
+            regex       \= (\))
+            styles []    = .punctuation;
+         }
+         : include "string" ;
+         : include "comment" ;
+         : include "illegal" ;
       }
-      : include "main" ;
-   }
-
-   : pattern {
-      regex          \= (;)
-      styles []       = .punctuation;
-   }
-
-   : pattern {
-      regex          \= (:)
-      styles []       = .punctuation;
-   }
-
-
-   : inline_push {
-      regex          \= (\")
-      styles []       = .punctuation;
-      default_style   = .text
-      : pop {
-         regex       \= (\")
-         styles []    = .punctuation;
+      : inline_push {
+         regex          \= (import)([ \t]*)(\")
+         styles []       = .import, .whitespace, .punctuation;
+         default_style   = .text
+         : pop {
+            regex       \= (\")
+            styles []    = .punctuation;
+         }
       }
    }
 
-   : inline_push {
-      regex          \= (\()
-      styles []       = .punctuation;
-      : pop {
-         regex       \= (\))
-         styles []    = .punctuation;
+   rule : context {
+      : inline_push {
+         regex          \= ([^ {]+)([ \t]*)(\{)
+         styles []       = .text, .whitespace, .punctuation;
+         : pop {
+            regex       \= (\})
+            styles []    = .punctuation;
+         }
+         : include "comment" ;
+         : include "shell" ;
+         : include "function_call" ;
+         : include "illegal" ;
       }
-      : include "numeric" ;
+   }
+
+   function_declaration: context {
+      : inline_push {
+         regex \= (func)([ \t]+)([a-zA-Z_][a-zA-Z_]*)(\()(\))([ \t]+)({)
+         styles [] = .keyword, .whitespace, .function_name, .punctuation, .punctuation, .whitespace, .punctuation;
+         : pop {
+            regex \= (\})
+            styles [] = .punctuation;
+         }
+         : include "comment";
+      }
+   }
+
+   function_call : context {
+      : inline_push {
+         regex \= ([ \t]+)([a-zA-Z_]+)([ \t]+)
+         styles[] = .whitespace, .keyword, .whitespace;
+         : eol_pop {}
+         default_style   = .text
+      }
+   }
+
+   shell : context {
+      : inline_push {
+         regex \= ([ \t]+)(shell)([ \t]+)
+         styles[] = .whitespace, .keyword, .whitespace;
+         : eol_pop {}
+         : pattern {
+            regex \= (\$[^ ]+)
+            styles [] = .variable;
+         }
+         : pattern {
+            regex \= ([^\s]+)
+            styles [] = .text;
+         }
+      }
+   }
+
+   numeric : context {
       : pattern {
-         regex       \= (,)
-         styles []    = .punctuation;
+         regex          \= (\b\d+)
+         styles []       = .numeric;
       }
    }
 
-   : pattern {
-      regex          \= (//.*)
-      styles []       = .comment;
+   string : context {
+      : inline_push {
+         regex         \= (")
+         styles []      = .punctuation;
+         : pop {
+            regex \= (")
+            styles [] = .punctuation;
+         }
+         : pattern {
+            regex      \= (\\(?:\\|"))
+            styles [] = .text;
+         }
+         : pattern {
+            regex      \= ([^"\\]+)
+            styles [] = .text;
+         }
+      }
    }
 
-   : inline_push {
-      regex \= ([ \t]+shell)
-      styles[] = .keyword;
-      : pop {
-         regex \= ($)
-         styles [] = .punctuation;
-      }
+   illegal : context {
       : pattern {
-         regex \= (\$[^ ]+)
-         styles [] = .numeric;
+         regex          \= ([^\s])
+         styles []       = .illegal;
       }
+   }
+
+   comment : context {
       : pattern {
-         regex \= ([^$]*)
-         styles [] = .text;
+         regex          \= (//.*)
+         styles []       = .comment;
       }
    }
-
-   : inline_push {
-      regex \= ([ \t]+in)
-      styles[] = .keyword;
-      : pop {
-         regex \= ($)
-         styles [] = .punctuation;
-      }
-      : pattern {
-         regex          \= (,)
-         styles []       = .punctuation;
-      }
-   }
-
-   : pattern {
-      regex          \= ([^\s])
-      styles []       = .illegal;
-   }
-
-}
-
-#################################################
-## End of Contexts
-#################################################
-
-###########################################
-## Numeric Context
-###########################################
-
-numeric : context {
-   : pattern {
-      regex          \= (\b\d+)
-      styles []       = .numeric;
-   }
-}
-
 }

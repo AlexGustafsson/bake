@@ -249,8 +249,8 @@ contexts [] {
 
    rule_declaration: context {
       : inline_push {
-         regex \= (export)?([ \t]+)?(rule)([ \t]+)
-         styles [] = .export, .whitespace, .keyword, .whitespace;
+         regex \= (export)?([ \t]+)?(rule)([ \t]+)([a-zA-Z0-9_]+)
+         styles [] = .export, .whitespace, .keyword, .whitespace, .keyword;
          : eol_pop {}
          : inline_push {
             regex \= (\[)

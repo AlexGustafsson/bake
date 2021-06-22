@@ -1,296 +1,52 @@
-#################################################################
-## Iro
-################################################################
-##
-## * Matches cannot span lines.
-## * Unicode chars must be defined in \u0000 to \uffff format.
-## * All matches must be contained by a single group ( ... )
-## * Look behinds not permitted, (?<= or (?<!
-## * Look forwards are permitted (?= or (?!
-## * Constants are defined as __my_const = (......)
-## * The \= format allows unescaped regular expressions
-## * Constants referenced by match \= $${__my_const}
-## * Constants can reference other constants
-##
-################################################################
+// Bake files can be called Bakefile or use the '.bke' file extension, like this file does.
+// Like with Make, Bake uses rules to match source files and destination files with a set of
+// commands centered on shell code to "glue" together other programs.
 
-name = Bake
-file_extensions [] = bke;
-
-styles [] {
-   .comment : style {
-      color = grey
-      italic = true
-      textmate_scope = comment
-      pygments_scope = Comment
-   }
-
-   .keyword : style {
-      color = cyan
-      textmate_scope = keyword
-      pygments_scope = Keyword
-   }
-
-   .numeric : style {
-      color = gold
-      textmate_scope = constant.numeric
-      pygments_scope = Number
-   }
-
-   .punctuation : style {
-      color = red_2
-      textmate_scope = punctuation
-      pygments_scope = Punctuation
-   }
-
-   .text : style {
-      color = light_green
-      textmate_scope = text
-      pygments_scope = String
-   }
-
-   .illegal : style {
-      color = white
-      background_color = red
-      textmate_scope = invalid
-      pygments_scope = Generic.Error
-   }
-
-   .import : style {
-      color = purple
-      textmate_scope = keyword.control.import
-      pygments_scope = Name.Namespace
-   }
-
-   .function_name : style {
-      color = cyan
-      textmate_scope = entity.name.function
-      pygments_scope = Name.Function
-   }
-
-   .whitespace : style {
-      # NOOP
-   }
-
-   .variable : style {
-      color = gold
-      textmate_scope = variable
-      pygments_scope = Name.Variable
-   }
+// Each rule has a name. In most cases, this name is the file path of the rule's output.
+new-file.txt {
+  // As previously mentioned, shell functions are at the core of Bake. These may be written
+  // using regular Bash or the like, with commands and programs available on the system.
+  shell touch new-file.txt
 }
 
-contexts [] {
-   main : context {
-      : include "comment" ;
+// Like with Make, there are some standard variables defined in each rule. These
+// help you write more concise rules without duplicating names.
+new-file2.txt {
+  // Here we use the '$@' variable instead of re-using the file's name,
+  // that way it's easily changable later on.
+  shell touch $@
+}
 
-      : include "import" ;
+// Rules may have dependencies so that Bake knows when to re-run a rule if any
+// of its dependencies have been changed. It also helps Bake know in which order
+// to run rules. This rule has dependencies, which will make sure that new-file.txt
+// is created before this rule is run (by running the rule for it).
+// If the file already exists, it will be used as is and if it doesn't exist at all,
+// an error will be thrown.
+copied-file.txt [new-file.txt] {
+  // Just like with output files, input files can be referenced in Bake using the
+  // '$<' implicit variable.
+  shell cp $< $@
+}
 
-      : include "function_declaration" ;
+// If you have multiple output files, place them in a list.
+[file1, file2] {
+  shell touch file1 file2
+}
 
-      : include "rule_declaration" ;
+// Paths containing spaces must be wrapped in quotes.
+["file 1", "file 2" ] {
+  shell touch "file 1" "file 2"
+}
 
-      : include "rule" ;
+// The rule that is run first may be decided in several ways. If no rule is explictly
+// chosen, the topmost rule will be run first. Another way to decide what rule to run
+// is to create a function called main.
+func main {
+  print "Hello, world!"
+}
 
-      : include "illegal" ;
-   }
-
-   body : context {
-      : include "comment" ;
-      : include "shell" ;
-      : include "function_call" ;
-      : include "illegal" ;
-   }
-
-   import : context {
-      : inline_push {
-         regex          \= (import)([ \t]*)(\()
-         styles []       = .import, .whitespace, .punctuation;
-         : pop {
-            regex       \= (\))
-            styles []    = .punctuation;
-         }
-         : include "string" ;
-         : include "comment" ;
-         : include "illegal" ;
-      }
-      : inline_push {
-         regex          \= (import)([ \t]*)(\")
-         styles []       = .import, .whitespace, .punctuation;
-         default_style   = .text
-         : pop {
-            regex       \= (\")
-            styles []    = .punctuation;
-         }
-      }
-   }
-
-   rule: context {
-      : include "file_list";
-      : inline_push {
-         regex \= (\{)
-         styles [] = .punctuation;
-         : pop {
-            regex \= (\})
-            styles [] = .punctuation;
-         }
-         : include "body";
-      }
-   }
-
-   file_list: context {
-      : include "file";
-      : include "string";
-      : inline_push {
-         regex \= (\[)
-         styles [] = .punctuation;
-         : pop {
-            regex \= (\])
-            styles [] = .punctuation;
-         }
-         : include "file";
-         : include "string";
-         : pattern {
-            regex \= (,)
-            styles [] = .punctuation;
-         }
-      }
-   }
-
-   file: context {
-      : pattern {
-         regex \= ([a-zA-Z0-9-_.]+)
-         styles [] = .text;
-      }
-   }
-
-   rule_declaration: context {
-      : inline_push {
-         regex \= (rule)([ \t]+)
-         styles [] = .keyword, .whitespace;
-         : eol_pop {}
-         : inline_push {
-            regex \= (\[)
-            styles [] = .punctuation;
-            : pop {
-               regex \= (\])
-               styles [] = .punctuation;
-            }
-            : pattern {
-               regex \= ([a-zA-Z0-9_]+)
-               styles [] = .variable;
-            }
-            : pattern {
-               regex \= (,)
-               styles [] = .punctuation;
-            }
-         }
-         : inline_push {
-            regex \= (\{)
-            styles [] = .punctuation;
-            : pop {
-               regex \= (\})
-               styles [] = .punctuation;
-            }
-            : include "body";
-         }
-      }
-   }
-
-   function_declaration: context {
-      : inline_push {
-         regex \= (func)([ \t]+)([a-zA-Z0-9_]+)
-         styles [] = .keyword, .whitespace, .keyword;
-         : eol_pop {}
-         : inline_push {
-            regex \= (\()
-            styles [] = .punctuation;
-            : pop {
-               regex \= (\))
-               styles [] = .punctuation;
-            }
-            : pattern {
-               regex \= ([a-zA-Z0-9_]+)
-               styles [] = .variable;
-            }
-            : pattern {
-               regex \= (,)
-               styles [] = .punctuation;
-            }
-         }
-         : inline_push {
-            regex \= (\{)
-            styles [] = .punctuation;
-            : pop {
-               regex \= (\})
-               styles [] = .punctuation;
-            }
-            : include "body";
-         }
-      }
-   }
-
-   function_call : context {
-      : inline_push {
-         regex \= ([ \t]+)([a-zA-Z_]+)([ \t]+)
-         styles[] = .whitespace, .keyword, .whitespace;
-         : eol_pop {}
-         default_style  = .text
-      }
-   }
-
-   shell : context {
-      : inline_push {
-         regex \= ([ \t]+)(shell)([ \t]+)
-         styles[] = .whitespace, .keyword, .whitespace;
-         : eol_pop {}
-         : pattern {
-            regex \= (\$[^ ]+)
-            styles [] = .variable;
-         }
-         : pattern {
-            regex \= ([^\s]+)
-            styles [] = .text;
-         }
-      }
-   }
-
-   numeric : context {
-      : pattern {
-         regex          \= (\b\d+)
-         styles []       = .numeric;
-      }
-   }
-
-   string : context {
-      : inline_push {
-         regex         \= (")
-         styles []      = .punctuation;
-         : pop {
-            regex \= (")
-            styles [] = .punctuation;
-         }
-         : pattern {
-            regex      \= (\\(?:\\|"))
-            styles [] = .text;
-         }
-         : pattern {
-            regex      \= ([^"\\]+)
-            styles [] = .text;
-         }
-      }
-   }
-
-   illegal : context {
-      : pattern {
-         regex          \= ([^\s])
-         styles []       = .illegal;
-      }
-   }
-
-   comment : context {
-      : pattern {
-         regex          \= (//.*)
-         styles []       = .comment;
-      }
-   }
+// If you wish to create a file which has the same name as a keyword, quote the name.
+"func" {
+  shell touch $@
 }

@@ -89,6 +89,8 @@ contexts [] {
 
       : include "rule_declaration" ;
 
+      : include "hook" ;
+
       : include "rule" ;
 
       : include "illegal" ;
@@ -156,6 +158,35 @@ contexts [] {
             }
             : include "string";
             : include "numeric";
+         }
+         : inline_push {
+            regex \= (\{)
+            styles [] = .punctuation;
+            : pop {
+               regex \= (\})
+               styles [] = .punctuation;
+            }
+            : include "body";
+         }
+      }
+   }
+
+   hook: context {
+      : inline_push {
+         regex \= (@)
+         styles [] = .keyword;
+         : eol_pop {}
+         : pattern {
+            regex \= ([a-zA-Z0-9_]+)
+            styles [] = .keyword;
+         }
+         : pattern {
+            regex \= (\.)
+            styles [] = .punctuation;
+         }
+         : pattern {
+            regex \= ([^ \t{]+)
+            styles [] = .text;
          }
          : inline_push {
             regex \= (\{)

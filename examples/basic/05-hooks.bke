@@ -10,7 +10,7 @@
 // such a rule.
 rule log_after {
   shell echo -e "\e[0m" && clear
-  print(`Ran ${context.rule}`)
+  print "Ran $(context.rule)"
 }
 
 // The after hook will run after rules. Here we specify the previously created

@@ -1,0 +1,22 @@
+{
+  "name": "tree-sitter-bake",
+  "version": "0.0.1",
+  "description": "bake grammar for tree-sitter",
+  "main": "bindings/node",
+  "keywords": [
+    "parsing",
+    "incremental"
+  ],
+  "dependencies": {
+    "nan": "^2.12.1"
+  },
+  "devDependencies": {
+    "tree-sitter-cli": "^0.19.5"
+  },
+  "scripts": {
+    "test": "tree-sitter test",
+    "build": "tree-sitter generate",
+    "build:wasm": "tree-sitter build-wasm",
+    "serve": "tree-sitter web-ui"
+  }
+}

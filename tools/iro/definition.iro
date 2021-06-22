@@ -87,12 +87,18 @@ contexts [] {
 
       : include "function_declaration" ;
 
+      : include "rule_declaration" ;
+
       : include "rule" ;
 
       : include "illegal" ;
    }
 
    body : context {
+      : pattern {
+         regex \= (^[ \t]+)
+         styles []= .whitespace;
+      }
       : include "comment" ;
       : include "shell" ;
       : include "function_call" ;
@@ -122,15 +128,103 @@ contexts [] {
       }
    }
 
-   rule : context {
+   rule: context {
+      : include "file_list";
       : inline_push {
-         regex          \= ([^ {]+)([ \t]*)(\{)
-         styles []       = .text, .whitespace, .punctuation;
+         regex \= (\{)
+         styles [] = .punctuation;
          : pop {
-            regex       \= (\})
-            styles []    = .punctuation;
+            regex \= (\})
+            styles [] = .punctuation;
          }
          : include "body";
+      }
+      : inline_push {
+         regex \= (:)
+         styles [] = .punctuation;
+         : eol_pop {}
+         : pattern {
+            regex \= ([a-zA-Z0-9_]+)
+            styles [] = .keyword;
+         }
+         : inline_push {
+            regex \= (\()
+            styles [] = .punctuation;
+            : pop {
+               regex \= (\))
+               styles [] = .punctuation;
+            }
+            : include "string";
+            : include "numeric";
+         }
+         : inline_push {
+            regex \= (\{)
+            styles [] = .punctuation;
+            : pop {
+               regex \= (\})
+               styles [] = .punctuation;
+            }
+            : include "body";
+         }
+      }
+   }
+
+   file_list: context {
+      : include "file";
+      : include "string";
+      : inline_push {
+         regex \= (\[)
+         styles [] = .punctuation;
+         : pop {
+            regex \= (\])
+            styles [] = .punctuation;
+         }
+         : include "file";
+         : include "string";
+         : pattern {
+            regex \= (,)
+            styles [] = .punctuation;
+         }
+      }
+   }
+
+   file: context {
+      : pattern {
+         regex \= ([a-zA-Z0-9-_.]+)
+         styles [] = .text;
+      }
+   }
+
+   rule_declaration: context {
+      : inline_push {
+         regex \= (rule)([ \t]+)
+         styles [] = .keyword, .whitespace;
+         : eol_pop {}
+         : inline_push {
+            regex \= (\[)
+            styles [] = .punctuation;
+            : pop {
+               regex \= (\])
+               styles [] = .punctuation;
+            }
+            : pattern {
+               regex \= ([a-zA-Z0-9_]+)
+               styles [] = .variable;
+            }
+            : pattern {
+               regex \= (,)
+               styles [] = .punctuation;
+            }
+         }
+         : inline_push {
+            regex \= (\{)
+            styles [] = .punctuation;
+            : pop {
+               regex \= (\})
+               styles [] = .punctuation;
+            }
+            : include "body";
+         }
       }
    }
 
@@ -169,8 +263,8 @@ contexts [] {
 
    function_call : context {
       : inline_push {
-         regex \= ([ \t]+)([a-zA-Z_]+)([ \t]+)
-         styles[] = .whitespace, .keyword, .whitespace;
+         regex \= ([a-zA-Z_]+)([ \t]+)
+         styles[] = .keyword, .whitespace;
          : eol_pop {}
          default_style  = .text
       }
@@ -178,8 +272,8 @@ contexts [] {
 
    shell : context {
       : inline_push {
-         regex \= ([ \t]+)(shell)([ \t]+)
-         styles[] = .whitespace, .keyword, .whitespace;
+         regex \= (shell)([ \t]+)
+         styles[] = .keyword, .whitespace;
          : eol_pop {}
          : pattern {
             regex \= (\$[^ ]+)

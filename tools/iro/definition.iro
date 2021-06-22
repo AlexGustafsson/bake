@@ -62,8 +62,20 @@ styles [] {
       pygments_scope = Name.Namespace
    }
 
+   .package : style {
+      color = purple
+      textmate_scope = keyword.control.import
+      pygments_scope = Name.Namespace
+   }
+
    .function_name : style {
       color = cyan
+      textmate_scope = entity.name.function
+      pygments_scope = Name.Function
+   }
+
+   .export : style {
+      color = gold
       textmate_scope = entity.name.function
       pygments_scope = Name.Function
    }
@@ -82,6 +94,8 @@ styles [] {
 contexts [] {
    main : context {
       : include "comment" ;
+
+      : include "package" ;
 
       : include "import" ;
 
@@ -127,6 +141,13 @@ contexts [] {
             regex       \= (\")
             styles []    = .punctuation;
          }
+      }
+   }
+
+   package : context {
+      : pattern {
+         regex \= (package)([ \t]+)([a-zA-Z0-9_]+)
+         styles [] = .package, .whitespace, .text;
       }
    }
 
@@ -228,8 +249,8 @@ contexts [] {
 
    rule_declaration: context {
       : inline_push {
-         regex \= (rule)([ \t]+)
-         styles [] = .keyword, .whitespace;
+         regex \= (export)?([ \t]+)?(rule)([ \t]+)
+         styles [] = .export, .whitespace, .keyword, .whitespace;
          : eol_pop {}
          : inline_push {
             regex \= (\[)
@@ -261,8 +282,8 @@ contexts [] {
 
    function_declaration: context {
       : inline_push {
-         regex \= (func)([ \t]+)([a-zA-Z0-9_]+)
-         styles [] = .keyword, .whitespace, .keyword;
+         regex \= (export)?([ \t]+)?(func)([ \t]+)([a-zA-Z0-9_]+)
+         styles [] = .export, .whitespace, .keyword, .whitespace, .keyword;
          : eol_pop {}
          : inline_push {
             regex \= (\()
@@ -294,8 +315,8 @@ contexts [] {
 
    function_call : context {
       : inline_push {
-         regex \= ([a-zA-Z_]+)([ \t]+)
-         styles[] = .keyword, .whitespace;
+         regex \= ([a-zA-Z_]+)
+         styles[] = .keyword;
          : eol_pop {}
          default_style  = .text
       }

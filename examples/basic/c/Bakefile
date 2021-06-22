@@ -3,23 +3,15 @@ import (
   "github.com/AlexGustafsson/bake/stdlib/c"
 )
 
-// Default to building the main application
-.phony build {
-  in main
-}
-
 // Build a static library for lib.c using standard library functions
-lib.so : c::static_library {
-  in lib.c lib.h
-}
+lib.so [lib.c, lib.h] : c::static_library
 
 // Build the main application
-main {
-  in main.c, lib.so
+main [main.c, lib.so] {
   shell gcc -o $@ $<
 }
 
 // Delete any output files
-.phony clean {
+func clean {
   shell rm lib.o lib.so main &>/dev/null || true
 }

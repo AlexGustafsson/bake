@@ -1,8 +1,0 @@
-// Bake allows for prefix functions. Such a function is basically only
-// a regular function that is ran before Bake resolves dependencies.
-// A prefix function may be named anything, but when it's used, it's always prefixed with a dot.
-// Such functions may be used to add tags to rules. Tags aren't always useful,
-// but they act as a building block to provide functionality such as phony rules.
-func ignore() {
-  context.tags.add("my_tag")
-}

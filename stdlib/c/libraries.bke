@@ -1,6 +1,6 @@
 package c
 
 // static_library builds a statically linked library from a set of c files
-export static_library(): rule {
+export rule static_library() {
   $CC $@ $(expand context.in)
 }

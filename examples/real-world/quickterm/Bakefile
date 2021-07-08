@@ -1,0 +1,128 @@
+// Import the standard libray
+import (
+  "github.com/AlexGustafsson/bake/stdlib/util"
+  "github.com/AlexGustafsson/bake/stdlib/mac"
+  "github.com/AlexGustafsson/bake/stdlib/git"
+)
+
+# Always use clang, no matter if GCC is configured
+env.CXX = clang
+env.CPP = clang
+env.CC = clang
+
+version = mac::get_version("SupportingFiles/QuickTerm/Info.plist")
+
+// Produce a short description of available make commands
+help: util::help
+
+// Build the application
+alias build [build/QuickTerm.app]
+
+// Run all tests
+func test {
+  shell swift test --build-path "build/test"
+}
+
+// Setup the project for development
+alias setup [setup-git-hooks]
+
+// Install the recommended git hooks
+setup-git-hooks: git::install_hooks(".githooks/pre-commit")
+
+// Lint all Swift code
+// Requires swiftformat: brew install swiftformat
+func lint {
+  shell swiftfromat --lint --verbose --config .swiftformat --cache ignore .
+}
+
+// Format all Swift code
+// Requires swiftformat: brew install swiftformat
+func format {
+  shell swiftformat --config .swiftformat --cache ignore .
+}
+
+// Package the application, ready for distribution. Does not sign the binaries.
+// To package signed binaries run "bake build sign package" instead
+alias package [
+  "distribution/QuickTerm v$(version).app.zip",
+  "distribution/QuickTerm v$(version).dmg"
+]
+
+build/QuickTermBroker.xpc [
+  "build/QuickTermBroker/release/QuickTermBroker",
+  "SupportingFiles/QuickTermBroker/Info.plist"
+] {
+  shell {
+    mkdir -p build/QuickTermBroker.xpc/Contents/MacOS
+    cp build/QuickTermBroker/release/QuickTermBroker build/QuickTermBroker.xpc/Contents/MacOS
+    cp SupportingFiles/QuickTermBroker/Info.plist build/QuickTermBroker.xpc/Contents
+  }
+}
+
+build/QuickTerm.app [
+  "build/QuickTerm/release/QuickTerm",
+  "SupportingFiles/QuickTerm/Info.plist",
+  "build/QuickTermBroker.xpc build/AppIcon.icns"
+] {
+  shell {
+    mkdir -p build/QuickTerm.app/Contents/MacOS
+    mkdir -p build/QuickTerm.app/Contents/XPCServices
+    cp build/QuickTerm/release/QuickTerm build/QuickTerm.app/Contents/MacOS
+    cp SupportingFiles/QuickTerm/Info.plist build/QuickTerm.app/Contents
+    cp -r build/QuickTermBroker.xpc build/QuickTerm.app/Contents/XPCServices
+    cp -r SupportingFiles/QuickTerm/Resources build/QuickTerm.app/Contents/Resources
+    cp build/AppIcon.icns build/QuickTerm.app/Contents/Resources/AppIcon.icns
+  }
+}
+
+
+build/AppIcon.iconset [SupportingFiles/QuickTerm/icon.png] : mac::create_iconset
+build/AppIcon.icns [build/AppIcon.iconset] : mac::convert_iconset
+
+build/QuickTerm.dmg [build/QuickTerm.app] : mac::create_dmg(env.CODESIGN_IDENTITY)
+
+"distribution/QuickTerm v$(version).app.zip" [build/QuickTerm.app] : util::zip
+"distribution/QuickTerm v$(version).dmg" ["build/QuickTerm $(version).dmg"] : util::copy
+
+build/QuickTerm/release/QuickTerm : build_module(QuickTerm)
+build/QuickTermBroker/release/QuickTermBroker : build_module(QuickTermBroker)
+
+// Rule to build a module
+rule build_module(module) {
+  func find_module_source(module) {
+    shell find "Sources/$(module)" -type f -name "*.swift"
+  }
+
+  func find_shared_source(modules) {
+    shell echo "$(modules)" | tr ' ' '\n' | while read line; do find "Sources/$$line" -type f -iname '*.swift'; done
+  }
+
+  context.in = find_module_source(module) find_shared_source("QuickTermShared QuickTermLibrary") SupportingFiles/$(module)/Info.plist
+
+  swift build --configuration release --product "$(module)" --build-path "build/$(module)" $(env.SWIFT_FLAGS)
+}
+
+func get_version {
+  shell grep 'CFBundleShortVersionString' -A1 SupportingFiles/QuickTerm/Info.plist | tail -1 | sed 's/.*<string>\([^<]\+\)<\/string>.*/\1/'
+}
+
+// Sign the built application
+// Use "security find-identity -v -p codesigning" to find available certificates.
+// Specify your identity in CODESIGN_IDENTITY
+func sign {
+  shell {
+    codesign -o runtime --force --entitlements SupportingFiles/QuickTermBroker/Entitlements.plist --sign "$(env.CODESIGN_IDENTITY)" --timestamp build/QuickTerm.app/Contents/XPCServices/QuickTermBroker.xpc/Contents/MacOS/QuickTermBroker
+    codesign -o runtime --force --entitlements SupportingFiles/QuickTermBroker/Entitlements.plist --sign "$(env.CODESIGN_IDENTITY)" --timestamp build/QuickTerm.app/Contents/XPCServices/QuickTermBroker.xpc
+    codesign -o runtime --force --entitlements SupportingFiles/QuickTerm/Entitlements.plist --sign "$(env.CODESIGN_IDENTITY)" --timestamp build/QuickTerm.app
+  }
+}
+
+// Tail logs produced by QuickTerm
+func logs {
+  shell log stream --info --debug --predicate 'subsystem BEGINSWITH "se.axgn.QuickTerm" || (eventMessage CONTAINS "QuickTerm" && messageType IN {16, 17})'
+}
+
+// Remove all dynamically created files
+func clean {
+  shell rm -rf build distribution &> /dev/null || true
+}

@@ -1,0 +1,8 @@
+package util
+
+export rule zip {
+  shell {
+    mkdir -p "$(context.out)"
+    zip -r "$(context.out)" $(context.in)
+  }
+}

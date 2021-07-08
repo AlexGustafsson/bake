@@ -1,0 +1,28 @@
+package mac
+
+// Create an iconset from the input files, stored in the specified output iconset
+export rule create_iconset {
+  shell {
+    # Delete any previous output
+    rm -r "$(context.out)" &>/dev/null || true
+    mkdir -p "$(context.out)"
+    # Create icons for different sizes
+    sips -z 16 16 "$(context.in)" --out "$(context.out)/icon_16x16.png"
+    sips -z 32 32 "$(context.in)" --out "$(context.out)/icon_16x16@2x.png"
+    sips -z 32 32 "$(context.in)" --out "$(context.out)/icon_32x32.png"
+    sips -z 64 64 "$(context.in)" --out "$(context.out)/icon_32x32@2x.png"
+    sips -z 128 128 "$(context.in)" --out "$(context.out)/icon_128x128.png"
+    sips -z 256 256 "$(context.in)" --out "$(context.out)/icon_128x128@2x.png"
+    sips -z 256 256 "$(context.in)" --out "$(context.out)/icon_256x256.png"
+    sips -z 512 512 "$(context.in)" --out "$(context.out)/icon_256x256@2x.png"
+    sips -z 512 512 "$(context.in)" --out "$(context.out)/icon_512x512.png"
+  }
+}
+
+// Convert input iconset file to the output icns file
+export rule convert_iconset {
+  shell {
+    # Compile icons
+    iconutil --convert icns --output "$(context.out)" "$(context.in)"
+  }
+}

@@ -39,3 +39,22 @@ copied-file3.txt [new-file.txt] : copy_file {
   // List the now created file
   shell ls $@
 }
+
+// To specify dynamic dependencies for a rule, you may overwrite the context
+// of the rule
+rule build_module(module) {
+  // Wrap a shell command for finding input
+  func find_module_source(module) {
+    shell find "Sources/$(1)" -type f -name "*.swift
+  }
+
+  // Overwrite the input of the context so that Bake may resolve dependencies.
+  // This must be done before any other commands
+  context.in = find_module_source(module)
+
+  // Build
+  shell gcc $(context.in)
+}
+
+// The rule may then be used like any other
+build/module/app : build_module(app)

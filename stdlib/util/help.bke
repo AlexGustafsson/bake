@@ -1,0 +1,5 @@
+package util
+
+export rule help {
+  // TODO: Find commented rules and print them
+}

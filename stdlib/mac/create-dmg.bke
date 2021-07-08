@@ -1,0 +1,9 @@
+package util
+
+// Create a dmg.
+// Requires NPM and clang
+export rule create_dmg(codesign_identity) {
+  // create-dmg exits with 2 if everything worked but it wasn't code signed
+  // due to no identity being defined
+  shell CXX=clang CC=clang npx create-dmg --identity="$(codesign_identity)" "$(context.in)" build || [[ $$? -eq 2 ]] || exit 1
+}

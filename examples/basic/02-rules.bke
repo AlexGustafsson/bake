@@ -17,6 +17,21 @@ new-file2.txt {
   shell touch $@
 }
 
+// Sometimes a rule uses a lot of shell code. In cases like that you may use
+// shell blocks instead. The entire shell block will be executed in the same
+// session to allow for complex behavior
+new-file3.txt {
+  shell {
+    mkdir -p tmp
+    cd tmp
+    touch new-file3.txt
+    cp new-file3.txt ../
+    cd ../
+    rm -r tmp
+  }
+}
+
+
 // Rules may have dependencies so that Bake knows when to re-run a rule if any
 // of its dependencies have been changed. It also helps Bake know in which order
 // to run rules. This rule has dependencies, which will make sure that new-file.txt
@@ -50,3 +65,8 @@ func main {
 "func" {
   shell touch $@
 }
+
+// If you want to alias a build rule, such as "build" for build/app you may use
+// an alias like so, where each dependant rule is specified much like dependencies
+// of a regular rule
+alias build [build/app]

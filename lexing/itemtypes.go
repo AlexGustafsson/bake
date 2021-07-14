@@ -1,10 +1,16 @@
 package lexing
 
+//go:generate stringer -type=ItemType
 type ItemType int
 
 const (
-	ItemSpace ItemType = iota
-	ItemNewline
+	ItemNewline ItemType = iota
 	ItemEndOfFile
 	ItemError
+	ItemImport
+	ItemLeftParentheses
+	ItemRightParentheses
+	ItemDoubleQuote
+	ItemString
+	ItemWhitespace
 )

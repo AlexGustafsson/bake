@@ -55,6 +55,25 @@ func (lexer *Lexer) Next() rune {
 	return rune
 }
 
+func (lexer *Lexer) NextString(text string) bool {
+	accepted := 0
+	for _, expected := range text {
+		actual := lexer.Next()
+		if actual != expected {
+			break
+		}
+
+		accepted++
+	}
+
+	ok := accepted == len(text)
+	if !ok {
+		lexer.BacktrackCount(accepted)
+	}
+
+	return ok
+}
+
 func (lexer *Lexer) Peek() rune {
 	rune := lexer.Next()
 	lexer.Backtrack()
@@ -65,6 +84,12 @@ func (lexer *Lexer) Backtrack() {
 	lexer.position -= lexer.runeWidth
 	if lexer.runeWidth == 1 && lexer.input[lexer.position] == '\n' {
 		lexer.line--
+	}
+}
+
+func (lexer *Lexer) BacktrackCount(count int) {
+	for i := 0; i < count; i++ {
+		lexer.Backtrack()
 	}
 }
 
@@ -93,6 +118,15 @@ func (lexer *Lexer) EmitWithMessage(itemType ItemType, message string) {
 
 func (lexer *Lexer) NextItem() Item {
 	return <-lexer.items
+}
+
+func (lexer *Lexer) NextNonWhitespaceItem(includeNewline bool) Item {
+	for {
+		item := <-lexer.items
+		if item.Type != ItemWhitespace && !(includeNewline && item.Type == ItemNewline) {
+			return item
+		}
+	}
 }
 
 func (lexer *Lexer) Ignore() {

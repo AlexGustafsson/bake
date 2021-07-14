@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 
@@ -22,7 +23,11 @@ func parseCommand(context *cli.Context) error {
 
 	input := string(inputBytes)
 	parser := parsing.Parse(input)
-	parser.Wait()
+	syntaxTree := parser.Wait()
+
+	for _, imported := range syntaxTree.Imports {
+		fmt.Printf("Imported %s\n", imported)
+	}
 
 	return nil
 }

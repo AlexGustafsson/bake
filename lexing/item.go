@@ -1,6 +1,9 @@
 package lexing
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Item struct {
 	Type    ItemType
@@ -11,9 +14,12 @@ type Item struct {
 }
 
 func (item Item) String() string {
+	// Escape newlines and tabs
+	formattedValue := strings.ReplaceAll(strings.ReplaceAll(item.Value, "\n", "\\n"), "\t", "\\t")
+
 	if item.Message != "" {
-		return fmt.Sprintf("[item @%d:%d - %d \"%s\" - '%s']", item.Line, item.Start, item.Type, item.Message, item.Value)
+		return fmt.Sprintf("[item @%d:%d - %s \"%s\" - '%s']", item.Line, item.Start, item.Type.String(), item.Message, formattedValue)
 	}
 
-	return fmt.Sprintf("[item @%d:%d - %d '%s']", item.Line, item.Start, item.Type, item.Value)
+	return fmt.Sprintf("[item @%d:%d - %s '%s']", item.Line, item.Start, item.Type.String(), formattedValue)
 }

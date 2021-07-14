@@ -48,6 +48,7 @@ test: $(server_source) Makefile
 
 # Build for the native platform
 build/bake: $(server_source) Makefile
+	go generate ./...
 	go build $(BUILD_FLAGS) -o $@ cmd/bake.go
 
 # Clean all dynamically created files

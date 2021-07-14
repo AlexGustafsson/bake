@@ -7,14 +7,18 @@ import (
 	"github.com/AlexGustafsson/bake/lexing"
 )
 
+type stateModifier func(parser *Parser) stateModifier
+
 type Parser struct {
-	lexer *lexing.Lexer
-	wg    sync.WaitGroup
+	lexer      *lexing.Lexer
+	wg         sync.WaitGroup
+	syntaxTree *SyntaxTree
 }
 
 func Parse(input string) *Parser {
 	parser := &Parser{
-		lexer: lexing.Lex(input),
+		lexer:      lexing.Lex(input),
+		syntaxTree: CreateSyntaxTree(),
 	}
 	parser.wg.Add(1)
 	go parser.run()
@@ -22,21 +26,18 @@ func Parse(input string) *Parser {
 }
 
 func (parser *Parser) run() {
-	for {
-		item := parser.lexer.NextItem()
-		if item.Type == lexing.ItemError {
-			fmt.Printf("Got error token: %s\n", item)
-			break
-		} else if item.Type == lexing.ItemEndOfFile {
-			fmt.Printf("Got EOF\n")
-			break
-		}
-
-		fmt.Printf("Got token: %s\n", item)
+	for state := parseRoot; state != nil; {
+		state = state(parser)
 	}
+
 	parser.wg.Done()
 }
 
-func (parser *Parser) Wait() {
+func (parser *Parser) Wait() *SyntaxTree {
 	parser.wg.Wait()
+	return parser.syntaxTree
+}
+
+func (parser *Parser) Errorf(format string, args ...interface{}) {
+	fmt.Printf(format, args...)
 }

@@ -1,11 +1,13 @@
 package parsing
 
+import "github.com/AlexGustafsson/bake/parsing/nodes"
+
 type SyntaxTree struct {
-	Imports []string
+	Root nodes.Node
 }
 
-func CreateSyntaxTree() *SyntaxTree {
+func CreateSyntaxTree(root nodes.Node) *SyntaxTree {
 	return &SyntaxTree{
-		Imports: make([]string, 0),
+		Root: root,
 	}
 }

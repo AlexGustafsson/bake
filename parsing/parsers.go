@@ -2,43 +2,44 @@ package parsing
 
 import (
 	"github.com/AlexGustafsson/bake/lexing"
+	"github.com/AlexGustafsson/bake/parsing/nodes"
 )
 
-func parseRoot(parser *Parser) stateModifier {
-	switch item := parser.lexer.NextItem(); item.Type {
-	case lexing.ItemWhitespace, lexing.ItemNewline:
-		// Skip whitespace
-		return parseRoot
+func parseRoot(parser *Parser) (nodes.Node, error) {
+	switch item := parser.lexer.NextNonWhitespaceItem(true); item.Type {
 	case lexing.ItemImport:
-		return parseImport
+		return parseImport(parser)
 	case lexing.ItemEndOfFile:
-		return nil
+		return nil, nil
 	case lexing.ItemError:
-		parser.Errorf("Got error token: %s\n", item)
-		return nil
+		parser.errorf("Got error token: %s\n", item)
 	default:
-		parser.Errorf("Unexpected token: %s\n", item.String())
-		return nil
+		parser.errorf("Unexpected token: %s\n", item.String())
 	}
+
+	return nil, nil
 }
 
-func parseImport(parser *Parser) stateModifier {
+func parseImport(parser *Parser) (nodes.Node, error) {
+	node := &nodes.NodeImport{
+		NodeType: nodes.NodeImportType,
+		Imports:  make([]string, 0),
+	}
+
 	if item := parser.lexer.NextNonWhitespaceItem(true); item.Type != lexing.ItemLeftParentheses {
-		parser.Errorf("Expected left parentheses\n")
-		return nil
+		parser.errorf("Expected left parentheses\n")
 	}
 
 	for {
 		item := parser.lexer.NextNonWhitespaceItem(true)
 		if item.Type == lexing.ItemString {
-			parser.syntaxTree.Imports = append(parser.syntaxTree.Imports, item.Value)
+			node.Imports = append(node.Imports, item.Value)
 		} else if item.Type == lexing.ItemRightParentheses {
 			break
 		} else {
-			parser.Errorf("Expected right parentheses or string, got %s - %s\n", item.Type.String(), item.Message)
-			return nil
+			parser.errorf("Expected right parentheses or string, got %s - %s\n", item.Type.String(), item.Message)
 		}
 	}
 
-	return parseRoot
+	return node, nil
 }

@@ -2,42 +2,57 @@ package parsing
 
 import (
 	"fmt"
-	"sync"
+	"runtime"
 
 	"github.com/AlexGustafsson/bake/lexing"
 )
 
-type stateModifier func(parser *Parser) stateModifier
-
 type Parser struct {
 	lexer      *lexing.Lexer
-	wg         sync.WaitGroup
 	syntaxTree *SyntaxTree
 }
 
-func Parse(input string) *Parser {
-	parser := &Parser{
-		lexer:      lexing.Lex(input),
-		syntaxTree: CreateSyntaxTree(),
+func CreateParser() *Parser {
+	return &Parser{
+		lexer:      nil,
+		syntaxTree: &SyntaxTree{},
 	}
-	parser.wg.Add(1)
-	go parser.run()
-	return parser
 }
 
-func (parser *Parser) run() {
-	for state := parseRoot; state != nil; {
-		state = state(parser)
+func Parse(input string) (*SyntaxTree, error) {
+	parser := CreateParser()
+	return parser.Parse(input)
+}
+
+func (parser *Parser) Parse(input string) (_ *SyntaxTree, err error) {
+	parser.lexer = lexing.Lex(input)
+
+	// Recover from panics caused when parsing
+	defer parser.recover(&err)
+
+	root, err := parseRoot(parser)
+	if err != nil {
+		return nil, err
 	}
 
-	parser.wg.Done()
+	tree := CreateSyntaxTree(root)
+
+	return tree, nil
 }
 
-func (parser *Parser) Wait() *SyntaxTree {
-	parser.wg.Wait()
-	return parser.syntaxTree
+func (parser *Parser) errorf(format string, args ...interface{}) {
+	panic(fmt.Errorf(format, args...))
 }
 
-func (parser *Parser) Errorf(format string, args ...interface{}) {
-	fmt.Printf(format, args...)
+func (parser *Parser) recover(errp *error) {
+	err := recover()
+	if err != nil {
+		if _, ok := err.(runtime.Error); ok {
+			panic(err)
+		}
+
+		if parser != nil {
+			*errp = err.(error)
+		}
+	}
 }

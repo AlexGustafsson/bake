@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/AlexGustafsson/bake/parsing"
+	"github.com/AlexGustafsson/bake/parsing/nodes"
 	"github.com/urfave/cli/v2"
 )
 
@@ -22,12 +23,26 @@ func parseCommand(context *cli.Context) error {
 	}
 
 	input := string(inputBytes)
-	parser := parsing.Parse(input)
-	syntaxTree := parser.Wait()
-
-	for _, imported := range syntaxTree.Imports {
-		fmt.Printf("Imported %s\n", imported)
+	tree, err := parsing.Parse(input)
+	if err != nil {
+		return err
 	}
+
+	node := tree.Root
+	for node != nil {
+		switch node.Type() {
+		case nodes.NodeImportType:
+			fmt.Println("import")
+			fmt.Println("---")
+			fmt.Print(node.String())
+			fmt.Println("---")
+			node = nil
+		default:
+			fmt.Printf("unsupported type: %d\n", node.Type())
+			node = nil
+		}
+	}
+	fmt.Println("end")
 
 	return nil
 }

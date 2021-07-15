@@ -29,4 +29,16 @@ var Commands = []*cli.Command{
 		Usage:   "Initialize a bake",
 		Action:  initCommand,
 	},
+	{
+		Name:   "autocomplete",
+		Usage:  "Print autocompletion for a shell",
+		Action: autocompleteCommand,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:     "shell",
+				Usage:    "Name of the shell to print an autocompletion script for",
+				Required: true,
+			},
+		},
+	},
 }

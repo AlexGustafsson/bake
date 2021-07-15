@@ -51,7 +51,8 @@
         "aliases": [
           "Bake",
           "bake"
-        ]
+        ],
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [

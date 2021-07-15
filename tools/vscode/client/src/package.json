@@ -1,0 +1,20 @@
+{
+  "name": "bake-lsp-client",
+  "description": "Bake language server extension for vscode",
+  "author": "Alex Gustafsson",
+  "license": "MIT",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlexGustafsson/bake"
+  },
+  "engines": {
+    "vscode": "^1.52.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.52.0"
+  }
+}

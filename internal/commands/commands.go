@@ -23,4 +23,10 @@ var Commands = []*cli.Command{
 			},
 		},
 	},
+	{
+		Name:    "init",
+		Aliases: []string{"initialize"},
+		Usage:   "Initialize a bake",
+		Action:  initCommand,
+	},
 }

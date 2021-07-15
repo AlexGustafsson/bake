@@ -1,0 +1,59 @@
+{
+  "scopeName": "source.bake",
+  "patterns": [
+    {
+      "include": "#expression"
+    }
+  ],
+  "repository": {
+    "expression": {
+      "patterns": [
+        {
+          "include": "#import"
+        },
+        {
+          "include": "#string"
+        },
+        {
+          "include": "#left"
+        },
+        {
+          "include": "#right"
+        }
+      ]
+    },
+    "import": {
+      "match": "import",
+      "name": "keyword.control.import"
+    },
+    "string": {
+      "begin": "\"",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin"
+        }
+      },
+      "end": "\"",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end"
+        }
+      },
+      "name": "string.quoted.double",
+      "patterns": [
+        {
+          "match": "\\\"",
+          "name": "constant.character.escape"
+        }
+      ]
+    }
+  },
+  "left": {
+    "match": "(",
+    "name": "punctuation.definition.imports.begin.bracket.round"
+  },
+  "right": {
+    "match": ")",
+    "name": "punctuation.definition.imports.end.bracket.round"
+  }
+}

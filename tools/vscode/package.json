@@ -53,6 +53,13 @@
           "bake"
         ]
       }
+    ],
+    "grammars": [
+      {
+        "language": "bake",
+        "scopeName": "source.bake",
+        "path": "./syntaxes/bake.tmGrammar.json"
+      }
     ]
   },
   "scripts": {

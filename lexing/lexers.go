@@ -27,7 +27,7 @@ func lexRoot(lexer *Lexer) stateModifier {
 		lexer.Emit(ItemEndOfFile)
 		return nil
 	default:
-		lexer.Errorf("Unexpected token '%c'", rune)
+		lexer.errorf("Unexpected token '%c'", rune)
 		return nil
 	}
 }
@@ -37,7 +37,7 @@ func lexImport(lexer *Lexer) stateModifier {
 		lexer.Emit(ItemImport)
 		return lexRoot
 	} else {
-		lexer.Errorf("Expected token 'import'")
+		lexer.errorf("Expected token 'import'")
 		return nil
 	}
 }
@@ -51,15 +51,15 @@ func lexString(lexer *Lexer) stateModifier {
 				lexer.Emit(ItemString)
 				return lexRoot
 			} else if rune == eof {
-				lexer.Errorf("Unexpected end of file in string")
+				lexer.errorf("Unexpected end of file in string")
 				return nil
 			} else if rune == '\n' {
-				lexer.Errorf("Unexpected end of line in string")
+				lexer.errorf("Unexpected end of line in string")
 				return nil
 			}
 		}
 	} else {
-		lexer.Errorf("Unexpected token '%c', expected '\"'", rune)
+		lexer.errorf("Unexpected token '%c', expected '\"'", rune)
 		return nil
 	}
 }

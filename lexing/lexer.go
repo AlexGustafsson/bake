@@ -134,6 +134,6 @@ func (lexer *Lexer) Ignore() {
 	lexer.startLine = lexer.line
 }
 
-func (lexer *Lexer) Errorf(format string, args ...interface{}) {
+func (lexer *Lexer) errorf(format string, args ...interface{}) {
 	lexer.EmitWithMessage(ItemError, fmt.Sprintf(format, args...))
 }

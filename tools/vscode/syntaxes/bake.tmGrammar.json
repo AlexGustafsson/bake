@@ -1,59 +1,248 @@
 {
   "scopeName": "source.bake",
+  "name": "Bake",
+  "comment": "Bake language",
+  "fileTypes": [
+    "bke"
+  ],
+  "foldingStartMarker": "({|\\()\\s*$",
+  "foldingStopMarker": "(}|\\))\\s*$",
   "patterns": [
     {
-      "include": "#expression"
-    }
-  ],
-  "repository": {
-    "expression": {
+      "comment": "Line comment",
+      "name": "comment.line.double-slash.bake",
+      "begin": "//",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.bake"
+        }
+      },
+      "end": "$"
+    },
+    {
+      "comment": "Import declarations",
+      "begin": "(?<=import)\\s+(\\()",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.other.bracket.round.bake"
+        }
+      },
       "patterns": [
         {
-          "include": "#import"
-        },
-        {
-          "include": "#string"
-        },
-        {
-          "include": "#left"
-        },
-        {
-          "include": "#right"
+          "match": "((?!\\s+\")[^\\s]*)?\\s+((\")([^\"]*)(\"))",
+          "captures": {
+            "1": {
+              "name": "entity.alias.import.bake"
+            },
+            "2": {
+              "name": "string.quoted.double.bake"
+            },
+            "3": {
+              "name": "punctuation.definition.string.begin.bake"
+            },
+            "4": {
+              "name": "entity.name.import.bake"
+            },
+            "5": {
+              "name": "punctuation.definition.string.end.bake"
+            }
+          }
         }
-      ]
+      ],
+      "end": "\\)",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.other.bracket.round.bake"
+        }
+      }
     },
-    "import": {
-      "match": "import",
-      "name": "keyword.control.import"
+    {
+      "comment": "Package declarations",
+      "match": "(?<=package)\\s+([a-zA-Z_]\\w*)",
+      "captures": {
+        "1": {
+          "name": "entity.name.package.bake"
+        }
+      }
     },
-    "string": {
+    {
+      "comment": "Shell block",
+      "begin": "\\s*(shell)\\s*({)",
+      "beginCaptures": {
+        "1": {
+          "name": "support.function.bake"
+        },
+        "2": {
+          "name": "punctuation.other.bracket.curly.bake"
+        }
+      },
+      "end": "}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.other.bracket.curly.bake"
+        }
+      },
+      "name": "string.quoted.double.bake"
+    },
+    {
+      "comment": "Shell builtin",
+      "begin": "\\s*(shell)\\s*",
+      "beginCaptures": {
+        "1": {
+          "name": "support.function.bake"
+        }
+      },
+      "name": "string.quoted.double.bake",
+      "end": "$"
+    },
+    {
       "begin": "\"",
       "beginCaptures": {
         "0": {
-          "name": "punctuation.definition.string.begin"
+          "name": "punctuation.definition.string.begin.bake"
         }
       },
       "end": "\"",
       "endCaptures": {
         "0": {
-          "name": "punctuation.definition.string.end"
+          "name": "punctuation.definition.string.end.bake"
         }
       },
-      "name": "string.quoted.double",
+      "name": "string.quoted.double.bake",
       "patterns": [
         {
-          "match": "\\\"",
-          "name": "constant.character.escape"
+          "match": "\\\\([0-7]{3}|[abfnrtv\\\\'\"]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})",
+          "name": "constant.character.escape.bake"
+        },
+        {
+          "match": "\\\\[^0-7xuUabfnrtv\\'\"]",
+          "name": "invalid.illegal.unknown-escape.bake"
         }
       ]
+    },
+    {
+      "comment": "Integers",
+      "match": "\\b((0x[0-9a-fA-F]+)|(0[0-7]+i?)|(\\d+([Ee]\\d+)?i?)|(\\d+[Ee][-+]\\d+i?))\\b",
+      "name": "constant.numeric.integer.bake"
+    },
+    {
+      "comment": "Function",
+      "match": "(?<=func)\\s+([a-zA-Z_]\\w*)",
+      "captures": {
+        "1": {
+          "name": "entity.name.function.bake"
+        }
+      }
+    },
+    {
+      "comment": "Rule",
+      "match": "(?<=rule)\\s+([a-zA-Z_]\\w*)",
+      "captures": {
+        "1": {
+          "name": "entity.name.function.bake"
+        }
+      }
+    },
+    {
+      "match": "\\btrue\\b",
+      "name": "constant.language.boolean.true.bake"
+    },
+    {
+      "match": "\\bfalse\\b",
+      "name": "constant.language.boolean.false.bake"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#brackets"
     }
-  },
-  "left": {
-    "match": "(",
-    "name": "punctuation.definition.imports.begin.bracket.round"
-  },
-  "right": {
-    "match": ")",
-    "name": "punctuation.definition.imports.end.bracket.round"
+  ],
+  "repository": {
+    "keywords": {
+      "patterns": [
+        {
+          "comment": "Flow control keywords",
+          "match": "\\b(if|else|return)\\b",
+          "name": "keyword.control.bake"
+        },
+        {
+          "match": "\\bfunc\\b",
+          "name": "keyword.function.bake"
+        },
+        {
+          "match": "\\brule\\b",
+          "name": "keyword.function.bake"
+        },
+        {
+          "match": "\\bimport\\b",
+          "name": "keyword.import.bake"
+        },
+        {
+          "match": "\\bpackage\\b",
+          "name": "keyword.package.bake"
+        },
+        {
+          "match": "\\bexport\\b",
+          "name": "storage.modifier.bake"
+        },
+        {
+          "match": "\\b(context|env)\\b",
+          "name": "variable.language.bake"
+        },
+        {
+          "match": "\\balias\\b",
+          "name": "keyword.function.bake"
+        }
+      ]
+    },
+    "operators": {
+      "comment": "Order is important",
+      "patterns": [
+        {
+          "match": "\\-\\-",
+          "name": "keyword.operator.decrement.bake"
+        },
+        {
+          "match": "\\+\\+",
+          "name": "keyword.operator.increment.bake"
+        },
+        {
+          "match": "(==|!=|<=|>=)",
+          "name": "keyword.operator.comparison.bake"
+        },
+        {
+          "match": "(&&|\\|\\||!)",
+          "name": "keyword.operator.logical.bake"
+        },
+        {
+          "match": "(=|\\+=|\\-=|\\|=\\*=|/=)",
+          "name": "keyword.operator.assignment.bake"
+        },
+        {
+          "match": "(\\+|\\-|\\*|/|%)",
+          "name": "keyword.operator.arithmetic.bake"
+        }
+      ]
+    },
+    "brackets": {
+      "patterns": [
+          {
+            "match": "\\(|\\)",
+            "name": "punctuation.other.bracket.round.bake"
+          },
+          {
+            "match": "\\{|\\}",
+            "name": "punctuation.other.bracket.curly.bake"
+          },
+          {
+            "match": "\\[|\\]",
+            "name": "punctuation.other.bracket.square.bake"
+          }
+      ]
+    }
   }
 }

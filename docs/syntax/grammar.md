@@ -33,7 +33,7 @@ Lastly, `...` denotes a range of characters.
 
 ## Grammar
 
-### Program
+### Source file
 
 ```
 SourceFile = [ PackageDeclaration ] [ ImportsDeclaration ] { TopLevelDeclarations } .
@@ -46,7 +46,7 @@ ImportsDeclaration = "import" "(" { string_literal } ")" .
 ### Declarations
 
 ```
-TopLevelDeclaration = Declaration | FunctionDeclaration | RuleFunctionDeclaration | AliasDeclaration | RuleDeclaration.
+TopLevelDeclaration = Declaration | FunctionDeclaration | RuleFunctionDeclaration | AliasDeclaration | RuleDeclaration .
 
 Declaration = VarDeclaration .
 
@@ -60,17 +60,18 @@ AliasDeclaration = "alias" identifier ( file_path | FileList ) .
 
 RuleDeclaration = ( file_path | FileList ) [ FileList ] ( ":" PrimaryExpression [ Block ] | Block ) .
 FileList = "[" file_path { "," file_path } "]" .
-# TODO: non-quoted string should work as well (non-space)
 file_path = string_literal .
 
 Signature = "(" [ ParameterList ] ")" .
 ParameterList = identifier { "," identifier } .
-Block = "{" { Statement } "}" .
+Block = "{" Statements "}" .
 ```
 
 ### Statements
 
 ```
+Statements = Statement { "\n" Statement } .
+
 Statement = Declaration
           | SimpleStatement
           | IfStatement
@@ -106,6 +107,7 @@ unary_operator = "-" | "!"
 
 PrimaryExpression = Operand
                   | PrimaryExpression Selector
+                  | PrimaryExpression ImportSelector
                   | PrimaryExpression Index
                   | PrimaryExpression Arguments
                   .
@@ -146,7 +148,10 @@ import
 func
 rule
 export
+if
+else
 return
+context
 ```
 
 ### Operators

@@ -1,3 +1,4 @@
 client/out
 server/out
 node_modules
+bake-lsp-*.vsix

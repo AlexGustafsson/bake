@@ -9,7 +9,7 @@ func create_file(name) {
 // Also note that functions that don't take any parameters don't need to have
 // parentheses after the function's name.
 rule file {
-  create_file $(context.out)
+  create_file(context.out)
 }
 
 // The newly created rule function may now be used as a component like so:
@@ -17,7 +17,7 @@ rule file {
 
 // Rule functions may take parameters too.
 rule file_with_permissions(chmod) {
-  create_file $(context.out)
+  create_file(context.out)
   shell chmod $(chmod) $(context.out)
 }
 

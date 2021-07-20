@@ -53,7 +53,7 @@
 // chosen, the topmost rule will be run first. Another way to decide what rule to run
 // is to create a function called main.
 func main {
-  print "Hello, world!"
+  print("Hello, world!")
 }
 
 // If you want to alias a build rule, such as "build" for build/app you may use

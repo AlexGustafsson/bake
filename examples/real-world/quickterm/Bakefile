@@ -97,7 +97,13 @@ rule build_module(module) {
     shell echo "$(modules)" | tr ' ' '\n' | while read line; do find "Sources/$$line" -type f -iname '*.swift'; done
   }
 
-  context.in = find_module_source(module) find_shared_source("QuickTermShared QuickTermLibrary") SupportingFiles/$(module)/Info.plist
+  context.in = [
+    ...find_module_source(module),
+    ...find_shared_source("QuickTermShared QuickTermLibrary"),
+    "SupportingFiles/$(module)/Info.plist"
+  ]
+
+  find_module_source(hello)
 
   shell swift build --configuration release --product "$(module)" --build-path "build/$(module)" $(env.SWIFT_FLAGS)
 }

@@ -2,7 +2,7 @@
 // The before hook will run before matching rules. In this case, a wildcard
 // is used to match any rule.
 @before.rule "*" {
-  print "Running $(context.rule)"
+  print("Running $(context.rule)")
   shell echo -e "\e[34m"
 }
 
@@ -10,7 +10,7 @@
 // such a rule.
 rule log_after {
   shell echo -e "\e[0m" && clear
-  print "Ran $(context.rule)"
+  print("Ran $(context.rule)")
 }
 
 // The after hook will run after rules. Here we specify the previously created
@@ -19,10 +19,10 @@ rule log_after {
 
 // One may also use the same type of hooks to act on commands being run.
 @before.command "*" {
-  print $(context.command)
+  print(context.command)
 }
 
 // As with other syntax, if there's a space in a match it will have to be quoted.
 @after.command "gcc *" {
-  print "Compiled code"
+  print("Compiled code")
 }

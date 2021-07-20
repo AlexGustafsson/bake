@@ -119,6 +119,15 @@
       }
     },
     {
+      "comment": "Alias",
+      "match": "(?<=alias)\\s+([a-zA-Z_]\\w*)",
+      "captures": {
+        "1": {
+          "name": "entity.name.function.bake"
+        }
+      }
+    },
+    {
       "match": "\\btrue\\b",
       "name": "constant.language.boolean.true.bake"
     },

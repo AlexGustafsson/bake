@@ -4,10 +4,10 @@ import (
 )
 
 // Build a static library for lib.c using standard library functions
-lib.so [lib.c, lib.h] : c::static_library
+"lib.so" ["lib.c", "lib.h"] : c::static_library
 
 // Build the main application
-main [main.c, lib.so] {
+"main" ["main.c", "lib.so"] {
   shell gcc -o $@ $<
 }
 

@@ -3,7 +3,7 @@
 // commands centered on shell code to "glue" together other programs.
 
 // Each rule has a name. In most cases, this name is the file path of the rule's output.
-new-file.txt {
+"new-file.txt" {
   // As previously mentioned, shell functions are at the core of Bake. These may be written
   // using regular Bash or the like, with commands and programs available on the system.
   shell touch new-file.txt
@@ -11,7 +11,7 @@ new-file.txt {
 
 // Like with Make, there are some standard variables defined in each rule. These
 // help you write more concise rules without duplicating names.
-new-file2.txt {
+"new-file2.txt" {
   // Here we use the '$@' variable instead of re-using the file's name,
   // that way it's easily changable later on.
   shell touch $@
@@ -20,7 +20,7 @@ new-file2.txt {
 // Sometimes a rule uses a lot of shell code. In cases like that you may use
 // shell blocks instead. The entire shell block will be executed in the same
 // session to allow for complex behavior
-new-file3.txt {
+"new-file3.txt" {
   shell {
     mkdir -p tmp
     cd tmp
@@ -38,20 +38,15 @@ new-file3.txt {
 // is created before this rule is run (by running the rule for it).
 // If the file already exists, it will be used as is and if it doesn't exist at all,
 // an error will be thrown.
-copied-file.txt [new-file.txt] {
+"copied-file.txt" ["new-file.txt"] {
   // Just like with output files, input files can be referenced in Bake using the
   // '$<' implicit variable.
   shell cp $< $@
 }
 
 // If you have multiple output files, place them in a list.
-[file1, file2] {
+["file1", "file2"] {
   shell touch file1 file2
-}
-
-// Paths containing spaces must be wrapped in quotes.
-["file 1", "file 2" ] {
-  shell touch "file 1" "file 2"
 }
 
 // The rule that is run first may be decided in several ways. If no rule is explictly
@@ -61,12 +56,7 @@ func main {
   print "Hello, world!"
 }
 
-// If you wish to create a file which has the same name as a keyword, quote the name.
-"func" {
-  shell touch $@
-}
-
 // If you want to alias a build rule, such as "build" for build/app you may use
 // an alias like so, where each dependant rule is specified much like dependencies
 // of a regular rule
-alias build [build/app]
+alias build ["build/app"]

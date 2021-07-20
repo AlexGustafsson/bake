@@ -1,7 +1,7 @@
 // To enable you to act on rules being run, you may use hooks.
 // The before hook will run before matching rules. In this case, a wildcard
 // is used to match any rule.
-@before.rule * {
+@before.rule "*" {
   print "Running $(context.rule)"
   shell echo -e "\e[34m"
 }
@@ -15,10 +15,10 @@ rule log_after {
 
 // The after hook will run after rules. Here we specify the previously created
 // rule instead of writing a new body.
-@after.rule * log_after
+@after.rule "*" log_after
 
 // One may also use the same type of hooks to act on commands being run.
-@before.command * {
+@before.command "*" {
   print $(context.command)
 }
 

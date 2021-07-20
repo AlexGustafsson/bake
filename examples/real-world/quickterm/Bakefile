@@ -5,10 +5,10 @@ import (
   "github.com/AlexGustafsson/bake/stdlib/git"
 )
 
-# Always use clang, no matter if GCC is configured
-env.CXX = clang
-env.CPP = clang
-env.CC = clang
+// Always use clang, no matter if GCC is configured
+env.CXX = "clang"
+env.CPP = "clang"
+env.CC = "clang"
 
 version = mac::get_version("SupportingFiles/QuickTerm/Info.plist")
 
@@ -27,7 +27,7 @@ func test {
 alias setup [setup-git-hooks]
 
 // Install the recommended git hooks
-setup-git-hooks: git::install_hooks(".githooks/pre-commit")
+"setup-git-hooks": git::install_hooks(".githooks/pre-commit")
 
 // Lint all Swift code
 // Requires swiftformat: brew install swiftformat
@@ -99,7 +99,7 @@ rule build_module(module) {
 
   context.in = find_module_source(module) find_shared_source("QuickTermShared QuickTermLibrary") SupportingFiles/$(module)/Info.plist
 
-  swift build --configuration release --product "$(module)" --build-path "build/$(module)" $(env.SWIFT_FLAGS)
+  shell swift build --configuration release --product "$(module)" --build-path "build/$(module)" $(env.SWIFT_FLAGS)
 }
 
 func get_version {

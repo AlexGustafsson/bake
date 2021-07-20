@@ -81,9 +81,14 @@ Statement = Declaration
 SimpleStatement = EmptyStatement
                 | ExpressionStatement
                 | IncreaseDecreaseStatement
+                | ShellStatement
+                | Assignment
+                .
+
 EmptyStatement = .
 ExpressionStatement = Expression .
 IncreaseDecreaseStatement = Expression ( "++" | "--" ) .
+ShellStatement = "shell" { unicode_char } .
 Assignment = Expression assignment_operand ExpressionList .
 
 assignment_operand = [ additive_operator | multiplicative_operator ] "=" .
@@ -103,7 +108,7 @@ binary_operator = "||" | "&&" | comparison_operator | additive_operator | multip
 comparison_operator = "==" | "!=" | "<" | "<=" | ">" | ">=" .
 additive_operator = "+" | "-" | "|" | "^" .
 multiplicative_operator = "*" | "/" | "%" | "<<" | ">>" | "&" .
-unary_operator = "-" | "!"
+unary_operator = "-" | "!" | "..." .
 
 PrimaryExpression = Operand
                   | PrimaryExpression Selector
@@ -163,6 +168,7 @@ context
 /
 ==
 !=
+...
 ```
 
 ### Punctuation

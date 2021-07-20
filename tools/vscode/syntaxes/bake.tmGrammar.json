@@ -96,31 +96,6 @@
       "end": "$"
     },
     {
-      "begin": "\"",
-      "beginCaptures": {
-        "0": {
-          "name": "punctuation.definition.string.begin.bake"
-        }
-      },
-      "end": "\"",
-      "endCaptures": {
-        "0": {
-          "name": "punctuation.definition.string.end.bake"
-        }
-      },
-      "name": "string.quoted.double.bake",
-      "patterns": [
-        {
-          "match": "\\\\([0-7]{3}|[abfnrtv\\\\'\"]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})",
-          "name": "constant.character.escape.bake"
-        },
-        {
-          "match": "\\\\[^0-7xuUabfnrtv\\'\"]",
-          "name": "invalid.illegal.unknown-escape.bake"
-        }
-      ]
-    },
-    {
       "comment": "Integers",
       "match": "\\b((0x[0-9a-fA-F]+)|(0[0-7]+i?)|(\\d+([Ee]\\d+)?i?)|(\\d+[Ee][-+]\\d+i?))\\b",
       "name": "constant.numeric.integer.bake"
@@ -150,6 +125,46 @@
     {
       "match": "\\bfalse\\b",
       "name": "constant.language.boolean.false.bake"
+    },
+    {
+      "match": "([a-zA-Z_]\\w*)(::)([a-zA-Z_]\\w*)",
+      "captures": {
+        "1": {
+          "name": "entity.name.type.alias.bake"
+        },
+        "2": {
+          "name": "punctuation.separator.coloncolon.bake"
+        },
+        "3": {
+          "name": "support.function.bake"
+        }
+      }
+    },
+    {
+      "match": "@([a-zA-Z_]\\w*)\\.([a-zA-Z_]\\w*)",
+      "name": "meta.decorator.bake",
+      "captures": {
+        "1": {
+          "name": "variable.language.bake"
+        },
+        "2": {
+          "name": "variable.language.bake"
+        }
+      }
+    },
+    {
+      "match": "((?<=\\.))([a-zA-Z_]\\w*)",
+      "captures": {
+        "1": {
+          "name": "punctuation.accessor"
+        },
+        "2": {
+          "name": "variable.other.object.property"
+        }
+      }
+    },
+    {
+      "include": "#string"
     },
     {
       "include": "#keywords"
@@ -196,6 +211,10 @@
         {
           "match": "\\balias\\b",
           "name": "keyword.function.bake"
+        },
+        {
+          "match": "\\blet\\b",
+          "name": "storage.type.bake"
         }
       ]
     },
@@ -219,12 +238,32 @@
           "name": "keyword.operator.logical.bake"
         },
         {
-          "match": "(=|\\+=|\\-=|\\|=\\*=|/=)",
+          "match": "[+-/*%]?=",
           "name": "keyword.operator.assignment.bake"
         },
         {
           "match": "(\\+|\\-|\\*|/|%)",
           "name": "keyword.operator.arithmetic.bake"
+        },
+        {
+          "match": "::",
+          "name": "punctuation.separator.coloncolon.bake"
+        },
+        {
+          "match": ":",
+          "name": "punctuation.separator.colon.bake"
+        },
+        {
+          "match": "\\.",
+          "name": "punctuation.accessor.bake"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.comma.bake"
+        },
+        {
+          "match": "@",
+          "name": "meta.decorator.bake"
         }
       ]
     },
@@ -242,6 +281,31 @@
             "match": "\\[|\\]",
             "name": "punctuation.other.bracket.square.bake"
           }
+      ]
+    },
+    "string": {
+      "begin": "\"",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.bake"
+        }
+      },
+      "end": "\"",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.end.bake"
+        }
+      },
+      "name": "string.quoted.double.bake",
+      "patterns": [
+        {
+          "match": "\\\\([0-7]{3}|[abfnrtv\\\\'\"]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})",
+          "name": "constant.character.escape.bake"
+        },
+        {
+          "match": "\\\\[^0-7xuUabfnrtv\\'\"]",
+          "name": "invalid.illegal.unknown-escape.bake"
+        }
       ]
     }
   }

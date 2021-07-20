@@ -70,7 +70,7 @@
       "begin": "\\s*(shell)\\s*({)",
       "beginCaptures": {
         "1": {
-          "name": "support.function.bake"
+          "name": "support.function.builtin.bake"
         },
         "2": {
           "name": "punctuation.other.bracket.curly.bake"
@@ -82,14 +82,19 @@
           "name": "punctuation.other.bracket.curly.bake"
         }
       },
-      "name": "string.quoted.double.bake"
+      "patterns": [
+        {
+          "match": "[^}]+",
+          "name": "string.quoted.double.bake"
+        }
+      ]
     },
     {
       "comment": "Shell builtin",
-      "begin": "\\s*(shell)\\s*",
+      "begin": "\\s*(shell)\\b",
       "beginCaptures": {
         "1": {
-          "name": "support.function.bake"
+          "name": "support.function.builtin.bake"
         }
       },
       "name": "string.quoted.double.bake",
@@ -162,13 +167,24 @@
       }
     },
     {
-      "match": "((?<=\\.))([a-zA-Z_]\\w*)",
+      "match": "(?<!\\.\\.)(\\.)([a-zA-Z_]\\w*)",
       "captures": {
         "1": {
           "name": "punctuation.accessor"
         },
         "2": {
           "name": "variable.other.object.property"
+        }
+      }
+    },
+    {
+      "match": "([a-zA-Z_]\\w*)(\\()",
+      "captures": {
+        "1": {
+          "name": "entity.name.function"
+        },
+        "2": {
+          "name": "punctuation.separator.comma.bake"
         }
       }
     },
@@ -261,6 +277,10 @@
         {
           "match": ":",
           "name": "punctuation.separator.colon.bake"
+        },
+        {
+          "match": "\\.\\.\\.",
+          "name": "keyword.operator.spread"
         },
         {
           "match": "\\.",

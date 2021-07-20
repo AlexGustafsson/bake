@@ -1,18 +1,21 @@
 import * as path from "path";
 import {
-    ExtensionContext
+  ExtensionContext,
+  languages
 } from "vscode";
 
 import {
   LanguageClient,
   LanguageClientOptions,
   ServerOptions,
-  TransportKind
+  TransportKind,
 } from "vscode-languageclient/node";
 
 let client: LanguageClient;
 
 export function activate(context: ExtensionContext) {
+  languages.setLanguageConfiguration("bake", { wordPattern: /[a-zA-Z_]\w*/ });
+
   let serverModule = context.asAbsolutePath(
     path.join("server", "out", "server.js")
   );

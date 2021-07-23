@@ -84,7 +84,10 @@
       },
       "patterns": [
         {
-          "match": "[^}]+",
+          "include": "#variable_substitution"
+        },
+        {
+          "match": "[^}]",
           "name": "string.quoted.double.bake"
         }
       ]
@@ -98,12 +101,12 @@
         }
       },
       "name": "string.quoted.double.bake",
-      "end": "$"
-    },
-    {
-      "comment": "Integers",
-      "match": "\\b((0x[0-9a-fA-F]+)|(0[0-7]+i?)|(\\d+([Ee]\\d+)?i?)|(\\d+[Ee][-+]\\d+i?))\\b",
-      "name": "constant.numeric.integer.bake"
+      "end": "$",
+      "patterns": [
+        {
+          "include": "#variable_substitution"
+        }
+      ]
     },
     {
       "comment": "Function",
@@ -133,28 +136,6 @@
       }
     },
     {
-      "match": "\\btrue\\b",
-      "name": "constant.language.boolean.true.bake"
-    },
-    {
-      "match": "\\bfalse\\b",
-      "name": "constant.language.boolean.false.bake"
-    },
-    {
-      "match": "([a-zA-Z_]\\w*)(::)([a-zA-Z_]\\w*)",
-      "captures": {
-        "1": {
-          "name": "entity.name.type.alias.bake"
-        },
-        "2": {
-          "name": "punctuation.separator.coloncolon.bake"
-        },
-        "3": {
-          "name": "support.function.bake"
-        }
-      }
-    },
-    {
       "match": "@([a-zA-Z_]\\w*)\\.([a-zA-Z_]\\w*)",
       "name": "meta.decorator.bake",
       "captures": {
@@ -167,41 +148,78 @@
       }
     },
     {
-      "match": "(?<!\\.\\.)(\\.)([a-zA-Z_]\\w*)",
-      "captures": {
-        "1": {
-          "name": "punctuation.accessor"
-        },
-        "2": {
-          "name": "variable.other.object.property"
-        }
-      }
-    },
-    {
-      "match": "([a-zA-Z_]\\w*)(\\()",
-      "captures": {
-        "1": {
-          "name": "entity.name.function"
-        },
-        "2": {
-          "name": "punctuation.separator.comma.bake"
-        }
-      }
-    },
-    {
-      "include": "#string"
-    },
-    {
-      "include": "#keywords"
-    },
-    {
-      "include": "#operators"
-    },
-    {
-      "include": "#brackets"
+      "include": "#expression"
     }
   ],
   "repository": {
+    "expression": {
+      "patterns": [
+        {
+          "comment": "Integers",
+          "match": "\\b((0x[0-9a-fA-F]+)|(0[0-7]+i?)|(\\d+([Ee]\\d+)?i?)|(\\d+[Ee][-+]\\d+i?))\\b",
+          "name": "constant.numeric.integer.bake"
+        },
+        {
+          "match": "\\btrue\\b",
+          "name": "constant.language.boolean.true.bake"
+        },
+        {
+          "match": "\\bfalse\\b",
+          "name": "constant.language.boolean.false.bake"
+        },
+        {
+          "match": "([a-zA-Z_]\\w*)(::)([a-zA-Z_]\\w*)",
+          "captures": {
+            "1": {
+              "name": "entity.name.type.alias.bake"
+            },
+            "2": {
+              "name": "punctuation.separator.coloncolon.bake"
+            },
+            "3": {
+              "name": "support.function.bake"
+            }
+          }
+        },
+        {
+          "match": "(?<!\\.\\.)(\\.)([a-zA-Z_]\\w*)",
+          "captures": {
+            "1": {
+              "name": "punctuation.accessor.bake"
+            },
+            "2": {
+              "name": "variable.other.object.property.bake"
+            }
+          }
+        },
+        {
+          "match": "([a-zA-Z_]\\w*)(\\()",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.bake"
+            },
+            "2": {
+              "name": "punctuation.separator.comma.bake"
+            }
+          }
+        },
+        {
+          "include": "#raw_string"
+        },
+        {
+          "include": "#interpreted_string"
+        },
+        {
+          "include": "#keywords"
+        },
+        {
+          "include": "#operators"
+        },
+        {
+          "include": "#brackets"
+        }
+      ]
+    },
     "keywords": {
       "patterns": [
         {
@@ -312,7 +330,7 @@
           }
       ]
     },
-    "string": {
+    "interpreted_string": {
       "begin": "\"",
       "beginCaptures": {
         "0": {
@@ -328,12 +346,54 @@
       "name": "string.quoted.double.bake",
       "patterns": [
         {
+          "include": "#variable_substitution"
+        },
+        {
           "match": "\\\\([0-7]{3}|[abfnrtv\\\\'\"]|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})",
           "name": "constant.character.escape.bake"
         },
         {
           "match": "\\\\[^0-7xuUabfnrtv\\'\"]",
           "name": "invalid.illegal.unknown-escape.bake"
+        }
+      ]
+    },
+    "raw_string": {
+      "begin": "`",
+      "beginCaptures": {
+        "0": {
+          "name": "punctation.definition.string.begin.bake"
+        }
+      },
+      "end": "`",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.string.begin.bake"
+        }
+      },
+      "name": "string.quoted.raw.bake"
+    },
+    "variable_substitution": {
+      "begin": "\\$\\(",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.variable.bake"
+        }
+      },
+      "end": "\\)",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.variable.bake"
+        }
+      },
+      "name": "string.interpolated.bake",
+      "patterns": [
+        {
+          "include": "#expression"
+        },
+        {
+          "match": "[a-zA-Z_]\\w*",
+          "name": "variable.other.bake"
         }
       ]
     }

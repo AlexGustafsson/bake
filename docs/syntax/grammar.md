@@ -200,6 +200,9 @@ decimal_digits = decimal_digit { decimal_digit } .
 #### Strings
 
 ```
-string_literal = `"` { unicode_char } `"` .
+string_literal = raw_string_literal | interpreted_string_literal .
+raw_string_literal = "`" { unicode_char | newline } "`" .
+interpreted_string_literal = `"` { variable_substitution | unicode_char } `"` .
+variable_substitution = "$" "(" identifier ")" .
 ```
 

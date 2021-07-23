@@ -103,8 +103,6 @@ rule build_module(module) {
     "SupportingFiles/$(module)/Info.plist"
   ]
 
-  find_module_source(hello)
-
   shell swift build --configuration release --product "$(module)" --build-path "build/$(module)" $(env.SWIFT_FLAGS)
 }
 

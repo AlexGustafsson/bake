@@ -1,0 +1,9 @@
+[workspace]
+members = [
+	"parser",
+	"cli"
+]
+
+[profile.release]
+panic = "abort"
+lto = true

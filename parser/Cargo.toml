@@ -1,0 +1,8 @@
+[package]
+name = "bake-parser"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+pest = "2.1"
+pest_consume = "1.1"

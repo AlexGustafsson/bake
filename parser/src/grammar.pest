@@ -1,0 +1,119 @@
+source_file = { SOI ~ package_declaration? ~ imports_declaration? ~ top_level_declaration* ~ EOI }
+
+package_declaration = { "package" ~ identifier }
+
+imports_declaration = { "import" ~ "("  ~ string_literal* ~ ")" }
+
+top_level_declaration = {
+    declaration
+  | function_declaration
+  | rule_function_declaration
+  | alias_declaration
+  | rule_declaration
+}
+
+declaration = { var_declaration }
+
+var_declaration = { "let" ~ identifier ~ ( "=" ~ expression )? }
+
+function_declaration = { "export"? ~ "func" ~ identifier ~ signature? ~ block }
+
+rule_function_declaration = { "export"? ~ "rule" ~ identifier ~ signature? ~ block }
+
+alias_declaration = { "alias" ~ identifier ~ ( file_path | file_list ) }
+
+rule_declaration = { ( file_path | file_list ) ~ file_list? ~ ( ":" ~ primary_expression ~ block? | block ) }
+
+file_list = { "[" ~ file_path ~ ( "," ~ file_path ) * ~ "]" }
+file_path = { string_literal }
+
+signature = { "(" ~ parameter_list? ~ ")" }
+parameter_list = { identifier ~ ( "," ~ identifier )* }
+
+block = { "{" ~ statement* ~ "}" }
+
+statement = { declaration | simple_statement }
+
+simple_statement = {
+    expression_statement
+  | increase_decrease_statement
+  | shell_statement
+  | assignment
+}
+
+expression_statement = { expression }
+increase_decrease_statement = { expression ~ ( "++" | "--" ) }
+shell_statement = { "shell" ~ ASCII_ALPHA* }
+assignment = { expression ~ assignment_operand ~ expression_list }
+
+assignment_operand = { ( additive_operator | multiplicative_operator )? ~ "=" }
+
+expression = { term ~ (binary_operator ~ term)* }
+term = _{ unary_expression | "(" ~ expression ~ ")" }
+
+unary_expression = { unary_operator? ~ primary_expression }
+
+binary_operator = {
+    "||"
+  | "&&"
+  | comparison_operator
+  | additive_operator
+  | multiplicative_operator
+}
+comparison_operator = {
+    "=="
+  | "!="
+  | "<"
+  | "<="
+  | ">"
+  | ">="
+}
+additive_operator = {
+    "+"
+  | "-"
+  | "|"
+  | "^"
+}
+multiplicative_operator  = {
+   "*"
+  | "/"
+  | "%"
+  | "<<"
+  | ">>"
+  | "&"
+}
+unary_operator = {
+    "-"
+  | "!"
+  | "..."
+}
+
+primary_expression = {
+    operand
+//  | primary_expression ~ selector
+//  | primary_expression ~ import_selector
+//  | primary_expression ~ index
+//  | primary_expression ~ arguments
+}
+
+operand = { literal | identifier }
+literal = { integer_literal | string_literal }
+
+selector = { "." ~ identifier }
+import_selector = { "::" ~ identifier }
+index = { "[" ~ expression ~ "]" }
+arguments = { "(" ~ expression_list ~ ")" }
+expression_list = { expression ~ ( "," ~ expression )* }
+
+integer_literal = { decimal_literal }
+decimal_literal = { ASCII_DIGIT+ }
+
+string_literal = { raw_string_literal | interpreted_string_literal }
+raw_string_literal = { "`" ~ ( ANY | "\n" )* ~ "`" }
+interpreted_string_literal = { "\"" ~ ( variable_substitution | ANY )* ~ "\"" }
+variable_substitution = { "$" ~ "(" ~ expression ~ ")" }
+
+identifier = { ASCII_ALPHA ~ ( ASCII_ALPHANUMERIC | "_" )* }
+
+WHITESPACE = _{ " " | "\t" | "\n" }
+COMMENT = _{ "//" ~ (!NEWLINE ~ ANY)+ ~ NEWLINE? }

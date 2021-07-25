@@ -81,7 +81,7 @@ alias package [
 
 "build/QuickTerm.dmg" ["build/QuickTerm.app"] : mac::create_dmg(env.CODESIGN_IDENTITY)
 
-"distribution/QuickTerm v$(version).app.zip" [build/QuickTerm.app] : util::zip
+"distribution/QuickTerm v$(version).app.zip" ["build/QuickTerm.app"] : util::zip
 "distribution/QuickTerm v$(version).dmg" ["build/QuickTerm $(version).dmg"] : util::copy
 
 "build/QuickTerm/release/QuickTerm" : build_module("QuickTerm")

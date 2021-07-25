@@ -1,0 +1,47 @@
+## Syntax highlighting for Bake.
+
+syntax go "\.bke|Bakefile$"
+comment "//"
+
+# Types
+color cyan "\<(func|rule|alias|let)\>"
+
+# Predefined
+color red "\<(context)\>"
+
+# Imports
+color blue "\<([a-zA-Z_]\w*::[a-zA-Z_]\w*)\>"
+
+# Objects
+color red "\<([a-zA-Z_]\w*\.[a-zA-Z_]\w*)\>"
+
+# Control structures
+color brightyellow "\<(else|for|go|if|range|select|switch)\>"
+
+# Control flow
+color magenta "\<(return)\>"
+
+# Declarations
+color magenta "^\<(package|import|export)\>"
+
+# Hooks
+color orange "^@[a-zA-Z_]\w*\.[a-zA-Z_]\w*"
+
+# Literals
+color orange "\<[0-9]+\>"
+color orange "\<(true|false)\>"
+
+# Strings
+color green "["`](\\.|[^"`])*["`]"
+color green start="["`](\\.|[^"`])*\\[[:blank:]]*$" end="^(\\.|[^"`])*["`]"
+
+# Shell strings
+color green start="shell" end="$"
+color green start="shell[[:blank:]]*\{" end="\}"
+color blue "^[[:blank:]]*shell"
+
+# Variable expansions.
+color blue "\$\([^)]+\)"
+
+# Comments
+color gray "//.*"

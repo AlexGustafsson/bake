@@ -5,27 +5,21 @@ import "strings"
 type SourceFile struct {
 	NodeType
 	NodePosition
-	PackageDeclaration   *PackageDeclaration
-	TopLevelDeclarations []Node
+	Nodes []Node
 }
 
 func CreateSourceFile(position NodePosition) *SourceFile {
 	return &SourceFile{
-		NodeType:             NodeTypeSourceFile,
-		NodePosition:         position,
-		PackageDeclaration:   nil,
-		TopLevelDeclarations: make([]Node, 0),
+		NodeType:     NodeTypeSourceFile,
+		NodePosition: position,
+		Nodes:        make([]Node, 0),
 	}
 }
 
 func (node *SourceFile) String() string {
 	var builder strings.Builder
 
-	if node.PackageDeclaration != nil {
-		builder.WriteString(node.PackageDeclaration.String())
-	}
-
-	for _, node := range node.TopLevelDeclarations {
+	for _, node := range node.Nodes {
 		builder.WriteString(node.String())
 	}
 

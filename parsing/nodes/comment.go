@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"fmt"
+	"strings"
 )
 
 type Comment struct {
@@ -19,5 +20,5 @@ func CreateComment(position NodePosition, content string) *Comment {
 }
 
 func (node *Comment) String() string {
-	return fmt.Sprintf("// %s\n", node.Content)
+	return fmt.Sprintf("// %s\n", strings.TrimSuffix(node.Content, "\n"))
 }

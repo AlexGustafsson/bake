@@ -67,6 +67,11 @@ func (parser *Parser) require(itemType lexing.ItemType) lexing.Item {
 
 func (parser *Parser) expect(itemType lexing.ItemType) (_ lexing.Item, ok bool) {
 	item := parser.nextItem()
+
+	if item.Type == lexing.ItemError {
+		parser.errorf("line %d: %s", item.Line, item.Message)
+	}
+
 	if item.Type != itemType {
 		return item, false
 	}

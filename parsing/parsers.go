@@ -12,7 +12,22 @@ func parseSourceFile(parser *Parser) (*nodes.SourceFile, error) {
 
 	sourceFile := nodes.CreateSourceFile(0)
 
-	sourceFile.PackageDeclaration = parsePackageDeclaration(parser)
+	for {
+		token, ok := parser.expectPeek(lexing.ItemComment)
+		if ok {
+			parser.nextItem()
+			content := strings.Replace(token.Value, "//", "", 1)
+			comment := nodes.CreateComment(nodes.NodePosition(token.Start), content)
+			sourceFile.Nodes = append(sourceFile.Nodes, comment)
+		} else {
+			break
+		}
+	}
+
+	packageDeclaration := parsePackageDeclaration(parser)
+	if packageDeclaration != nil {
+		sourceFile.Nodes = append(sourceFile.Nodes, packageDeclaration)
+	}
 
 	for {
 		token, ok := parser.expectPeek(lexing.ItemComment)
@@ -20,7 +35,7 @@ func parseSourceFile(parser *Parser) (*nodes.SourceFile, error) {
 			parser.nextItem()
 			content := strings.Replace(token.Value, "//", "", 1)
 			comment := nodes.CreateComment(nodes.NodePosition(token.Start), content)
-			sourceFile.TopLevelDeclarations = append(sourceFile.TopLevelDeclarations, comment)
+			sourceFile.Nodes = append(sourceFile.Nodes, comment)
 		} else {
 			break
 		}
@@ -38,5 +53,6 @@ func parsePackageDeclaration(parser *Parser) *nodes.PackageDeclaration {
 
 	startToken := parser.require(lexing.ItemKeywordPackage)
 	identifier := parser.require(lexing.ItemIdentifier)
+	parser.require(lexing.ItemNewline)
 	return nodes.CreatePackageDeclaration(nodes.NodePosition(startToken.Start), identifier)
 }

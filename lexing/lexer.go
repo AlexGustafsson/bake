@@ -31,6 +31,10 @@ func Lex(input string) *Lexer {
 }
 
 func (lexer *Lexer) run() {
+	// Push initial token
+	lexer.Emit(ItemStartOfInput)
+
+	// Run through the states
 	for state := lexRoot; state != nil; {
 		state = state(lexer)
 	}

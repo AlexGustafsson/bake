@@ -173,7 +173,7 @@ context
 
 ### Punctuation
 
-```sh
+```
 (
 )
 [
@@ -183,6 +183,7 @@ context
 :
 ,
 .
+$
 ```
 
 ### Literals

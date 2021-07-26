@@ -19,5 +19,6 @@ func (nodePosition NodePosition) Position() NodePosition {
 }
 
 const (
-	NodeImportType NodeType = iota
+	NodeTypeSourceFile NodeType = iota
+	NodeTypePackageDeclaration
 )

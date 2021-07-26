@@ -2,18 +2,16 @@ package lexing
 
 func lexRoot(lexer *Lexer) stateModifier {
 	switch rune := lexer.Peek(); rune {
-	case 'i':
-		return lexImport
-	case '(':
+	case '/':
 		lexer.Next()
-		lexer.Emit(ItemLeftParentheses)
-		return lexRoot
-	case ')':
-		lexer.Next()
-		lexer.Emit(ItemRightParentheses)
-		return lexRoot
-	case '"':
-		return lexString
+		if rune := lexer.Peek(); rune == '/' {
+			lexer.Next()
+			lexer.Emit(ItemComment)
+			return lexRoot
+		} else {
+			lexer.errorf("unexpected token '%c'", rune)
+			return nil
+		}
 	case ' ', '\t':
 		lexer.Next()
 		lexer.Emit(ItemWhitespace)
@@ -24,42 +22,10 @@ func lexRoot(lexer *Lexer) stateModifier {
 		return lexRoot
 	case eof:
 		lexer.Next()
-		lexer.Emit(ItemEndOfFile)
+		lexer.Emit(ItemEndOfInput)
 		return nil
 	default:
-		lexer.errorf("Unexpected token '%c'", rune)
-		return nil
-	}
-}
-
-func lexImport(lexer *Lexer) stateModifier {
-	if ok := lexer.NextString("import"); ok {
-		lexer.Emit(ItemImport)
-		return lexRoot
-	} else {
-		lexer.errorf("Expected token 'import'")
-		return nil
-	}
-}
-
-func lexString(lexer *Lexer) stateModifier {
-	rune := lexer.Next()
-	if rune == '"' {
-		for {
-			rune = lexer.Next()
-			if rune == '"' {
-				lexer.Emit(ItemString)
-				return lexRoot
-			} else if rune == eof {
-				lexer.errorf("Unexpected end of file in string")
-				return nil
-			} else if rune == '\n' {
-				lexer.errorf("Unexpected end of line in string")
-				return nil
-			}
-		}
-	} else {
-		lexer.errorf("Unexpected token '%c', expected '\"'", rune)
+		lexer.errorf("unexpected token '%c'", rune)
 		return nil
 	}
 }

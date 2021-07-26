@@ -14,6 +14,10 @@ type Item struct {
 }
 
 func (item Item) String() string {
+	return item.Value
+}
+
+func (item Item) DebugString() string {
 	// Escape newlines and tabs
 	formattedValue := strings.ReplaceAll(strings.ReplaceAll(item.Value, "\n", "\\n"), "\t", "\\t")
 

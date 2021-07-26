@@ -8,20 +8,45 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[ItemNewline-0]
-	_ = x[ItemEndOfFile-1]
+	_ = x[ItemStartOfInput-0]
+	_ = x[ItemEndOfInput-1]
 	_ = x[ItemError-2]
-	_ = x[ItemImport-3]
-	_ = x[ItemLeftParentheses-4]
-	_ = x[ItemRightParentheses-5]
-	_ = x[ItemDoubleQuote-6]
-	_ = x[ItemString-7]
-	_ = x[ItemWhitespace-8]
+	_ = x[ItemAddition-3]
+	_ = x[ItemSubtraction-4]
+	_ = x[ItemMultiplication-5]
+	_ = x[ItemDivision-6]
+	_ = x[ItemEqualEqual-7]
+	_ = x[ItemNotEqual-8]
+	_ = x[ItemSpread-9]
+	_ = x[ItemLeftParentheses-10]
+	_ = x[ItemRightParentheses-11]
+	_ = x[ItemLeftBracket-12]
+	_ = x[ItemRightBracket-13]
+	_ = x[ItemLeftCurly-14]
+	_ = x[ItemRightCurly-15]
+	_ = x[ItemColon-16]
+	_ = x[ItemComma-17]
+	_ = x[ItemDot-18]
+	_ = x[ItemDollar-19]
+	_ = x[ItemKeywordPackage-20]
+	_ = x[ItemKeywordImport-21]
+	_ = x[ItemKeywordFunc-22]
+	_ = x[ItemKeywordRule-23]
+	_ = x[ItemKeywordExport-24]
+	_ = x[ItemKeywordReturn-25]
+	_ = x[ItemIdentifier-26]
+	_ = x[ItemNewline-27]
+	_ = x[ItemWhitespace-28]
+	_ = x[ItemLetter-29]
+	_ = x[ItemUnicodeCharacter-30]
+	_ = x[ItemDecimalDigit-31]
+	_ = x[ItemRawString-32]
+	_ = x[ItemComment-33]
 }
 
-const _ItemType_name = "ItemNewlineItemEndOfFileItemErrorItemImportItemLeftParenthesesItemRightParenthesesItemDoubleQuoteItemStringItemWhitespace"
+const _ItemType_name = "ItemStartOfInputItemEndOfInputItemErrorItemAdditionItemSubtractionItemMultiplicationItemDivisionItemEqualEqualItemNotEqualItemSpreadItemLeftParenthesesItemRightParenthesesItemLeftBracketItemRightBracketItemLeftCurlyItemRightCurlyItemColonItemCommaItemDotItemDollarItemKeywordPackageItemKeywordImportItemKeywordFuncItemKeywordRuleItemKeywordExportItemKeywordReturnItemIdentifierItemNewlineItemWhitespaceItemLetterItemUnicodeCharacterItemDecimalDigitItemRawStringItemComment"
 
-var _ItemType_index = [...]uint8{0, 11, 24, 33, 43, 62, 82, 97, 107, 121}
+var _ItemType_index = [...]uint16{0, 16, 30, 39, 51, 66, 84, 96, 110, 122, 132, 151, 171, 186, 202, 215, 229, 238, 247, 254, 264, 282, 299, 314, 329, 346, 363, 377, 388, 402, 412, 432, 448, 461, 472}
 
 func (i ItemType) String() string {
 	if i < 0 || i >= ItemType(len(_ItemType_index)-1) {

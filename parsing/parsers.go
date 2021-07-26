@@ -15,8 +15,9 @@ func parseSourceFile(parser *Parser) (*nodes.SourceFile, error) {
 	sourceFile.PackageDeclaration = parsePackageDeclaration(parser)
 
 	for {
-		token, ok := parser.expect(lexing.ItemComment)
+		token, ok := parser.expectPeek(lexing.ItemComment)
 		if ok {
+			parser.nextItem()
 			content := strings.Replace(token.Value, "//", "", 1)
 			comment := nodes.CreateComment(nodes.NodePosition(token.Start), content)
 			sourceFile.TopLevelDeclarations = append(sourceFile.TopLevelDeclarations, comment)

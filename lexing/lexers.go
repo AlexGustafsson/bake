@@ -6,6 +6,12 @@ func lexRoot(lexer *Lexer) stateModifier {
 		lexer.Next()
 		if rune := lexer.Peek(); rune == '/' {
 			lexer.Next()
+			for {
+				rune := lexer.Next()
+				if rune == '\n' {
+					break
+				}
+			}
 			lexer.Emit(ItemComment)
 			return lexRoot
 		} else {

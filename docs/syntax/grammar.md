@@ -99,7 +99,7 @@ assignment_operand = [ additive_operator | multiplicative_operator ] "=" .
 
 ```ebnf
 Expression = UnaryExpression
-           | Expression binary_operand Expression
+           | Expression binary_operator Expression
            .
 
 UnaryExpression = PrimaryExpression | binary_operator UnaryExpression .

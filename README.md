@@ -149,6 +149,9 @@ The project is written in Go. Its source is scattered in the `cmd` and `internal
 # Build the project
 make build/bake
 
+# Build tools
+make tools
+
 ## Code quality
 
 # Format code

@@ -21,7 +21,7 @@ ifeq ($(shell uname),Darwin)
 	CC=clang
 endif
 
-.PHONY: help build format lint test clean
+.PHONY: help build tools vscode nano format lint test clean
 
 # Produce a short description of available make commands
 help:
@@ -50,6 +50,20 @@ test: $(server_source) Makefile
 build/bake: $(server_source) Makefile
 	go generate ./...
 	go build $(BUILD_FLAGS) -o $@ cmd/bake.go
+
+# Build tools
+tools: vscode nano
+
+# Build the vscode tool
+vscode:
+	$(MAKE) -C tools/vscode
+	mkdir -p build
+	cp tools/vscode/bake-lsp*.vsix build
+
+# Copy the nanorc file to the build output
+nano:
+	mkdir -p build
+	cp tools/nano/bake.nanorc build
 
 # Clean all dynamically created files
 clean:

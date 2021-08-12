@@ -1,0 +1,6 @@
+package js
+
+func package_version {
+  shell grep package.json -e '"version":' | grep -oe '\d\+\.\d\+\.\d\+'
+  return context.shell.stdout.string
+}

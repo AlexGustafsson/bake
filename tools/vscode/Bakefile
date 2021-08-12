@@ -1,0 +1,17 @@
+import (
+  "github.com/AlexGustafsson/bake/stdlib/js"
+)
+
+let version = js::package_version
+let source = find_source()
+
+func find_source {
+  shell find . -iname '*.js' -or -iname '*.json' | grep -v node_modules
+  return context.shell.stdout.string
+}
+
+alias package "bake-lsp-$(version).vsix"
+
+"bake-lsp-$(version).vsix" source {
+	shell yarn package
+}

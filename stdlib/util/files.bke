@@ -3,3 +3,7 @@ package util
 export rule copy {
   shell cp $(context.in) "$(context.out)"
 }
+
+export func find(pattern) {
+  shell find . -type f -name '$(pattern)'
+}

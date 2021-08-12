@@ -1,0 +1,6 @@
+package util
+
+func date {
+  shell LC_ALL=en_US date
+  return context.shell.stdout.string
+}

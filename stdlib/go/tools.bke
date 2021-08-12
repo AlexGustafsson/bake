@@ -1,0 +1,12 @@
+package go
+
+// Install packages specified in tools.go as described here:
+// https://marcofranssen.nl/manage-go-tools-via-go-modules
+export rule install_tools {
+	shell cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %
+}
+
+export func version {
+  shell go version
+  return context.shell.stdout.string
+}

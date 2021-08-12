@@ -1,0 +1,6 @@
+package git
+
+export func commit {
+  shell git rev-parse --short HEAD 2>/dev/null
+  return context.shell.stdout.string
+}

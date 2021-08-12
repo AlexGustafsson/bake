@@ -2,5 +2,5 @@ package c
 
 // static_library builds a statically linked library from a set of c files
 export rule static_library() {
-  $CC $@ $(expand context.in)
+  shell $(env.CC || "gcc") $(context.out) $(context.in)
 }

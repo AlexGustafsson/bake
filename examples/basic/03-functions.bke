@@ -37,7 +37,7 @@ rule copy_file {
 // after the commands defined in the rule created by the function.
 "copied-file3.txt" ["new-file.txt"] : copy_file {
   // List the now created file
-  shell ls $@
+  shell ls $(context.out)
 }
 
 // To specify dynamic dependencies for a rule, you may overwrite the context
@@ -45,7 +45,7 @@ rule copy_file {
 rule build_module(module) {
   // Wrap a shell command for finding input
   func find_module_source(module) {
-    shell find "Sources/$(1)" -type f -name "*.swift
+    shell find "Sources/$(module)" -type f -name "*.swift
   }
 
   // Overwrite the input of the context so that Bake may resolve dependencies.

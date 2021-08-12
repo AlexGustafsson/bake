@@ -10,7 +10,7 @@ env.CXX = "clang"
 env.CPP = "clang"
 env.CC = "clang"
 
-version = mac::get_version("SupportingFiles/QuickTerm/Info.plist")
+let version = mac::get_version("SupportingFiles/QuickTerm/Info.plist")
 
 // Produce a short description of available make commands
 help : util::help
@@ -30,13 +30,13 @@ alias setup ["setup-git-hooks"]
 "setup-git-hooks": git::install_hooks(".githooks/pre-commit")
 
 // Lint all Swift code
-// Requires swiftformat: brew install swiftformat
+// Requires swiftformat: `brew install swiftformat`
 func lint {
   shell swiftfromat --lint --verbose --config .swiftformat --cache ignore .
 }
 
 // Format all Swift code
-// Requires swiftformat: brew install swiftformat
+// Requires swiftformat: `brew install swiftformat`
 func format {
   shell swiftformat --config .swiftformat --cache ignore .
 }
@@ -91,10 +91,12 @@ alias package [
 rule build_module(module) {
   func find_module_source(module) {
     shell find "Sources/$(module)" -type f -name "*.swift"
+    return context.shell.stdout.string
   }
 
   func find_shared_source(modules) {
     shell echo "$(modules)" | tr ' ' '\n' | while read line; do find "Sources/$$line" -type f -iname '*.swift'; done
+    return context.shell.stdout.string
   }
 
   context.in = [
@@ -104,10 +106,6 @@ rule build_module(module) {
   ]
 
   shell swift build --configuration release --product "$(module)" --build-path "build/$(module)" $(env.SWIFT_FLAGS)
-}
-
-func get_version {
-  shell grep 'CFBundleShortVersionString' -A1 SupportingFiles/QuickTerm/Info.plist | tail -1 | sed 's/.*<string>\([^<]\+\)<\/string>.*/\1/'
 }
 
 // Sign the built application

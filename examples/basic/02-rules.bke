@@ -12,9 +12,9 @@
 // Like with Make, there are some standard variables defined in each rule. These
 // help you write more concise rules without duplicating names.
 "new-file2.txt" {
-  // Here we use the '$@' variable instead of re-using the file's name,
+  // Here we use the '$(context.in)' instead of re-using the file's name,
   // that way it's easily changable later on.
-  shell touch $@
+  shell touch $(context.in)
 }
 
 // Sometimes a rule uses a lot of shell code. In cases like that you may use
@@ -41,7 +41,7 @@
 "copied-file.txt" ["new-file.txt"] {
   // Just like with output files, input files can be referenced in Bake using the
   // '$<' implicit variable.
-  shell cp $< $@
+  shell cp $(context.out) $(context.in)
 }
 
 // If you have multiple output files, place them in a list.

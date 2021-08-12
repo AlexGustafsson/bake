@@ -1,5 +1,7 @@
 package mac
 
+// Get the version from a plist file.
 export func get_version(plist_path) {
   shell grep 'CFBundleShortVersionString' -A1 "$(plist_path)" | tail -1 | sed 's/.*<string>\([^<]\+\)<\/string>.*/\1/'
+  return context.shell.stdout.string
 }

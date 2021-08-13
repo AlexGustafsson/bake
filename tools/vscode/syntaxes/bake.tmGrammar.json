@@ -98,6 +98,11 @@
           "end": "$"
         },
         {
+          "name": "string.quoted.double.bake",
+          "begin": "{",
+          "end": "}"
+        },
+        {
           "match": "[^}]",
           "name": "string.quoted.double.bake"
         }
@@ -405,6 +410,9 @@
         {
           "match": "[a-zA-Z_]\\w*",
           "name": "variable.other.bake"
+        },
+        {
+          "include": "#brackets"
         }
       ]
     }

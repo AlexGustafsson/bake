@@ -1,0 +1,26 @@
+package python
+
+func version {
+    shell python --version
+    return context.shell.stdout.string
+}
+
+func version2 {
+    shell python2 --version
+    return context.shell.stdout.string
+}
+
+func version3 {
+    shell python3 --version
+    return context.shell.stdout.string
+}
+
+func install_path2 {
+    shell which python2
+    return context.shell.stdout.string
+}
+
+func install_path3 {
+    shell which python3
+    return context.shell.stdout.string
+}

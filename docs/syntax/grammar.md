@@ -91,7 +91,7 @@ IncreaseDecreaseStatement = Expression ( "++" | "--" ) .
 ShellStatement = "shell" { unicode_char } .
 Assignment = Expression assignment_operand ExpressionList .
 
-assignment_operand = [ additive_operator | multiplicative_operator ] "=" .
+assignment_operand = [ additive_operator | multiplicative_operator | "?" ] "=" .
 ```
 
 ### Expressions

@@ -29,7 +29,6 @@ if os.is_windows() {
 
 alias usage : util::help
 
-
 func setup_venv {
   shell {
     (test `which virtualenv` || $(env.PIP_CMD) install --user virtualenv)
@@ -74,9 +73,9 @@ alias install [install_venv, init_testlibs]
 // Install basic dependencies for CLI usage in virtualenv
 func install_basic {
   shell {
-    make setup-venv
-    $(VENV_RUN)
-    cat requirements.txt | grep -ve '^#' | grep '#\(basic\|extended\)' | sed 's/ #.*//' | xargs $(PIP_CMD) install
+    bake run setup-venv
+    $(env.VENV_RUN)
+    cat requirements.txt | grep -ve '^#' | grep '#\(basic\|extended\)' | sed 's/ #.*//' | xargs $(env.PIP_CMD) install
   }
 }
 
@@ -214,7 +213,7 @@ func vagrant_start {
 }
 
 func vagrant_stop {
-	vagrant halt
+	shell vagrant halt
 }
 
 func docker_build_light {
@@ -292,7 +291,7 @@ func ci_pro_smoke_tests {
 func reinstall_p2 {
     shell {
         rm -rf $(env.VENV_DIR)
-        PIP_CMD=pip2 VENV_OPTS="-p '$(python::install_path2)'" bake run install
+        PIP_CMD=pip2 VENV_OPTS="-p '$(python::install_path2())'" bake run install
     }
 }
 
@@ -300,7 +299,7 @@ func reinstall_p2 {
 func reinstall_p3 {
     shell {
         rm -rf $(env.VENV_DIR)
-        PIP_CMD=pip3 VENV_OPTS="-p '$(python::install_path3)'" bake run install
+        PIP_CMD=pip3 VENV_OPTS="-p '$(python::install_path3())'" bake run install
     }
 }
 
@@ -327,7 +326,7 @@ func format {
     }
 }
 
-func format-modified {
+func format_modified {
 	shell {
         $(env.VENV_RUN)
         python -m isort `git ls-files -m | grep '\.py$$' | xargs`
@@ -336,8 +335,10 @@ func format-modified {
 }
 
 func init_precommit {
-	$(env.VENV_RUN)
-    pre-commit install
+	shell {
+        $(env.VENV_RUN)
+        pre-commit install
+    }
 }
 
 // Clean up (npm dependencies, downloaded infrastructure code, compiled Java classes)

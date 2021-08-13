@@ -157,6 +157,7 @@ if
 else
 return
 context
+shell
 ```
 
 ### Operators

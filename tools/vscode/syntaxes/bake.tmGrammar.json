@@ -297,7 +297,7 @@
           "name": "keyword.operator.logical.bake"
         },
         {
-          "match": "[+-/*%]?=",
+          "match": "[+-/*%?]?=",
           "name": "keyword.operator.assignment.bake"
         },
         {

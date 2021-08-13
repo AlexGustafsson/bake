@@ -1,0 +1,355 @@
+import (
+    "github.com/AlexGustafsson/bake/stdlib/util"
+    "github.com/AlexGustafsson/bake/stdlib/git"
+    "github.com/AlexGustafsson/bake/stdlib/python"
+)
+
+env.IMAGE_NAME ?= "localstack/localstack"
+env.IMAGE_NAME_BASE ?= "localstack/java-maven-node-python"
+env.IMAGE_NAME_LIGHT ?= "localstack/localstack-light"
+env.IMAGE_NAME_FULL ?= "localstack/localstack-full"
+env.IMAGE_TAG ?= version()
+env.DOCKER_SQUASH ?= "--squash"
+env.VENV_DIR ?= ".venv"
+env.PIP_CMD ?= "pip"
+env.TEST_PATH ?= "."
+env.PYTEST_LOGLEVEL ?= "warning"
+env.MAIN_CONTAINER_NAME ?= "localstack_main"
+
+func version {
+  shell cat localstack/constants.py | grep '^VERSION =' | sed "s/VERSION = ['\"]\(.*\)['\"].*/\1/"
+  return context.shell.stdout.string
+}
+
+if os.is_windows() {
+  env.VENV_RUN = ". $(env.VENV_DIR)/Scripts/activate"
+} else {
+  env.VENV_RUN = ". $(env.VENV_DIR)/bin/activate"
+}
+
+alias usage : util::help
+
+
+func setup_venv {
+  shell {
+    (test `which virtualenv` || $(env.PIP_CMD) install --user virtualenv)
+    (test -e $(env.VENV_DIR) || virtualenv $(env.VENV_OPTS) $(env.VENV_DIR))
+  }
+}
+
+func install_venv {
+  shell {
+    bake setup-venv
+    test ! -e requirements.txt || ($(env.VENV_RUN); $(env.PIP_CMD) -q install -r requirements.txt) 
+  }
+}
+
+// make install-venv for the docker environment (hack to remove black and isort)
+func install_venv_docker {
+    shell {
+        bake setup-venv
+		test ! -e requirements.txt || \
+		($(env.VENV_RUN);  $(env.PIP_CMD) install `grep -v '^ *#\|^black\|^isort\|^flake8' requirements.txt | cut -d' ' -f1 | grep .`)
+    }
+}
+
+// Initialize the infrastructure, make sure all libs are downloaded
+func init {
+  shell {
+      $(env.VENV_RUN)
+      python -m localstack.services.install libs
+  }
+}
+
+func init_testlibs {
+  shell {
+    $(VENV_RUN)
+    python -m localstack.services.install testlibs
+  }
+}
+
+// Install full dependencies in virtualenv
+alias install [install_venv, init_testlibs]
+
+// Install basic dependencies for CLI usage in virtualenv
+func install_basic {
+  shell {
+    make setup-venv
+    $(VENV_RUN)
+    cat requirements.txt | grep -ve '^#' | grep '#\(basic\|extended\)' | sed 's/ #.*//' | xargs $(PIP_CMD) install
+  }
+}
+
+// Publish the library to the central PyPi repository
+func publish {
+  // Build and upload archive
+  shell {
+    $(VENV_RUN)
+    ./setup.py sdist upload
+  }	
+}
+
+// Publish coveralls metrics
+func coveralls {
+  shell {
+    $(VENV_RUN)
+    coveralls
+  }
+}
+
+// Manually start the local infrastructure for testing
+func infra {
+    shell {
+        $(VENV_RUN)
+        exec bin/localstack start --host
+    }
+}
+
+// Build Docker image
+func docker_build {
+    shell {
+        # prepare
+        test -e 'localstack/infra/stepfunctions/StepFunctionsLocal.jar' || bake run init
+        # start build
+        # --add-host: Fix for Centos host OS
+        docker build --build-arg LOCALSTACK_BUILD_GIT_HASH=$(git::commit()) \
+        --build-arg=LOCALSTACK_BUILD_DATE=$(util::date()) -t $(env.IMAGE_NAME) \
+        --add-host="localhost.localdomain:127.0.0.1" .
+    }
+}
+
+func docker_squash {
+  shell {
+    # squash entire image
+    which docker-squash || $(env.PIP_CMD) install docker-squash
+    docker-squash -t $(env.IMAGE_NAME):$(env.IMAGE_TAG) $(env.IMAGE_NAME):$(env.IMAGE_TAG)
+  }
+}
+
+func docker_build_base {
+    shell {
+        docker build $(env.DOCKER_SQUASH) -t $(env.IMAGE_NAME_BASE) -f bin/Dockerfile.base .
+        docker tag $(env.IMAGE_NAME_BASE) $(env.IMAGE_NAME_BASE):$(env.IMAGE_TAG)
+        docker tag $(env.IMAGE_NAME_BASE):$(env.IMAGE_TAG) $(env.IMAGE_NAME_BASE):latest
+    }
+}
+
+func docker_build_base_ci {
+    context.shell.env.DOCKER_SQUASH = "bake docker-build-base"
+    context.shell.env.IMAGE_NAME = "$(env.IMAGE_NAME_BASE) IMAGE_TAG=latest bake docker-squash"
+    shell {
+        docker info | grep Username || docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+	    docker push $(env.IMAGE_NAME_BASE):latest
+    }	
+}
+
+// Push Docker image to registry
+func docker_push {
+    shell {
+        bake run docker-squash
+        docker push $(env.IMAGE_NAME):$(env.IMAGE_TAG)
+    }
+}
+
+// Push Docker image to registry IF we are currently on the master branch
+func docker_push_master {
+    shell {
+        (CURRENT_BRANCH=`(git rev-parse --abbrev-ref HEAD | grep '^master$$' || ((git branch -a | grep 'HEAD detached at [0-9a-zA-Z]*)') && git branch -a)) | grep '^[* ]*master$$' | sed 's/[* ]//g' || true`; \
+		test "$$CURRENT_BRANCH" != 'master' && echo "Not on master branch.") || \
+	((test "$$DOCKER_USERNAME" = '' || test "$$DOCKER_PASSWORD" = '' ) && \
+		echo "Skipping docker push as no credentials are provided.") || \
+	(REMOTE_ORIGIN="`git remote -v | grep '/localstack' | grep origin | grep push | awk '{print $$2}'`"; \
+		test "$$REMOTE_ORIGIN" != 'https://github.com/localstack/localstack.git' && \
+		test "$$REMOTE_ORIGIN" != 'git@github.com:localstack/localstack.git' && \
+		echo "This is a fork and not the main repo.") || \
+	( \
+		which $(PIP_CMD) || (wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py); \
+		docker info | grep Username || docker login -u $$DOCKER_USERNAME -p $$DOCKER_PASSWORD; \
+		IMAGE_TAG=latest make docker-squash && make docker-build-light && \
+			docker tag $(IMAGE_NAME):latest $(IMAGE_NAME_FULL):latest && \
+			docker tag $(IMAGE_NAME_LIGHT):latest $(IMAGE_NAME):latest && \
+		((! (git diff HEAD~1 localstack/constants.py | grep '^+VERSION =') && \
+			echo "Only pushing tag 'latest' as version has not changed.") || \
+			(docker tag $(IMAGE_NAME):latest $(IMAGE_NAME):$(IMAGE_TAG) && \
+				docker tag $(IMAGE_NAME_FULL):latest $(IMAGE_NAME_FULL):$(IMAGE_TAG) && \
+				docker push $(IMAGE_NAME):$(IMAGE_TAG) && docker push $(IMAGE_NAME_LIGHT):$(IMAGE_TAG) && \
+				docker push $(IMAGE_NAME_FULL):$(IMAGE_TAG))) && \
+		docker push $(IMAGE_NAME):latest && docker push $(IMAGE_NAME_FULL):latest && docker push $(IMAGE_NAME_LIGHT):latest \
+	)
+    }
+}
+
+// Run Docker image locally
+func docker_run {
+    shell {
+        $(VENV_RUN)
+        bind/localstack start
+    }
+}
+
+func get_moto_dir {
+    shell echo $(pwd)/.venv/lib/python*/site-packages/moto | awk '{print $NF}'
+    return context.shell.stdout.string
+}
+
+func docker_mount_run {
+    context.shell.env.MOTO_DIR = get_moto_dir()
+    context.shell.env.ENTRYPOINT = "-v $(context.shell.pwd)/localstack/constants.py:/opt/code/localstack/localstack/constants.py -v $(context.shell.pwd)/localstack/config.py:/opt/code/localstack/localstack/config.py -v $(context.shell.pwd)/localstack/plugins.py:/opt/code/localstack/localstack/plugins.py -v $(context.shell.pwd)/localstack/utils:/opt/code/localstack/localstack/utils -v $(context.shell.pwd)/localstack/services:/opt/code/localstack/localstack/services -v $(context.shell.pwd)/localstack/dashboard:/opt/code/localstack/localstack/dashboard -v $(context.shell.pwd)/tests:/opt/code/localstack/tests -v $(get_moto_dir()):/opt/code/localstack/.venv/lib/python3.8/site-packages/moto/"
+    shell bake run docker-run
+}
+
+func docker_build_lambdas {
+    shell docker build -t localstack/lambda-js:nodejs14.x -f bin/lambda/Dockerfile.nodejs14x .
+}
+
+func vagrant_start {
+    shell vagrant up
+    if context.shell.exit_code != 0 {
+        shell {
+            echo "Predicted error. Ignoring..."
+            vagrant ssh -c "sudo yum install -y epel-release && sudo yum update -y && sudo yum -y install wget perl gcc gcc-c++ dkms kernel-devel kernel-headers make bzip2"
+            vagrant reload --provision
+        }
+    }
+}
+
+func vagrant_stop {
+	vagrant halt
+}
+
+func docker_build_light {
+    context.shell.env.IMAGE_NAME = env.IMAGE_NAME_LIGHT
+    shell {
+        docker build -t $IMAGE_NAME -f bin/Dockerfile.light .
+        IMAGE_TAG=latest make docker-squash
+        docker tag $IMAGE_NAME:latest $IMAGE_NAME:$(env.IMAGE_TAG)
+    }
+}
+
+func docker_cp_coverage {
+    print("Extracting .coverage file from Docker image")
+    shell docker create localstack/localstack
+    let id = context.shell.stdout.string
+    shell {
+        docker cp $(id):/opt/code/localstack/.coverage .coverage
+		docker rm -v $(id)
+    }
+}
+
+// Run automated tests
+func test {
+    shell {
+        $(env.VENV_RUN)
+        pytest --durations=10 --log-cli-level=$(env.PYTEST_LOGLEVEL) -s $(env.PYTEST_ARGS) $(env.TEST_PATH)
+    }
+}
+
+func test_coverage {
+    shell {
+        $(env.VENV_RUN)
+        python -m coverage --version
+        python -m coverage run $(env.COVERAGE_ARGS) -m
+        pytest --durations=10 --log-cli-level=$(env.PYTEST_LOGLEVEL) -s $(env.PYTEST_ARGS) $(env.TEST_PATH)
+    }
+}
+
+func test_docker {
+    context.shell.env.ENTRYPOINT = "--entrypoint="
+    context.shell.env.CMD = "bake run test"
+    shell bake docker-run
+}
+
+// Run automated tests in Docker (mounting local code)
+func test_docker_mount {
+    context.shell.env.ENTRYPOINT = "-v $(context.pwd)/tests:/opt/code/localstack/tests"
+    shell bake run test-docker-mount-code
+}
+
+func test_docker_mount_code {
+    context.shell.env.MOTO_DIR = get_moto_dir()
+    context.shell.env.ENTRYPOINT = "--entrypoint= -v $(context.pwd)/localstack/config.py:/opt/code/localstack/localstack/config.py -v $(context.pwd)/localstack/constants.py:/opt/code/localstack/localstack/constants.py -v $(context.pwd)/localstack/utils:/opt/code/localstack/localstack/utils -v $(context.pwd)/localstack/services:/opt/code/localstack/localstack/services -v $(context.pwd)/Makefile:/opt/code/localstack/Makefile -v $$MOTO_DIR:/opt/code/localstack/.venv/lib/python3.8/site-packages/moto/ -e TEST_PATH=$(TEST_PATH) -e LAMBDA_JAVA_OPTS=$(LAMBDA_JAVA_OPTS) $(ENTRYPOINT)"
+    shell bake run docker-run
+}
+
+// NOTE: the ci-* targets below should only be used in CI builds!
+
+func ci_pro_smoke_tests {
+    shell {
+        which awslocal || pip3 install awscli-local
+        which localstack || pip3 install localstack
+        DOCKER_FLAGS='-d' SERVICES=lambda,qldb,rds,xray LOCALSTACK_API_KEY=$(TEST_LOCALSTACK_API_KEY) DEBUG=1 localstack start
+        docker logs -f $(MAIN_CONTAINER_NAME) &
+        for i in 0 1 2 3 4 5 6 7 8 9; do if docker logs $(MAIN_CONTAINER_NAME) | grep 'Ready.'; then break; fi; sleep 3; done
+        awslocal qldb list-ledgers
+        awslocal rds describe-db-instances
+        awslocal xray get-trace-summaries --start-time 2020-01-01 --end-time 2030-12-31
+        awslocal lambda list-layers
+        docker rm -f $(MAIN_CONTAINER_NAME)
+    }
+}
+
+// Re-initialize the virtualenv with Python 2.x
+func reinstall_p2 {
+    shell {
+        rm -rf $(env.VENV_DIR)
+        PIP_CMD=pip2 VENV_OPTS="-p '$(python::install_path2)'" bake run install
+    }
+}
+
+// Re-initialize the virtualenv with Python 3.x
+func reinstall_p3 {
+    shell {
+        rm -rf $(env.VENV_DIR)
+        PIP_CMD=pip3 VENV_OPTS="-p '$(python::install_path3)'" bake run install
+    }
+}
+
+// Run code linter to check code style
+func lint {
+    shell {
+        $(env.VENV_RUN)
+        python -m flake8 --show-source --config .flake8 .
+    }
+}
+
+func lint_modified {
+    shell {
+        $(env.VENV_RUN)
+        python -m flake8 --show-source --config .flake8 `git ls-files -m | grep '\.py$$' | xargs`
+    }
+}
+
+func format {
+    shell {
+        $(env.VENV_RUN)
+        python -m isort localstack tests
+        python -m black localstack tests
+    }
+}
+
+func format-modified {
+	shell {
+        $(env.VENV_RUN)
+        python -m isort `git ls-files -m | grep '\.py$$' | xargs`
+        python -m black `git ls-files -m | grep '\.py$$' | xargs`
+    }
+}
+
+func init_precommit {
+	$(env.VENV_RUN)
+    pre-commit install
+}
+
+// Clean up (npm dependencies, downloaded infrastructure code, compiled Java classes)
+func clean {
+    shell {
+        rm -rf localstack/dashboard/web/node_modules/
+        rm -rf localstack/infra/amazon-kinesis-client
+        rm -rf localstack/infra/elasticsearch
+        rm -rf localstack/infra/elasticmq
+        rm -rf localstack/infra/dynamodb
+        rm -rf localstack/node_modules/
+        rm -rf $(env.VENV_DIR)
+        rm -f localstack/utils/kinesis/java/com/atlassian/*.class
+    }
+}

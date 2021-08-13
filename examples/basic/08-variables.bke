@@ -32,5 +32,11 @@ func env_example {
 
   // To default to another value if the environment variable does not exist, use
   // boolean expressions
-  shell echo "I'm using $(env.CC | "gcc") as the compiler"
+  shell echo "I'm using $(env.CC || "gcc") as the compiler"
+
+  // One may also use optional assignment, which will set the value only if none already exist.
+  // In this case, it's set only for the context's shell - but may be set globally by using the
+  // global `env` object
+  context.shell.env.CC ?= "gcc"
+  shell echo "$CC" is in use now, which is not necessarily the same as $(env.CC)
 }

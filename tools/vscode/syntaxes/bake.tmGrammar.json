@@ -87,6 +87,17 @@
           "include": "#variable_substitution"
         },
         {
+          "comment": "Line comment",
+          "name": "comment.line.number-sign.bake",
+          "begin": "#",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.bake"
+            }
+          },
+          "end": "$"
+        },
+        {
           "match": "[^}]",
           "name": "string.quoted.double.bake"
         }

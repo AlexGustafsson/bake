@@ -6,7 +6,7 @@
     <img src="https://flat.badgen.net/github/release/AlexGustafsson/bake" alt="Latest Release" />
   </a>
   <br>
-  <strong><a href="#quickstart">Quick Start</a> | <a href="https://alexgustafsson.github.io/bake">Documentation</a> | <a href="#contribute">Contribute</a>
+  <strong><a href="#quickstart">Quick Start</a> | <a href="https://alexgustafsson.github.io/bake">Documentation</a> | <a href="#contribute">Contribute</a></strong>
 </p>
 
 # Bake

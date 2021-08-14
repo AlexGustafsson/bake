@@ -60,13 +60,27 @@
           "bake"
         ],
         "configuration": "./language-configuration.json"
+      },
+      {
+        "id": "bake-injection"
       }
     ],
     "grammars": [
       {
         "language": "bake",
         "scopeName": "source.bake",
-        "path": "./syntaxes/bake.tmGrammar.json"
+        "path": "./syntaxes/bake.tmLanguage.json"
+      },
+      {
+        "language": "bake-injection",
+        "scopeName": "markdown.bake.codeblock",
+        "path": "./syntaxes/bake-injection.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.bake": "bake"
+        }
       }
     ]
   },

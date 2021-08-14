@@ -1,0 +1,17 @@
+{
+  "fileTypes": [],
+  "injectionSelector": "L:markup.fenced_code.block.markdown",
+  "patterns": [
+    {
+      "begin": "bake",
+      "end": "(^|\\G)(?=\\s*[`~]{3,}\\s*$)",
+      "contentName": "meta.embedded.block.bake",
+      "patterns": [
+        {
+          "include": "source.bake"
+        }
+      ]
+    }
+  ],
+  "scopeName": "markdown.bake.codeblock"
+}

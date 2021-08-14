@@ -21,7 +21,7 @@ ifeq ($(shell uname),Darwin)
 	CC=clang
 endif
 
-.PHONY: help build tools vscode nano format lint test clean
+.PHONY: help build tools vscode nano prism format lint test clean
 
 # Produce a short description of available make commands
 help:
@@ -64,6 +64,12 @@ vscode:
 nano:
 	mkdir -p build
 	cp tools/nano/bake.nanorc build
+
+# Build the PrismJS grammar
+prism:
+	$(MAKE) -C tools/prism
+	mkdir -p build
+	cp tools/prism/build/* build/
 
 # Clean all dynamically created files
 clean:

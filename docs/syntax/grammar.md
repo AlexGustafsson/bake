@@ -158,6 +158,7 @@ else
 return
 context
 shell
+let
 ```
 
 ### Operators
@@ -185,6 +186,7 @@ shell
 ,
 .
 $
+@
 ```
 
 ### Literals

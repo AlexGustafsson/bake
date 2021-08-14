@@ -8,4 +8,4 @@
 - As fast as, or faster than Make
 
 [GitHub](https://github.com/AlexGustafsson/bake/)
-[Get Started](/#/guide)
+[Get Started](guide.md)

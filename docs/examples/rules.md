@@ -5,8 +5,8 @@ Each rule has a name. In most cases, this name is the file path of the rule's ou
 
 ```bake
 "new-file.txt" {
-  As previously mentioned, shell functions are at the core of Bake. These may be written
-  using regular Bash or the like, with commands and programs available on the system.
+  // As previously mentioned, shell functions are at the core of Bake. These may be written
+  // using regular Bash or the like, with commands and programs available on the system.
   shell touch new-file.txt
 }
 ```
@@ -15,8 +15,8 @@ Like with Make, there are some standard variables defined in each rule. These he
 
 ```bake
 "new-file2.txt" {
-  Here we use the '$(context.in)' instead of re-using the file's name,
-  that way it's easily changable later on.
+  // Here we use the '$(context.in)' instead of re-using the file's name,
+  // that way it's easily changable later on.
   shell touch $(context.in)
 }
 ```
@@ -40,7 +40,7 @@ Rules may have dependencies so that Bake knows when to re-run a rule if any of i
 
 ```bake
 // If the file already exists, it will be used as is and if it doesn't exist at all,
-an error will be thrown.
+// an error will be thrown.
 "copied-file.txt" ["new-file.txt"] {
   // Just like with output files, input files can be referenced in Bake using the
   // context

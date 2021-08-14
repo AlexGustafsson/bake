@@ -18,7 +18,7 @@
 	var evaluation = {
 		"template-punctuation": {
 			pattern: /^"|"$/,
-			alias: "string"
+			alias: "string",
 		},
 		"interpolation": {
 			pattern: /((?:^|[^\\])(?:\\{2})*)\$\((?:[^()]|\((?:[^()]|\([^)]*\))*\))+\)/,
@@ -26,7 +26,7 @@
 			inside: {
 				"interpolation-punctuation": {
 					pattern: /^\$\(|\)$/,
-					alias: "punctuation"
+					alias: "punctuation",
 				},
 				rest: Prism.languages.bake
 			}
@@ -38,14 +38,26 @@
 	Prism.languages.insertBefore("bake", "raw-string", {
 		"evaluated-string": {
 			pattern: /"(?:\\[\s\S]|\$\((?:[^()]|\((?:[^()]|\([^)]*\))*\))+\)|(?!\$\()[^\\"])*"/,
-			greedy: true,
 			inside: evaluation,
 		},
+		"shell-block": {
+			pattern: /(shell\s*\{)[^}]*\}/,
+			lookbehind: true,
+			alias: "string",
+			inside: {
+				"punctuation": {
+					pattern: /^\{|}$/,
+					alias: "punctuation",
+				},
+				...evaluation,
+			},
+		},
 		"shell": {
-			pattern: /(shell).*/,
+			pattern: /(shell)(?!\s*\{).*/,
 			greedy: true,
 			lookbehind: true,
 			inside: evaluation,
+			alias: "string",
 		},
 	});
 }(Prism));

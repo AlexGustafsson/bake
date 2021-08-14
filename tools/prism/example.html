@@ -119,6 +119,18 @@
     @after.command "gcc *" {
       print("Compiled code")
     }
+
+    "new-file3.txt" {
+      let dir = "tmp"
+      shell {
+        mkdir -p $(dir)
+        cd $(dir)
+        touch new-file3.txt
+        cp new-file3.txt ../
+        cd ../
+        rm -r $(dir)
+      }
+    }
     </code>
   </pre>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.24.1/prism.js"></script>

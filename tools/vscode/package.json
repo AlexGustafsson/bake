@@ -82,6 +82,12 @@
           "meta.embedded.block.bake": "bake"
         }
       }
+    ],
+    "snippets": [
+      {
+        "language": "bake",
+        "path": "./snippets/bake.json"
+      }
     ]
   },
   "scripts": {

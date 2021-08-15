@@ -28,7 +28,7 @@ help:
 	pcregrep -Mo '^(#.*\n)+^[^# ]+:' Makefile | sed "s/^\([^# ]\+\):/> \1/g" | sed "s/^#\s\+\(.\+\)/\1/g" | GREP_COLORS='ms=1;34' grep -E --color=always '^>.*|$$' | GREP_COLORS='ms=1;37' grep -E --color=always '^[^>].*|$$'
 
 # Build for the native platform
-build: build/bake
+build: build/bake build/bagels
 
 # Format Go code
 format: $(server_source) Makefile
@@ -49,7 +49,12 @@ test: $(server_source) Makefile
 # Build for the native platform
 build/bake: $(server_source) Makefile
 	go generate ./...
-	go build $(BUILD_FLAGS) -o $@ cmd/bake.go
+	go build $(BUILD_FLAGS) -o $@ cmd/bake/bake.go
+
+# Build for the native platform
+build/bagels: $(server_source) Makefile
+	go generate ./...
+	go build $(BUILD_FLAGS) -o $@ cmd/bagels/bagels.go
 
 # Build tools
 tools: vscode nano

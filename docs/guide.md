@@ -42,18 +42,6 @@ Build the application.
 make build
 ```
 
-### Autocompletion
-
-#### Fish
-
-Simply add the following to your config.
-
-```fish
-source (bake autocomplete --shell fish | psub)
-```
-
-You may also simply store the output of `bake autocomplete --shell fish` and source that file if you wish.
-
 ## Creating your first build
 
 In this example we have a small C application we wish to compile. It consists of a library and a main executable. Below you may find the source code for the library.

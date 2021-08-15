@@ -10,6 +10,10 @@
   * [Hooks](examples/hooks.md)
   * [Phony](examples/phony.md)
 
+* Tools
+  * [Editors](editors.md)
+  * [Terminals](terminals.md)
+
 * Syntax
   * [Grammar](grammar.md)
 

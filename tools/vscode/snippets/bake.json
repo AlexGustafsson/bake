@@ -1,0 +1,27 @@
+{
+  ".source.go": {
+    "multiple imports": {
+      "prefix": "import",
+      "body": "import (\n  \"${1:package}\"\n)",
+      "description": "Snippet for a import block"
+    },
+    "function declaration": {
+      "prefix": "func",
+      "body": "func $1($2) $3 {\n  $0\n}",
+      "description": "Snippet for function declaration"
+    },
+    "variable declaration": {
+      "prefix": "let",
+      "body": "let ${1:name}",
+      "description": "Snippet for a variable"
+    },
+    "alias declaration": {
+      "prefix": "alias",
+      "body": "alias ${1:name} [${2:dependencies}]"
+    },
+    "rule declaration": {
+      "prefix": "rule",
+      "body": "rule $1($2) {\n  $0\n}"
+    }
+  }
+}

@@ -36,7 +36,7 @@ Lastly, `...` denotes a range of characters.
 ### Source file
 
 ```
-SourceFile = [ PackageDeclaration ] [ ImportsDeclaration ] { TopLevelDeclarations } .
+SourceFile = [ PackageDeclaration ] [ ImportsDeclaration ] { TopLevelDeclaration } .
 
 PackageDeclaration = "package" identifier .
 
@@ -102,7 +102,7 @@ Expression = UnaryExpression
            | Expression binary_operator Expression
            .
 
-UnaryExpression = PrimaryExpression | binary_operator UnaryExpression .
+UnaryExpression = [ unary_operator ] PrimaryExpression .
 
 binary_operator = "||" | "&&" | comparison_operator | additive_operator | multiplicative_operator .
 comparison_operator = "==" | "!=" | "<" | "<=" | ">" | ">=" .
@@ -142,7 +142,7 @@ decimal_digit = "0" ... "9" .
 An identifier is specified by a letter, followed by a sequence of zero or more alpha numeric characters.
 
 ```
-identifier = letter { letter | decimal_digit}
+identifier = letter { letter | decimal_digit} .
 ```
 
 ### Keywords
@@ -207,6 +207,6 @@ decimal_digits = decimal_digit { decimal_digit } .
 string_literal = raw_string_literal | interpreted_string_literal .
 raw_string_literal = "`" { unicode_char | newline } "`" .
 interpreted_string_literal = `"` { variable_substitution | unicode_char } `"` .
-variable_substitution = "$" "(" identifier ")" .
+variable_substitution = "$" "(" Expression ")" .
 ```
 

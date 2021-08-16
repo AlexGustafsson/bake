@@ -39,7 +39,7 @@ func setup_venv {
 func install_venv {
   shell {
     bake setup-venv
-    test ! -e requirements.txt || ($(env.VENV_RUN); $(env.PIP_CMD) -q install -r requirements.txt) 
+    test ! -e requirements.txt || ($(env.VENV_RUN); $(env.PIP_CMD) -q install -r requirements.txt)
   }
 }
 
@@ -85,7 +85,7 @@ func publish {
   shell {
     $(VENV_RUN)
     ./setup.py sdist upload
-  }	
+  }
 }
 
 // Publish coveralls metrics
@@ -139,7 +139,7 @@ func docker_build_base_ci {
     shell {
         docker info | grep Username || docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 	    docker push $(env.IMAGE_NAME_BASE):latest
-    }	
+    }
 }
 
 // Push Docker image to registry

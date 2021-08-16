@@ -14,8 +14,17 @@ const (
 	ItemSubtraction
 	ItemMultiplication
 	ItemDivision
-	ItemEqualEqual
+	ItemAssignment
+	ItemLooseAssignment
+	ItemEquals
+	ItemNot
 	ItemNotEqual
+	ItemLessThan
+	ItemLessThanOrEqual
+	ItemGreaterThan
+	ItemGreaterThanOrEqual
+	ItemAnd
+	ItemOr
 	ItemSpread
 
 	// Punctuation
@@ -26,9 +35,9 @@ const (
 	ItemLeftCurly
 	ItemRightCurly
 	ItemColon
+	ItemColonColon
 	ItemComma
 	ItemDot
-	ItemDollar
 
 	// Keywords
 	ItemKeywordPackage
@@ -36,7 +45,11 @@ const (
 	ItemKeywordFunc
 	ItemKeywordRule
 	ItemKeywordExport
+	ItemKeywordIf
+	ItemKeywordElse
 	ItemKeywordReturn
+	ItemKeywordLet
+	ItemKeywordShell
 
 	// Identifiers
 	ItemIdentifier
@@ -45,13 +58,13 @@ const (
 	ItemNewline
 	ItemWhitespace
 
-	// Characters
-	ItemLetter
-	ItemUnicodeCharacter
-	ItemDecimalDigit
-
 	// Strings etc.
 	ItemRawString
+	ItemInterpretedString
+	ItemShellString
+
+	// Numbers
+	ItemInteger
 
 	// Comments
 	ItemComment

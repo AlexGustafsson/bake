@@ -24,6 +24,18 @@ var Commands = []*cli.Command{
 		},
 	},
 	{
+		Name:   "lex",
+		Usage:  "Lex a Bakefile",
+		Action: lexCommand,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "input",
+				Aliases: []string{"i"},
+				Usage:   "Path to input file",
+			},
+		},
+	},
+	{
 		Name:    "init",
 		Aliases: []string{"initialize"},
 		Usage:   "Initialize a bake",

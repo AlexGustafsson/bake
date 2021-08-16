@@ -133,6 +133,14 @@ func (lexer *Lexer) NextNonWhitespaceItem(includeNewline bool) Item {
 	}
 }
 
+func (lexer *Lexer) AllItems() []Item {
+	items := make([]Item, 0)
+	for item := range lexer.items {
+		items = append(items, item)
+	}
+	return items
+}
+
 func (lexer *Lexer) Ignore() {
 	lexer.start = lexer.position
 	lexer.startLine = lexer.line

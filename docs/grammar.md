@@ -88,7 +88,9 @@ SimpleStatement = EmptyStatement
 EmptyStatement = .
 ExpressionStatement = Expression .
 IncreaseDecreaseStatement = Expression ( "++" | "--" ) .
-ShellStatement = "shell" { unicode_char } .
+ShellStatement = ShellLine | ShellBlock .
+ShellLine = "shell" { unicode_char } .
+ShellBlock = "shell" "{" { unicode_char } "}" . /* may contain matching pairs of "{" and "}" */
 Assignment = Expression assignment_operand ExpressionList .
 
 assignment_operand = [ additive_operator | multiplicative_operator | "?" ] "=" .
@@ -156,9 +158,8 @@ export
 if
 else
 return
-context
-shell
 let
+shell
 ```
 
 ### Operators
@@ -168,8 +169,17 @@ let
 -
 *
 /
+=
 ==
+!
 !=
+<
+<=
+>
+>=
+?=
+&&
+||
 ...
 ```
 
@@ -210,3 +220,4 @@ interpreted_string_literal = `"` { variable_substitution | unicode_char } `"` .
 variable_substitution = "$" "(" Expression ")" .
 ```
 
+Note that the interpreted string literal is a runtime feature, meaning the parser and lexer treats it as a single token / node.

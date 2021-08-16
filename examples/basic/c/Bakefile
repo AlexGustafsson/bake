@@ -1,4 +1,4 @@
-// Import the standard libray
+// Import the standard library
 import (
   "github.com/AlexGustafsson/bake/stdlib/c"
 )

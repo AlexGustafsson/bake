@@ -259,6 +259,8 @@ func lexRoot(lexer *Lexer) stateModifier {
 				case "shell":
 					lexer.Emit(ItemKeywordShell)
 					return lexShell
+				case "true", "false":
+					lexer.Emit(ItemBoolean)
 				default:
 					lexer.Emit(ItemIdentifier)
 				}

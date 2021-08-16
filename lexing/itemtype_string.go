@@ -54,12 +54,13 @@ func _() {
 	_ = x[ItemInterpretedString-43]
 	_ = x[ItemShellString-44]
 	_ = x[ItemInteger-45]
-	_ = x[ItemComment-46]
+	_ = x[ItemBoolean-46]
+	_ = x[ItemComment-47]
 }
 
-const _ItemType_name = "ItemStartOfInputItemEndOfInputItemErrorItemAdditionItemSubtractionItemMultiplicationItemDivisionItemAssignmentItemLooseAssignmentItemEqualsItemNotItemNotEqualItemLessThanItemLessThanOrEqualItemGreaterThanItemGreaterThanOrEqualItemAndItemOrItemSpreadItemLeftParenthesesItemRightParenthesesItemLeftBracketItemRightBracketItemLeftCurlyItemRightCurlyItemColonItemColonColonItemCommaItemDotItemKeywordPackageItemKeywordImportItemKeywordFuncItemKeywordRuleItemKeywordExportItemKeywordIfItemKeywordElseItemKeywordReturnItemKeywordLetItemKeywordShellItemIdentifierItemNewlineItemWhitespaceItemRawStringItemInterpretedStringItemShellStringItemIntegerItemComment"
+const _ItemType_name = "ItemStartOfInputItemEndOfInputItemErrorItemAdditionItemSubtractionItemMultiplicationItemDivisionItemAssignmentItemLooseAssignmentItemEqualsItemNotItemNotEqualItemLessThanItemLessThanOrEqualItemGreaterThanItemGreaterThanOrEqualItemAndItemOrItemSpreadItemLeftParenthesesItemRightParenthesesItemLeftBracketItemRightBracketItemLeftCurlyItemRightCurlyItemColonItemColonColonItemCommaItemDotItemKeywordPackageItemKeywordImportItemKeywordFuncItemKeywordRuleItemKeywordExportItemKeywordIfItemKeywordElseItemKeywordReturnItemKeywordLetItemKeywordShellItemIdentifierItemNewlineItemWhitespaceItemRawStringItemInterpretedStringItemShellStringItemIntegerItemBooleanItemComment"
 
-var _ItemType_index = [...]uint16{0, 16, 30, 39, 51, 66, 84, 96, 110, 129, 139, 146, 158, 170, 189, 204, 226, 233, 239, 249, 268, 288, 303, 319, 332, 346, 355, 369, 378, 385, 403, 420, 435, 450, 467, 480, 495, 512, 526, 542, 556, 567, 581, 594, 615, 630, 641, 652}
+var _ItemType_index = [...]uint16{0, 16, 30, 39, 51, 66, 84, 96, 110, 129, 139, 146, 158, 170, 189, 204, 226, 233, 239, 249, 268, 288, 303, 319, 332, 346, 355, 369, 378, 385, 403, 420, 435, 450, 467, 480, 495, 512, 526, 542, 556, 567, 581, 594, 615, 630, 641, 652, 663}
 
 func (i ItemType) String() string {
 	if i < 0 || i >= ItemType(len(_ItemType_index)-1) {

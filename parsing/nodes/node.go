@@ -21,4 +21,14 @@ func (nodePosition NodePosition) Position() NodePosition {
 const (
 	NodeTypeSourceFile NodeType = iota
 	NodeTypePackageDeclaration
+	NodeTypeImportsDeclaration
+	NodeTypeComment
+	NodeTypeInterpretedString
+	NodeTypeRawString
+	NodeTypeVariableDeclaration
+	NodeTypeBinaryExpression
+	NodeTypeIdentifier
+	NodeTypeInteger
+	NodeTypePrimaryExpression
+	NodeTypeUnaryExpression
 )

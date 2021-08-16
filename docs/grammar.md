@@ -120,7 +120,7 @@ PrimaryExpression = Operand
                   .
 
 Operand = Literal | identifier | "(" Expression ")" .
-Literal = integer_literal | string_literal .
+Literal = boolean_literal | integer_literal | string_literal .
 
 Selector = "." identifier .
 ImportSelector = "::" identifier .
@@ -160,6 +160,8 @@ else
 return
 let
 shell
+true
+false
 ```
 
 ### Operators
@@ -201,6 +203,12 @@ $
 
 ### Literals
 
+#### Booleans
+
+```
+boolean_literal = "true" | "false" .
+```
+
 #### Integers
 
 Decimal integers are supported and may be written with one zero as a prefix.
@@ -221,3 +229,4 @@ variable_substitution = "$" "(" Expression ")" .
 ```
 
 Note that the interpreted string literal is a runtime feature, meaning the parser and lexer treats it as a single token / node.
+

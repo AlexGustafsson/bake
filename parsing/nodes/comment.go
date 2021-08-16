@@ -13,7 +13,7 @@ type Comment struct {
 
 func CreateComment(position NodePosition, content string) *Comment {
 	return &Comment{
-		NodeType:     NodeTypePackageDeclaration,
+		NodeType:     NodeTypeComment,
 		NodePosition: position,
 		Content:      content,
 	}

@@ -66,6 +66,9 @@ const (
 	// Numbers
 	ItemInteger
 
+	// Boleans
+	ItemBoolean
+
 	// Comments
 	ItemComment
 )

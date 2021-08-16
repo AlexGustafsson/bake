@@ -31,4 +31,7 @@ const (
 	NodeTypeInteger
 	NodeTypePrimaryExpression
 	NodeTypeUnaryExpression
+	NodeTypeSignature
+	NodeTypeFunctionDeclaration
+	NodeTypeBlock
 )

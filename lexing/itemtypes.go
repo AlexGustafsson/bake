@@ -50,6 +50,7 @@ const (
 	ItemKeywordReturn
 	ItemKeywordLet
 	ItemKeywordShell
+	ItemKeywordAlias
 
 	// Identifiers
 	ItemIdentifier

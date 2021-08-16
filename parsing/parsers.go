@@ -18,8 +18,24 @@ func parseSourceFile(parser *Parser) (*nodes.SourceFile, error) {
 		sourceFile.Nodes = append(sourceFile.Nodes, importsDeclaration)
 	}
 
-	nodes := parseTopLevelDeclarations(parser)
-	sourceFile.Nodes = append(sourceFile.Nodes, nodes...)
+	declarations := make([]nodes.Node, 0)
+dec:
+	for {
+		token := parser.peek()
+		switch token.Type {
+		case lexing.ItemNewline, lexing.ItemWhitespace:
+			// Ignore
+			parser.nextItem()
+		case lexing.ItemEndOfInput:
+			parser.nextItem()
+			break dec
+		default:
+			declaration := parseTopLevelDeclaration(parser)
+			declarations = append(declarations, declaration)
+		}
+	}
+
+	sourceFile.Nodes = append(sourceFile.Nodes, declarations...)
 
 	return sourceFile, nil
 }
@@ -62,34 +78,108 @@ func parseImportsDeclaration(parser *Parser) (*nodes.ImportsDeclaration, bool) {
 	return nodes.CreateImportsDeclaration(nodes.NodePosition(startToken.Start), imports), true
 }
 
-func parseTopLevelDeclarations(parser *Parser) []nodes.Node {
-	declarations := make([]nodes.Node, 0)
+func parseTopLevelDeclaration(parser *Parser) nodes.Node {
+	token := parser.peek()
 
-	for {
-		token := parser.peek()
-
+	switch token.Type {
+	case lexing.ItemKeywordLet:
+		return parseVariableDeclaration(parser)
+	case lexing.ItemKeywordFunc:
+		return parseFunctionDeclaration(parser, false)
+	case lexing.ItemKeywordRule:
+		parser.errorf("rule functions are not implemented")
+	case lexing.ItemKeywordAlias:
+		parser.errorf("aliases are not implemented")
+	case lexing.ItemKeywordExport:
+		parser.nextItem()
 		switch token.Type {
-		case lexing.ItemKeywordLet:
-			startToken := parser.nextItem()
-			identifier := parser.require(lexing.ItemIdentifier)
-			var expression nodes.Node = nil
-			if _, ok := parser.expectPeek(lexing.ItemAssignment); ok {
-				parser.nextItem()
-				expression = parseExpression(parser)
-			}
-
-			declaration := nodes.CreateVariableDeclaration(nodes.NodePosition(startToken.Start), identifier.Value, expression)
-			declarations = append(declarations, declaration)
-		case lexing.ItemNewline, lexing.ItemWhitespace:
-			// Ignore
-			parser.nextItem()
-		case lexing.ItemEndOfInput:
-			parser.nextItem()
-			return declarations
+		case lexing.ItemKeywordFunc:
+			return parseFunctionDeclaration(parser, true)
+		case lexing.ItemKeywordRule:
+			parser.errorf("rule functions are not implemented")
 		default:
 			parser.errorf("unexpected token '%s'", token.String())
 		}
+	default:
+		parser.errorf("unexpected token '%s'", token.String())
 	}
+	return nil
+}
+
+func parseVariableDeclaration(parser *Parser) nodes.Node {
+	startToken := parser.nextItem()
+	identifier := parser.require(lexing.ItemIdentifier)
+	var expression nodes.Node = nil
+	if _, ok := parser.expectPeek(lexing.ItemAssignment); ok {
+		parser.nextItem()
+		expression = parseExpression(parser)
+	}
+
+	return nodes.CreateVariableDeclaration(nodes.NodePosition(startToken.Start), identifier.Value, expression)
+}
+
+func parseFunctionDeclaration(parser *Parser, exported bool) nodes.Node {
+	startToken := parser.require(lexing.ItemKeywordFunc)
+
+	identifier := parser.require(lexing.ItemIdentifier)
+
+	signature, _ := parseSignature(parser)
+
+	block := parseBlock(parser)
+
+	return nodes.CreateFunctionDeclaration(nodes.NodePosition(startToken.Start), exported, identifier.Value, signature, block)
+}
+
+func parseSignature(parser *Parser) (*nodes.Signature, bool) {
+	if _, ok := parser.expectPeek(lexing.ItemLeftParentheses); !ok {
+		return nil, false
+	}
+
+	startToken := parser.require(lexing.ItemLeftParentheses)
+
+	arguments := make([]string, 0)
+	for {
+		// If there's an argument already specified, require comma separation
+		if len(arguments) > 0 {
+			_, ok := parser.expectPeek(lexing.ItemComma)
+			if ok {
+				parser.nextItem()
+				token := parser.require(lexing.ItemIdentifier)
+				argument := nodes.CreateIdentifier(nodes.NodePosition(token.Start), token.Value)
+				arguments = append(arguments, argument.Value)
+			} else {
+				break
+			}
+		} else {
+			token, ok := parser.expectPeek(lexing.ItemIdentifier)
+			if ok {
+				parser.nextItem()
+				argument := nodes.CreateIdentifier(nodes.NodePosition(token.Start), token.Value)
+				arguments = append(arguments, argument.Value)
+			} else {
+				break
+			}
+		}
+	}
+
+	parser.require(lexing.ItemRightParentheses)
+
+	return nodes.CreateSignature(nodes.NodePosition(startToken.Start), arguments), true
+}
+
+func parseBlock(parser *Parser) *nodes.Block {
+	startToken := parser.require(lexing.ItemLeftCurly)
+
+	parser.require(lexing.ItemRightCurly)
+
+	statements := make([]nodes.Node, 0)
+	// TODO: Parse statements
+
+	return nodes.CreateBlock(nodes.NodePosition(startToken.Start), statements)
+}
+
+func parseStatement(parser *Parser) nodes.Node {
+	return parseExpression(parser)
 }
 
 func parseExpression(parser *Parser) nodes.Node {

@@ -162,6 +162,7 @@ let
 shell
 true
 false
+alias
 ```
 
 ### Operators

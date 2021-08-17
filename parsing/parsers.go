@@ -170,10 +170,25 @@ func parseSignature(parser *Parser) (*nodes.Signature, bool) {
 func parseBlock(parser *Parser) *nodes.Block {
 	startToken := parser.require(lexing.ItemLeftCurly)
 
-	parser.require(lexing.ItemRightCurly)
-
 	statements := make([]nodes.Node, 0)
-	// TODO: Parse statements
+
+dec:
+	for {
+		token := parser.peek()
+		switch token.Type {
+		case lexing.ItemNewline, lexing.ItemWhitespace:
+			// Ignore
+			parser.nextItem()
+		case lexing.ItemRightCurly:
+			parser.nextItem()
+			break dec
+		case lexing.ItemEndOfInput:
+			parser.errorf("unexpected end of file, expected '}'")
+		default:
+			statement := parseStatement(parser)
+			statements = append(statements, statement)
+		}
+	}
 
 	return nodes.CreateBlock(nodes.NodePosition(startToken.Start), statements)
 }

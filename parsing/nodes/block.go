@@ -25,7 +25,9 @@ func (node *Block) String() string {
 
 	// TODO: Fix indent
 	for _, statement := range node.Statements {
+		builder.WriteString("  ")
 		builder.WriteString(statement.String())
+		builder.WriteRune('\n')
 	}
 
 	builder.WriteString("}\n")

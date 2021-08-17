@@ -194,7 +194,63 @@ dec:
 }
 
 func parseStatement(parser *Parser) nodes.Node {
-	return parseExpression(parser)
+	token := parser.peek()
+	if token.Type == lexing.ItemKeywordShell {
+		return parseShellStatement(parser)
+	} else {
+		expression := parseExpression(parser)
+
+		token := parser.peek()
+		switch token.Type {
+		case lexing.ItemIncrement:
+			parser.nextItem()
+			return nodes.CreateIncrement(expression.Position(), expression)
+		case lexing.ItemDecrement:
+			parser.nextItem()
+			return nodes.CreateDecrement(expression.Position(), expression)
+		case lexing.ItemLooseAssignment:
+			parser.nextItem()
+			value := parseExpression(parser)
+			return nodes.CreateLooseAssignment(expression.Position(), expression, value)
+		case lexing.ItemAdditionAssign:
+			parser.nextItem()
+			value := parseExpression(parser)
+			return nodes.CreateAdditionAssignment(expression.Position(), expression, value)
+		case lexing.ItemSubtractionAssign:
+			parser.nextItem()
+			value := parseExpression(parser)
+			return nodes.CreateSubtractionAssignment(expression.Position(), expression, value)
+		case lexing.ItemMultiplicationAssign:
+			parser.nextItem()
+			value := parseExpression(parser)
+			return nodes.CreateMultiplicationAssignment(expression.Position(), expression, value)
+		case lexing.ItemDivisionAssign:
+			parser.nextItem()
+			value := parseExpression(parser)
+			return nodes.CreateDivisionAssignment(expression.Position(), expression, value)
+		}
+
+		return expression
+	}
+}
+
+func parseShellStatement(parser *Parser) *nodes.ShellStatement {
+	startToken := parser.require(lexing.ItemKeywordShell)
+
+	var shellString lexing.Item
+	multiline := false
+	if _, ok := parser.expectPeek(lexing.ItemLeftCurly); ok {
+		parser.nextItem()
+
+		shellString = parser.require(lexing.ItemShellString)
+		multiline = true
+
+		parser.require(lexing.ItemRightCurly)
+	} else {
+		shellString = parser.require(lexing.ItemShellString)
+	}
+
+	return nodes.CreateShellStatement(nodes.NodePosition(startToken.Start), multiline, shellString.Value)
 }
 
 func parseExpression(parser *Parser) nodes.Node {

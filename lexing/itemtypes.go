@@ -11,9 +11,13 @@ const (
 
 	// Operators
 	ItemAddition
+	ItemAdditionAssign
 	ItemSubtraction
+	ItemSubtractionAssign
 	ItemMultiplication
+	ItemMultiplicationAssign
 	ItemDivision
+	ItemDivisionAssign
 	ItemAssignment
 	ItemLooseAssignment
 	ItemEquals
@@ -26,6 +30,8 @@ const (
 	ItemAnd
 	ItemOr
 	ItemSpread
+	ItemIncrement
+	ItemDecrement
 
 	// Punctuation
 	ItemLeftParentheses

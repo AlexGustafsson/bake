@@ -19,7 +19,8 @@ func lexRoot(lexer *Lexer) stateModifier {
 		return nil
 	case '/':
 		lexer.Next()
-		if rune := lexer.Peek(); rune == '/' {
+		rune := lexer.Peek()
+		if rune == '/' {
 			lexer.Next()
 			for {
 				rune := lexer.Peek()
@@ -30,22 +31,47 @@ func lexRoot(lexer *Lexer) stateModifier {
 				}
 			}
 			lexer.Emit(ItemComment)
-			return lexRoot
+		} else if rune == '=' {
+			lexer.Next()
+			lexer.Emit(ItemDivisionAssign)
 		} else {
 			lexer.Emit(ItemDivision)
-			return lexRoot
 		}
+		return lexRoot
 	case '+':
 		lexer.Next()
-		lexer.Emit(ItemAddition)
+		rune := lexer.Peek()
+		if rune == '+' {
+			lexer.Next()
+			lexer.Emit(ItemIncrement)
+		} else if rune == '=' {
+			lexer.Next()
+			lexer.Emit(ItemAdditionAssign)
+		} else {
+			lexer.Emit(ItemAddition)
+		}
 		return lexRoot
 	case '-':
 		lexer.Next()
-		lexer.Emit(ItemSubtraction)
+		rune := lexer.Peek()
+		if rune == '-' {
+			lexer.Next()
+			lexer.Emit(ItemDecrement)
+		} else if rune == '=' {
+			lexer.Next()
+			lexer.Emit(ItemSubtractionAssign)
+		} else {
+			lexer.Emit(ItemSubtraction)
+		}
 		return lexRoot
 	case '*':
 		lexer.Next()
-		lexer.Emit(ItemMultiplication)
+		if rune := lexer.Peek(); rune == '=' {
+			lexer.Next()
+			lexer.Emit(ItemMultiplicationAssign)
+		} else {
+			lexer.Emit(ItemMultiplication)
+		}
 		return lexRoot
 	case '=':
 		lexer.Next()

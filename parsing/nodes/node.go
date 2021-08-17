@@ -38,4 +38,12 @@ const (
 	NodeTypeImportSelector
 	NodeTypeIndex
 	NodeTypeInvokation
+	NodeTypeIncrement
+	NodeTypeDecrement
+	NodeTypeLooseAssignment
+	NodeTypeAdditionAssignment
+	NodeTypeSubtractionAssignment
+	NodeTypeMultiplicationAssignment
+	NodeTypeDivisionAssignment
+	NodeTypeShellStatement
 )

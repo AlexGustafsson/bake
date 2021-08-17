@@ -98,5 +98,13 @@ func (parser *Parser) nextItem() lexing.Item {
 		return parser.peeked.Remove(element).(lexing.Item)
 	}
 
-	return parser.lexer.NextItem()
+	// TODO: Hacky way of ignoring comments. Have them in a separate channel?
+	// or just add them to a separate structure for future referencing:
+	// comments.At(line, column) -> comment
+	for {
+		item := parser.lexer.NextItem()
+		if item.Type != lexing.ItemComment {
+			return item
+		}
+	}
 }

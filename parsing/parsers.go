@@ -272,7 +272,49 @@ func parseUnaryExpression(parser *Parser) nodes.Node {
 }
 
 func parsePrimaryExpression(parser *Parser) nodes.Node {
-	return parseOperand(parser)
+	// TODO: fix recursion
+	operand := parseOperand(parser)
+
+	token := parser.peek()
+	switch token.Type {
+	case lexing.ItemDot:
+		startToken := parser.nextItem()
+		identifier := parser.require(lexing.ItemIdentifier)
+		return nodes.CreateSelector(nodes.NodePosition(startToken.Start), operand, identifier.Value)
+	case lexing.ItemColonColon:
+		startToken := parser.nextItem()
+		identifier := parser.require(lexing.ItemIdentifier)
+		return nodes.CreateImportSelector(nodes.NodePosition(startToken.Start), operand, identifier.Value)
+	case lexing.ItemLeftBracket:
+		startToken := parser.nextItem()
+		expression := parseExpression(parser)
+		parser.require(lexing.ItemRightBracket)
+		return nodes.CreateIndex(nodes.NodePosition(startToken.Start), operand, expression)
+	case lexing.ItemLeftParentheses:
+		startToken := parser.nextItem()
+
+		arguments := make([]nodes.Node, 0)
+		for {
+			// If there's an argument already specified, require comma separation
+			if len(arguments) > 0 {
+				_, ok := parser.expectPeek(lexing.ItemComma)
+				if ok {
+					parser.nextItem()
+					arguments = append(arguments, parseExpression(parser))
+				} else {
+					break
+				}
+			} else {
+				arguments = append(arguments, parseExpression(parser))
+			}
+		}
+
+		parser.require(lexing.ItemRightParentheses)
+
+		return nodes.CreateInvokation(nodes.NodePosition(startToken.Start), operand, arguments)
+	default:
+		return operand
+	}
 }
 
 func parseOperand(parser *Parser) nodes.Node {

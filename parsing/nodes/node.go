@@ -34,4 +34,8 @@ const (
 	NodeTypeSignature
 	NodeTypeFunctionDeclaration
 	NodeTypeBlock
+	NodeTypeSelector
+	NodeTypeImportSelector
+	NodeTypeIndex
+	NodeTypeInvokation
 )

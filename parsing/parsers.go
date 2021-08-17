@@ -258,80 +258,123 @@ func parseShellStatement(parser *Parser) *nodes.ShellStatement {
 }
 
 func parseExpression(parser *Parser) nodes.Node {
-	// TODO: operator precedence and recursion
-	startToken := parser.peek()
-	left := parseUnaryExpression(parser)
+	return parseEquality(parser)
+}
+
+func parseEquality(parser *Parser) nodes.Node {
+	left := parseComparison(parser)
 
 	operatorToken := parser.peek()
-	var operator nodes.BinaryOperator
+	var operator nodes.EqualityOperator = -1
+	switch operatorToken.Type {
+	case lexing.ItemEquals:
+		operator = nodes.EqualityOperatorEquals
+	case lexing.ItemNotEqual:
+		operator = nodes.EqualityOperatorEquals
+	case lexing.ItemLessThan:
+		operator = nodes.EqualityOperatorLessThan
+	case lexing.ItemLessThanOrEqual:
+		operator = nodes.EqualityOperatorLessThanOrEqual
+	case lexing.ItemGreaterThan:
+		operator = nodes.EqualityOperatorGreaterThan
+	case lexing.ItemGreaterThanOrEqual:
+		operator = nodes.EqualityOperatorGreaterThanOrEqual
+	}
+
+	if operator != -1 {
+		parser.nextItem()
+		right := parseComparison(parser)
+		return nodes.CreateEquality(left.Position(), nodes.EqualityOperatorEquals, left, right)
+	}
+
+	return left
+}
+
+func parseComparison(parser *Parser) nodes.Node {
+	left := parseTerm(parser)
+
+	operatorToken := parser.peek()
+	var operator nodes.ComparisonOperator = -1
 	switch operatorToken.Type {
 	case lexing.ItemOr:
-		parser.nextItem()
-		operator = nodes.BinaryOperatorOr
+		operator = nodes.ComparisonOperatorOr
 	case lexing.ItemAnd:
+		operator = nodes.ComparisonOperatorAnd
+	}
+
+	if operator != -1 {
 		parser.nextItem()
-		operator = nodes.BinaryOperatorAnd
-	case lexing.ItemEquals:
-		parser.nextItem()
-		operator = nodes.BinaryOperatorEquals
-	case lexing.ItemNotEqual:
-		parser.nextItem()
-		operator = nodes.BinaryOperatorNotEquals
-	case lexing.ItemLessThan:
-		parser.nextItem()
-		operator = nodes.BinaryOperatorLessThan
-	case lexing.ItemLessThanOrEqual:
-		parser.nextItem()
-		operator = nodes.BinaryOperatorLessThanOrEqual
-	case lexing.ItemGreaterThan:
-		parser.nextItem()
-		operator = nodes.BinaryOperatorGreaterThan
-	case lexing.ItemGreaterThanOrEqual:
-		parser.nextItem()
-		operator = nodes.BinaryOperatorGreaterThanOrEqual
+		right := parseTerm(parser)
+		return nodes.CreateComparison(left.Position(), operator, left, right)
+	}
+
+	return left
+}
+
+func parseTerm(parser *Parser) nodes.Node {
+	left := parseFactor(parser)
+
+	operatorToken := parser.peek()
+	var operator nodes.AdditiveOperator = -1
+	switch operatorToken.Type {
 	case lexing.ItemAddition:
-		parser.nextItem()
-		operator = nodes.BinaryOperatorAddition
+		operator = nodes.AdditiveOperatorAddition
 	case lexing.ItemSubtraction:
+		operator = nodes.AdditiveOperatorSubtraction
+	}
+
+	if operator != -1 {
 		parser.nextItem()
-		operator = nodes.BinaryOperatorSubtraction
+		right := parseFactor(parser)
+		return nodes.CreateTerm(left.Position(), operator, left, right)
+	}
+
+	return left
+}
+
+func parseFactor(parser *Parser) nodes.Node {
+	left := parseUnary(parser)
+
+	operatorToken := parser.peek()
+	var operator nodes.MultiplicativeOperator = -1
+	switch operatorToken.Type {
 	case lexing.ItemMultiplication:
-		parser.nextItem()
-		operator = nodes.BinaryOperatorMultiplication
+		operator = nodes.MultiplicativeOperatorMultiplication
 	case lexing.ItemDivision:
-		parser.nextItem()
-		operator = nodes.BinaryOperatorDivision
-	default:
-		// If no valid operator was found, assume it was a unary expression
-		return left
+		operator = nodes.MultiplicativeOperatorDivision
 	}
 
-	right := parseExpression(parser)
+	if operator != -1 {
+		parser.nextItem()
+		right := parseUnary(parser)
+		return nodes.CreateFactor(left.Position(), operator, left, right)
+	}
 
-	return nodes.CreateBinaryExpression(nodes.NodePosition(startToken.Start), operator, left, right)
+	return left
 }
 
-func parseUnaryExpression(parser *Parser) nodes.Node {
-	token := parser.peek()
-	switch token.Type {
+func parseUnary(parser *Parser) nodes.Node {
+	operatorToken := parser.peek()
+	var operator nodes.UnaryOperator = -1
+	switch operatorToken.Type {
 	case lexing.ItemSubtraction:
-		parser.nextItem()
-		primary := parsePrimaryExpression(parser)
-		return nodes.CreateUnaryExpression(nodes.NodePosition(token.Start), nodes.UnaryOperatorSubtraction, primary)
+		operator = nodes.UnaryOperatorSubtraction
 	case lexing.ItemNot:
-		parser.nextItem()
-		primary := parsePrimaryExpression(parser)
-		return nodes.CreateUnaryExpression(nodes.NodePosition(token.Start), nodes.UnaryOperatorNot, primary)
+		operator = nodes.UnaryOperatorNot
 	case lexing.ItemSpread:
+		operator = nodes.UnaryOperatorSpread
+	}
+
+	if operator == -1 {
+		return parsePrimary(parser)
+	} else {
 		parser.nextItem()
-		primary := parsePrimaryExpression(parser)
-		return nodes.CreateUnaryExpression(nodes.NodePosition(token.Start), nodes.UnaryOperatorSpread, primary)
-	default:
-		return parsePrimaryExpression(parser)
+		primary := parsePrimary(parser)
+		return nodes.CreateUnary(nodes.NodePosition(operatorToken.Start), operator, primary)
 	}
 }
 
-func parsePrimaryExpression(parser *Parser) nodes.Node {
+func parsePrimary(parser *Parser) nodes.Node {
 	// TODO: fix recursion
 	operand := parseOperand(parser)
 

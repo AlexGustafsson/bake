@@ -2,11 +2,11 @@ package nodes
 
 import "strings"
 
-type UnaryExpression struct {
+type Unary struct {
 	NodeType
 	NodePosition
 	Operator   UnaryOperator
-	Expression Node // PrimaryExpression
+	Expression Node
 }
 
 type UnaryOperator int
@@ -17,16 +17,16 @@ const (
 	UnaryOperatorSpread
 )
 
-func CreateUnaryExpression(position NodePosition, operator UnaryOperator, expression Node) *UnaryExpression {
-	return &UnaryExpression{
-		NodeType:     NodeTypeUnaryExpression,
+func CreateUnary(position NodePosition, operator UnaryOperator, expression Node) *Unary {
+	return &Unary{
+		NodeType:     NodeTypeUnary,
 		NodePosition: position,
 		Operator:     operator,
 		Expression:   expression,
 	}
 }
 
-func (node *UnaryExpression) String() string {
+func (node *Unary) String() string {
 	var builder strings.Builder
 
 	switch node.Operator {

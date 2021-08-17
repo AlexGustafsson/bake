@@ -26,11 +26,8 @@ const (
 	NodeTypeInterpretedString
 	NodeTypeRawString
 	NodeTypeVariableDeclaration
-	NodeTypeBinaryExpression
 	NodeTypeIdentifier
 	NodeTypeInteger
-	NodeTypePrimaryExpression
-	NodeTypeUnaryExpression
 	NodeTypeSignature
 	NodeTypeFunctionDeclaration
 	NodeTypeBlock
@@ -47,4 +44,10 @@ const (
 	NodeTypeDivisionAssignment
 	NodeTypeShellStatement
 	NodeTypeAssignment
+	NodeTypeComparison
+	NodeTypeEquality
+	NodeTypeFactor
+	NodeTypePrimary
+	NodeTypeTerm
+	NodeTypeUnary
 )

@@ -100,24 +100,29 @@ assignment_operand = [ additive_operator | multiplicative_operator | "?" ] "=" .
 
 
 ```ebnf
-Expression = UnaryExpression
-           | Expression binary_operator Expression
-           .
+Expression = Equality .
 
-UnaryExpression = [ unary_operator ] PrimaryExpression .
+Equality = Comparison { equality_operator Comparison } .
+equality_operator = "==" | "!=" | "<" | "<=" | ">" | ">=" .
 
-binary_operator = "||" | "&&" | comparison_operator | additive_operator | multiplicative_operator .
-comparison_operator = "==" | "!=" | "<" | "<=" | ">" | ">=" .
-additive_operator = "+" | "-" | "|" | "^" .
-multiplicative_operator = "*" | "/" | "%" | "<<" | ">>" | "&" .
+Comparison = Term { comparison_operator Term } .
+comparison_operator = "||" | "&&" .
+
+Term = Factor { additive_operator Factor } .
+additive_operator = "+" | "-" .
+
+Factor = Unary { multiplicative_operator Unary } .
+multiplicative_operator = "*" | "/" .
+
+Unary = [ unary_operator ] Primary .
 unary_operator = "-" | "!" | "..." .
 
-PrimaryExpression = Operand
-                  | PrimaryExpression Selector
-                  | PrimaryExpression ImportSelector
-                  | PrimaryExpression Index
-                  | PrimaryExpression Arguments
-                  .
+Primary = Operand
+        | PrimaryExpression Selector
+        | PrimaryExpression ImportSelector
+        | PrimaryExpression Index
+        | PrimaryExpression Arguments
+        .
 
 Operand = Literal | identifier | "(" Expression ")" .
 Literal = boolean_literal | integer_literal | string_literal .

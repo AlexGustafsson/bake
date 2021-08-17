@@ -1,5 +1,7 @@
 package nodes
 
+import "fmt"
+
 type InterpretedString struct {
 	NodeType
 	NodePosition
@@ -34,4 +36,14 @@ func (node *RawString) String() string {
 
 func (node *InterpretedString) String() string {
 	return node.Content
+}
+
+func (node *InterpretedString) DotString() string {
+	// TODO: Escape?
+	return fmt.Sprintf("\"%p\" [label=\"%s\"];\n", node, "interpreted string")
+}
+
+func (node *RawString) DotString() string {
+	// TODO: Escape?
+	return fmt.Sprintf("\"%p\" [label=\"%s\"];\n", node, "raw string")
 }

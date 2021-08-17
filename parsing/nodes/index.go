@@ -23,3 +23,7 @@ func CreateIndex(position NodePosition, operand Node, expression Node) *Index {
 func (node *Index) String() string {
 	return fmt.Sprintf("%s[%s]", node.Operand.String(), node.Expression)
 }
+
+func (node *Index) DotString() string {
+	return ""
+}

@@ -44,3 +44,7 @@ func (node *FunctionDeclaration) String() string {
 
 	return builder.String()
 }
+
+func (node *FunctionDeclaration) DotString() string {
+	return ""
+}

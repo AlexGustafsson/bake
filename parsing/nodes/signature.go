@@ -36,3 +36,7 @@ func (node *Signature) String() string {
 
 	return builder.String()
 }
+
+func (node *Signature) DotString() string {
+	return ""
+}

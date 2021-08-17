@@ -1,5 +1,7 @@
 package nodes
 
+import "fmt"
+
 type Number struct {
 	NodeType
 	NodePosition
@@ -22,4 +24,8 @@ func CreateInteger(position NodePosition, value string) *Integer {
 
 func (node *Number) String() string {
 	return node.Value
+}
+
+func (node *Number) DotString() string {
+	return fmt.Sprintf("\"%p\" [label=\"number %s\"];\n", node, node.Value)
 }

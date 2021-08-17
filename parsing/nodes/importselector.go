@@ -23,3 +23,7 @@ func CreateImportSelector(position NodePosition, operand Node, identifier string
 func (node *ImportSelector) String() string {
 	return fmt.Sprintf("%s::%s", node.Operand.String(), node.Identifier)
 }
+
+func (node *ImportSelector) DotString() string {
+	return ""
+}

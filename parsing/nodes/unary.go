@@ -1,14 +1,18 @@
 package nodes
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type Unary struct {
 	NodeType
 	NodePosition
-	Operator   UnaryOperator
-	Expression Node
+	Operator UnaryOperator
+	Primary  Node
 }
 
+//go:generate stringer -type=UnaryOperator
 type UnaryOperator int
 
 const (
@@ -17,12 +21,12 @@ const (
 	UnaryOperatorSpread
 )
 
-func CreateUnary(position NodePosition, operator UnaryOperator, expression Node) *Unary {
+func CreateUnary(position NodePosition, operator UnaryOperator, primary Node) *Unary {
 	return &Unary{
 		NodeType:     NodeTypeUnary,
 		NodePosition: position,
 		Operator:     operator,
-		Expression:   expression,
+		Primary:      primary,
 	}
 }
 
@@ -38,7 +42,11 @@ func (node *Unary) String() string {
 		builder.WriteString("...")
 	}
 
-	builder.WriteString(node.Expression.String())
+	builder.WriteString(node.Primary.String())
 
 	return builder.String()
+}
+
+func (node *Unary) DotString() string {
+	return fmt.Sprintf("\"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"Primary\"];\n%s", node, node.Operator.String(), node, node.Primary, node.Primary.DotString())
 }

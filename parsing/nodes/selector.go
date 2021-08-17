@@ -23,3 +23,7 @@ func CreateSelector(position NodePosition, operand Node, identifier string) *Sel
 func (node *Selector) String() string {
 	return fmt.Sprintf("%s.%s", node.Operand.String(), node.Identifier)
 }
+
+func (node *Selector) DotString() string {
+	return ""
+}

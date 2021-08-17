@@ -35,3 +35,7 @@ func (node *Invokation) String() string {
 
 	return builder.String()
 }
+
+func (node *Invokation) DotString() string {
+	return ""
+}

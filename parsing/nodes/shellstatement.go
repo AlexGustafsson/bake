@@ -27,3 +27,7 @@ func (node *ShellStatement) String() string {
 		return fmt.Sprintf("shell %s", node.ShellString)
 	}
 }
+
+func (node *ShellStatement) DotString() string {
+	return fmt.Sprintf("\"%p\" [label=\"shell\"]", node)
+}

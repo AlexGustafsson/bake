@@ -24,6 +24,10 @@ func (node *Assignment) String() string {
 	return fmt.Sprintf("%s = %s", node.Expression.String(), node.Value.String())
 }
 
+func (node *Assignment) DotString() string {
+	return fmt.Sprintf("\"%p\" -> \"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"%s\"];\n%s%s", node, node.Expression, "left", node, node.Value, "right", node.Expression.DotString(), node.Value.DotString())
+}
+
 type Increment struct {
 	NodeType
 	NodePosition
@@ -42,6 +46,10 @@ func (node *Increment) String() string {
 	return fmt.Sprintf("%s++", node.Expression.String())
 }
 
+func (node *Increment) DotString() string {
+	return fmt.Sprintf("\"%p\" [label=\"increment\"];\n\"%p\" -> \"%p\";\n%s", node, node, node.Expression, node.Expression.DotString())
+}
+
 type Decrement struct {
 	NodeType
 	NodePosition
@@ -58,6 +66,10 @@ func CreateDecrement(position NodePosition, expression Node) *Decrement {
 
 func (node *Decrement) String() string {
 	return fmt.Sprintf("%s--", node.Expression.String())
+}
+
+func (node *Decrement) DotString() string {
+	return fmt.Sprintf("\"%p\" [label=\"decrement\"];\n\"%p\" -> \"%p\";\n%s", node, node, node.Expression, node.Expression.DotString())
 }
 
 type LooseAssignment struct {
@@ -80,6 +92,10 @@ func (node *LooseAssignment) String() string {
 	return fmt.Sprintf("%s ?= %s", node.Expression.String(), node.Value.String())
 }
 
+func (node *LooseAssignment) DotString() string {
+	return fmt.Sprintf("\"%p\" -> \"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"%s\"];\n%s%s", node, node.Expression, "left", node, node.Value, "right", node.Expression.DotString(), node.Value.DotString())
+}
+
 type AdditionAssignment struct {
 	NodeType
 	NodePosition
@@ -98,6 +114,10 @@ func CreateAdditionAssignment(position NodePosition, expression Node, value Node
 
 func (node *AdditionAssignment) String() string {
 	return fmt.Sprintf("%s += %s", node.Expression.String(), node.Value.String())
+}
+
+func (node *AdditionAssignment) DotString() string {
+	return fmt.Sprintf("\"%p\" -> \"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"%s\"];\n%s%s", node, node.Expression, "left", node, node.Value, "right", node.Expression.DotString(), node.Value.DotString())
 }
 
 type SubtractionAssignment struct {
@@ -120,6 +140,10 @@ func (node *SubtractionAssignment) String() string {
 	return fmt.Sprintf("%s -= %s", node.Expression.String(), node.Value.String())
 }
 
+func (node *SubtractionAssignment) DotString() string {
+	return fmt.Sprintf("\"%p\" -> \"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"%s\"];\n%s%s", node, node.Expression, "left", node, node.Value, "right", node.Expression.DotString(), node.Value.DotString())
+}
+
 type MultiplicationAssignment struct {
 	NodeType
 	NodePosition
@@ -140,6 +164,10 @@ func (node *MultiplicationAssignment) String() string {
 	return fmt.Sprintf("%s *= %s", node.Expression.String(), node.Value.String())
 }
 
+func (node *MultiplicationAssignment) DotString() string {
+	return fmt.Sprintf("\"%p\" -> \"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"%s\"];\n%s%s", node, node.Expression, "left", node, node.Value, "right", node.Expression.DotString(), node.Value.DotString())
+}
+
 type DivisionAssignment struct {
 	NodeType
 	NodePosition
@@ -158,4 +186,8 @@ func CreateDivisionAssignment(position NodePosition, expression Node, value Node
 
 func (node *DivisionAssignment) String() string {
 	return fmt.Sprintf("%s /= %s", node.Expression.String(), node.Value.String())
+}
+
+func (node *DivisionAssignment) DotString() string {
+	return fmt.Sprintf("\"%p\" -> \"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"%s\"];\n%s%s", node, node.Expression, "left", node, node.Value, "right", node.Expression.DotString(), node.Value.DotString())
 }

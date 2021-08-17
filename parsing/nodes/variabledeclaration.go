@@ -1,6 +1,7 @@
 package nodes
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -34,4 +35,8 @@ func (node *VariableDeclaration) String() string {
 	builder.WriteString("\n")
 
 	return builder.String()
+}
+
+func (node *VariableDeclaration) DotString() string {
+	return fmt.Sprintf("\"%p\" [label=\"declaration %s\"];\n\"%p\" -> \"%p\" [label=\"expression\"];\n%s", node, node.Identifier, node, node.Expression, node.Expression.DotString())
 }

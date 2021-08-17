@@ -32,3 +32,7 @@ func (node *ImportsDeclaration) String() string {
 
 	return builder.String()
 }
+
+func (node *ImportsDeclaration) DotString() string {
+	return ""
+}

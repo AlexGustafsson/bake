@@ -2,17 +2,15 @@ package nodes
 
 import (
 	"fmt"
-
-	"github.com/AlexGustafsson/bake/lexing"
 )
 
 type PackageDeclaration struct {
 	NodeType
 	NodePosition
-	Identifier lexing.Item
+	Identifier string
 }
 
-func CreatePackageDeclaration(position NodePosition, identifier lexing.Item) *PackageDeclaration {
+func CreatePackageDeclaration(position NodePosition, identifier string) *PackageDeclaration {
 	return &PackageDeclaration{
 		NodeType:     NodeTypePackageDeclaration,
 		NodePosition: position,
@@ -21,5 +19,9 @@ func CreatePackageDeclaration(position NodePosition, identifier lexing.Item) *Pa
 }
 
 func (node *PackageDeclaration) String() string {
-	return fmt.Sprintf("package %s\n", node.Identifier.String())
+	return fmt.Sprintf("package %s\n", node.Identifier)
+}
+
+func (node *PackageDeclaration) DotString() string {
+	return fmt.Sprintf("\"%p\" [label=\"package %s\"];\n", node, node.Identifier)
 }

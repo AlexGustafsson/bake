@@ -48,7 +48,7 @@ func parsePackageDeclaration(parser *Parser) (*nodes.PackageDeclaration, bool) {
 	startToken := parser.require(lexing.ItemKeywordPackage)
 	identifier := parser.require(lexing.ItemIdentifier)
 	parser.require(lexing.ItemNewline)
-	return nodes.CreatePackageDeclaration(nodes.NodePosition(startToken.Start), identifier), true
+	return nodes.CreatePackageDeclaration(nodes.NodePosition(startToken.Start), identifier.Value), true
 }
 
 func parseImportsDeclaration(parser *Parser) (*nodes.ImportsDeclaration, bool) {

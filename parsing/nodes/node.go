@@ -3,6 +3,7 @@ package nodes
 type Node interface {
 	Type() NodeType
 	String() string
+	DotString() string
 	Position() NodePosition
 }
 

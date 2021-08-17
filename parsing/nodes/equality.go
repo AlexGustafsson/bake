@@ -1,6 +1,7 @@
 package nodes
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -12,6 +13,7 @@ type Equality struct {
 	Right    Node
 }
 
+//go:generate stringer -type=EqualityOperator
 type EqualityOperator int
 
 const (
@@ -60,4 +62,8 @@ func (node *Equality) String() string {
 	builder.WriteString(node.Right.String())
 
 	return builder.String()
+}
+
+func (node *Equality) DotString() string {
+	return fmt.Sprintf("\"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"left\"];\n\"%p\" -> \"%p\" [label=\"right\"];\n%s%s", node, node.Operator.String(), node, node.Left, node, node.Right, node.Left.DotString(), node.Right.DotString())
 }

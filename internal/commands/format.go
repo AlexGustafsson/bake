@@ -9,7 +9,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func parseCommand(context *cli.Context) error {
+func formatCommand(context *cli.Context) error {
 	inputPath := context.String("input")
 	file, err := os.Open(inputPath)
 	if err != nil {
@@ -27,7 +27,7 @@ func parseCommand(context *cli.Context) error {
 		return err
 	}
 
-	fmt.Print(sourceFile.DotString())
+	fmt.Print(sourceFile.String())
 
 	return nil
 }

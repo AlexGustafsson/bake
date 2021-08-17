@@ -1,6 +1,7 @@
 package nodes
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -12,6 +13,7 @@ type Comparison struct {
 	Right    Node
 }
 
+//go:generate stringer -type=ComparisonOperator
 type ComparisonOperator int
 
 const (
@@ -48,4 +50,8 @@ func (node *Comparison) String() string {
 	builder.WriteString(node.Right.String())
 
 	return builder.String()
+}
+
+func (node *Comparison) DotString() string {
+	return fmt.Sprintf("\"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"left\"];\n\"%p\" -> \"%p\" [label=\"right\"];\n%s%s", node, node.Operator.String(), node, node.Left, node, node.Right, node.Left.DotString(), node.Right.DotString())
 }

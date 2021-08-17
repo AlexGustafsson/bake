@@ -24,6 +24,18 @@ var Commands = []*cli.Command{
 		},
 	},
 	{
+		Name:   "format",
+		Usage:  "Format a Bakefile",
+		Action: formatCommand,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "input",
+				Aliases: []string{"i"},
+				Usage:   "Path to input file",
+			},
+		},
+	},
+	{
 		Name:   "lex",
 		Usage:  "Lex a Bakefile",
 		Action: lexCommand,

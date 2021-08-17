@@ -4,6 +4,26 @@ import (
 	"fmt"
 )
 
+type Assignment struct {
+	NodeType
+	NodePosition
+	Expression Node
+	Value      Node
+}
+
+func CreateAssignment(position NodePosition, expression Node, value Node) *Assignment {
+	return &Assignment{
+		NodeType:     NodeTypeAssignment,
+		NodePosition: position,
+		Expression:   expression,
+		Value:        value,
+	}
+}
+
+func (node *Assignment) String() string {
+	return fmt.Sprintf("%s = %s", node.Expression.String(), node.Value.String())
+}
+
 type Increment struct {
 	NodeType
 	NodePosition

@@ -228,6 +228,10 @@ func parseStatement(parser *Parser) nodes.Node {
 			parser.nextItem()
 			value := parseExpression(parser)
 			return nodes.CreateDivisionAssignment(expression.Position(), expression, value)
+		case lexing.ItemAssignment:
+			parser.nextItem()
+			value := parseExpression(parser)
+			return nodes.CreateAssignment(expression.Position(), expression, value)
 		}
 
 		return expression

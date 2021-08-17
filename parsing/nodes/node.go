@@ -46,4 +46,5 @@ const (
 	NodeTypeMultiplicationAssignment
 	NodeTypeDivisionAssignment
 	NodeTypeShellStatement
+	NodeTypeAssignment
 )

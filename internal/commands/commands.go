@@ -17,9 +17,16 @@ var Commands = []*cli.Command{
 		Action: parseCommand,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "input",
-				Aliases: []string{"i"},
-				Usage:   "Path to input file",
+				Name:     "input",
+				Aliases:  []string{"i"},
+				Usage:    "Path to input file",
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:        "type",
+				Aliases:     []string{"t"},
+				Usage:       "Output type",
+				DefaultText: "dot",
 			},
 		},
 	},
@@ -29,9 +36,10 @@ var Commands = []*cli.Command{
 		Action: formatCommand,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "input",
-				Aliases: []string{"i"},
-				Usage:   "Path to input file",
+				Name:     "input",
+				Aliases:  []string{"i"},
+				Usage:    "Path to input file",
+				Required: true,
 			},
 		},
 	},
@@ -41,9 +49,10 @@ var Commands = []*cli.Command{
 		Action: lexCommand,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "input",
-				Aliases: []string{"i"},
-				Usage:   "Path to input file",
+				Name:     "input",
+				Aliases:  []string{"i"},
+				Usage:    "Path to input file",
+				Required: true,
 			},
 		},
 	},

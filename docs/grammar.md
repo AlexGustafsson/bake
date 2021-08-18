@@ -36,7 +36,9 @@ Lastly, `...` denotes a range of characters.
 ### Source file
 
 ```
-SourceFile = [ PackageDeclaration ] [ ImportsDeclaration ] { TopLevelDeclaration } .
+SourceFile = { Prolog } .
+
+Prolog = "\n" | PackageDeclaration | ImportsDeclaration | TopLevelDeclaration .
 
 PackageDeclaration = "package" identifier .
 

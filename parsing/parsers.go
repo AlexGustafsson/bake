@@ -14,14 +14,6 @@ func parseSourceFile(parser *Parser) (*nodes.SourceFile, error) {
 
 	sourceFile := nodes.CreateSourceFile(nodes.CreateNodePosition(0, 0, 0))
 
-	if packageDeclaration, ok := parsePackageDeclaration(parser); ok {
-		sourceFile.Nodes = append(sourceFile.Nodes, packageDeclaration)
-	}
-
-	if importsDeclaration, ok := parseImportsDeclaration(parser); ok {
-		sourceFile.Nodes = append(sourceFile.Nodes, importsDeclaration)
-	}
-
 	declarations := make([]nodes.Node, 0)
 dec:
 	for {
@@ -33,6 +25,12 @@ dec:
 		case lexing.ItemEndOfInput:
 			parser.nextItem()
 			break dec
+		case lexing.ItemKeywordPackage:
+			declaration := parsePackageDeclaration(parser)
+			declarations = append(declarations, declaration)
+		case lexing.ItemKeywordImport:
+			declaration := parseImportsDeclaration(parser)
+			declarations = append(declarations, declaration)
 		default:
 			declaration := parseTopLevelDeclaration(parser)
 			declarations = append(declarations, declaration)
@@ -44,22 +42,14 @@ dec:
 	return sourceFile, nil
 }
 
-func parsePackageDeclaration(parser *Parser) (*nodes.PackageDeclaration, bool) {
-	if _, ok := parser.expectPeek(lexing.ItemKeywordPackage); !ok {
-		return nil, false
-	}
-
+func parsePackageDeclaration(parser *Parser) *nodes.PackageDeclaration {
 	startToken := parser.require(lexing.ItemKeywordPackage)
 	identifier := parser.require(lexing.ItemIdentifier)
 	parser.require(lexing.ItemNewline)
-	return nodes.CreatePackageDeclaration(nodePosition(startToken), identifier.Value), true
+	return nodes.CreatePackageDeclaration(nodePosition(startToken), identifier.Value)
 }
 
-func parseImportsDeclaration(parser *Parser) (*nodes.ImportsDeclaration, bool) {
-	if _, ok := parser.expectPeek(lexing.ItemKeywordImport); !ok {
-		return nil, false
-	}
-
+func parseImportsDeclaration(parser *Parser) *nodes.ImportsDeclaration {
 	startToken := parser.require(lexing.ItemKeywordImport)
 
 	parser.require(lexing.ItemLeftParentheses)
@@ -79,7 +69,7 @@ func parseImportsDeclaration(parser *Parser) (*nodes.ImportsDeclaration, bool) {
 
 	parser.require(lexing.ItemRightParentheses)
 
-	return nodes.CreateImportsDeclaration(nodePosition(startToken), imports), true
+	return nodes.CreateImportsDeclaration(nodePosition(startToken), imports)
 }
 
 func parseTopLevelDeclaration(parser *Parser) nodes.Node {

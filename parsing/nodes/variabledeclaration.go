@@ -38,5 +38,11 @@ func (node *VariableDeclaration) String() string {
 }
 
 func (node *VariableDeclaration) DotString() string {
-	return fmt.Sprintf("\"%p\" [label=\"declaration %s\"];\n\"%p\" -> \"%p\" [label=\"expression\"];\n%s", node, node.Identifier, node, node.Expression, node.Expression.DotString())
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "variable declaration")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, &node.Identifier, "identifier")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "expression")
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", &node.Identifier, node.Identifier)
+	builder.WriteString(node.Expression.DotString())
+	return builder.String()
 }

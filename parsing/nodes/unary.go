@@ -48,5 +48,9 @@ func (node *Unary) String() string {
 }
 
 func (node *Unary) DotString() string {
-	return fmt.Sprintf("\"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"Primary\"];\n%s", node, node.Operator.String(), node, node.Primary, node.Primary.DotString())
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "unary")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Primary, "primary")
+	builder.WriteString(node.Primary.DotString())
+	return builder.String()
 }

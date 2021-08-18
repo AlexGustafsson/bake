@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"fmt"
+	"strings"
 )
 
 type ImportSelector struct {
@@ -25,5 +26,11 @@ func (node *ImportSelector) String() string {
 }
 
 func (node *ImportSelector) DotString() string {
-	return ""
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "index")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Operand, "operand")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, &node.Identifier, "identifier")
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", &node.Identifier, node.Identifier)
+	builder.WriteString(node.Operand.DotString())
+	return builder.String()
 }

@@ -21,5 +21,5 @@ func (node *Identifier) String() string {
 }
 
 func (node *Identifier) DotString() string {
-	return fmt.Sprintf("\"%p\" [label=\"%s\"];\n", node, node.Value)
+	return fmt.Sprintf("\"%p\" [label=\"identifier '%s'\"];\n", node, node.Value)
 }

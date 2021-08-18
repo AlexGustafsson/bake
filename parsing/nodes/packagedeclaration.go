@@ -23,5 +23,5 @@ func (node *PackageDeclaration) String() string {
 }
 
 func (node *PackageDeclaration) DotString() string {
-	return fmt.Sprintf("\"%p\" [label=\"package %s\"];\n", node, node.Identifier)
+	return fmt.Sprintf("\"%p\" [label=\"package declaration '%s'\"];\n", node, node.Identifier)
 }

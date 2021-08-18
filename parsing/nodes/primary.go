@@ -1,5 +1,10 @@
 package nodes
 
+import (
+	"fmt"
+	"strings"
+)
+
 type Primary struct {
 	NodeType
 	NodePosition
@@ -21,5 +26,9 @@ func (node *Primary) String() string {
 }
 
 func (node *Primary) DotString() string {
-	return node.Operand.DotString()
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "primary")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Operand, "operand")
+	builder.WriteString(node.Operand.DotString())
+	return builder.String()
 }

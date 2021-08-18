@@ -53,5 +53,11 @@ func (node *Comparison) String() string {
 }
 
 func (node *Comparison) DotString() string {
-	return fmt.Sprintf("\"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"left\"];\n\"%p\" -> \"%p\" [label=\"right\"];\n%s%s", node, node.Operator.String(), node, node.Left, node, node.Right, node.Left.DotString(), node.Right.DotString())
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, node.Operator.String())
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Left, "left")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Right, "right")
+	builder.WriteString(node.Left.DotString())
+	builder.WriteString(node.Right.DotString())
+	return builder.String()
 }

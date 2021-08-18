@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"fmt"
+	"strings"
 )
 
 type Index struct {
@@ -25,5 +26,11 @@ func (node *Index) String() string {
 }
 
 func (node *Index) DotString() string {
-	return ""
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "index")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Operand, "operand")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "expression")
+	builder.WriteString(node.Operand.DotString())
+	builder.WriteString(node.Expression.DotString())
+	return builder.String()
 }

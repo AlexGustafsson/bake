@@ -21,5 +21,5 @@ func (node *Boolean) String() string {
 }
 
 func (node *Boolean) DotString() string {
-	return fmt.Sprintf("\"%p\" [label=\"%s\"];", node, node.Value)
+	return fmt.Sprintf("\"%p\" [label=\"boolean '%s'\"];", node, node.Value)
 }

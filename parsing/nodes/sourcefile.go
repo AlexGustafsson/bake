@@ -34,10 +34,10 @@ func (node *SourceFile) DotString() string {
 
 	builder.WriteString("digraph G {\n")
 
-	builder.WriteString(fmt.Sprintf("\"%p\" [label=\"source file\"];\n", node))
+	fmt.Fprintf(&builder, "\"%p\" [label=\"source file\"];\n", node)
 
 	for _, child := range node.Nodes {
-		builder.WriteString(fmt.Sprintf("\"%p\" -> \"%p\";\n", node, child))
+		fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, child)
 		builder.WriteString(child.DotString())
 	}
 

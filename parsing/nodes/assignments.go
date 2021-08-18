@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"fmt"
+	"strings"
 )
 
 type Assignment struct {
@@ -25,7 +26,12 @@ func (node *Assignment) String() string {
 }
 
 func (node *Assignment) DotString() string {
-	return fmt.Sprintf("\"%p\" -> \"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"%s\"];\n%s%s", node, node.Expression, "left", node, node.Value, "right", node.Expression.DotString(), node.Value.DotString())
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "assignment")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
+	builder.WriteString(node.Expression.DotString())
+	return builder.String()
 }
 
 type Increment struct {
@@ -47,7 +53,11 @@ func (node *Increment) String() string {
 }
 
 func (node *Increment) DotString() string {
-	return fmt.Sprintf("\"%p\" [label=\"increment\"];\n\"%p\" -> \"%p\";\n%s", node, node, node.Expression, node.Expression.DotString())
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "increment")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
+	builder.WriteString(node.Expression.DotString())
+	return builder.String()
 }
 
 type Decrement struct {
@@ -69,7 +79,11 @@ func (node *Decrement) String() string {
 }
 
 func (node *Decrement) DotString() string {
-	return fmt.Sprintf("\"%p\" [label=\"decrement\"];\n\"%p\" -> \"%p\";\n%s", node, node, node.Expression, node.Expression.DotString())
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "decrement")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
+	builder.WriteString(node.Expression.DotString())
+	return builder.String()
 }
 
 type LooseAssignment struct {
@@ -93,7 +107,12 @@ func (node *LooseAssignment) String() string {
 }
 
 func (node *LooseAssignment) DotString() string {
-	return fmt.Sprintf("\"%p\" -> \"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"%s\"];\n%s%s", node, node.Expression, "left", node, node.Value, "right", node.Expression.DotString(), node.Value.DotString())
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "loose assignment")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
+	builder.WriteString(node.Expression.DotString())
+	return builder.String()
 }
 
 type AdditionAssignment struct {
@@ -117,7 +136,12 @@ func (node *AdditionAssignment) String() string {
 }
 
 func (node *AdditionAssignment) DotString() string {
-	return fmt.Sprintf("\"%p\" -> \"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"%s\"];\n%s%s", node, node.Expression, "left", node, node.Value, "right", node.Expression.DotString(), node.Value.DotString())
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "addition assignment")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
+	builder.WriteString(node.Expression.DotString())
+	return builder.String()
 }
 
 type SubtractionAssignment struct {
@@ -141,7 +165,12 @@ func (node *SubtractionAssignment) String() string {
 }
 
 func (node *SubtractionAssignment) DotString() string {
-	return fmt.Sprintf("\"%p\" -> \"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"%s\"];\n%s%s", node, node.Expression, "left", node, node.Value, "right", node.Expression.DotString(), node.Value.DotString())
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "subtraction assignment")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
+	builder.WriteString(node.Expression.DotString())
+	return builder.String()
 }
 
 type MultiplicationAssignment struct {
@@ -165,7 +194,12 @@ func (node *MultiplicationAssignment) String() string {
 }
 
 func (node *MultiplicationAssignment) DotString() string {
-	return fmt.Sprintf("\"%p\" -> \"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"%s\"];\n%s%s", node, node.Expression, "left", node, node.Value, "right", node.Expression.DotString(), node.Value.DotString())
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "multiplication assignment")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
+	builder.WriteString(node.Expression.DotString())
+	return builder.String()
 }
 
 type DivisionAssignment struct {
@@ -189,5 +223,10 @@ func (node *DivisionAssignment) String() string {
 }
 
 func (node *DivisionAssignment) DotString() string {
-	return fmt.Sprintf("\"%p\" -> \"%p\" [label=\"%s\"];\n\"%p\" -> \"%p\" [label=\"%s\"];\n%s%s", node, node.Expression, "left", node, node.Value, "right", node.Expression.DotString(), node.Value.DotString())
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "division assignment")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
+	builder.WriteString(node.Expression.DotString())
+	return builder.String()
 }

@@ -1,6 +1,7 @@
 package nodes
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -19,8 +20,9 @@ func CreateFunctionDeclaration(position NodePosition, exported bool, identifier 
 		NodePosition: position,
 		Exported:     exported,
 		Identifier:   identifier,
-		Signature:    signature,
-		Block:        block,
+		// Signature may be nil
+		Signature: signature,
+		Block:     block,
 	}
 }
 
@@ -46,5 +48,19 @@ func (node *FunctionDeclaration) String() string {
 }
 
 func (node *FunctionDeclaration) DotString() string {
-	return ""
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"", node)
+	if node.Exported {
+		builder.WriteString("export ")
+	}
+	fmt.Fprintf(&builder, "func %s\"];\n", node.Identifier)
+
+	if node.Signature != nil {
+		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"signature\"];\n", node, node.Signature)
+		builder.WriteString(node.Signature.DotString())
+	}
+
+	fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, node.Block)
+	builder.WriteString(node.Block.DotString())
+	return builder.String()
 }

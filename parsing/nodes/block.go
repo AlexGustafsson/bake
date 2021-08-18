@@ -39,10 +39,10 @@ func (node *Block) String() string {
 func (node *Block) DotString() string {
 	var builder strings.Builder
 
-	builder.WriteString(fmt.Sprintf("\"%p\" [label=\"block\"];\n", node))
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "block")
 
 	for _, statement := range node.Statements {
-		builder.WriteString(fmt.Sprintf("\"%p\" -> \"%p\";\n", node, statement))
+		fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, statement)
 		builder.WriteString(statement.DotString())
 	}
 

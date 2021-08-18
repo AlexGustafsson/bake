@@ -40,10 +40,10 @@ func (node *InterpretedString) String() string {
 
 func (node *InterpretedString) DotString() string {
 	// TODO: Escape?
-	return fmt.Sprintf("\"%p\" [label=\"%s\"];\n", node, "interpreted string")
+	return fmt.Sprintf("\"%p\" [label=\"interpreted string '%s'\"];\n", node, "interpreted string")
 }
 
 func (node *RawString) DotString() string {
 	// TODO: Escape?
-	return fmt.Sprintf("\"%p\" [label=\"%s\"];\n", node, "raw string")
+	return fmt.Sprintf("\"%p\" [label=\"raw string '%s'\"];\n", node, "raw string")
 }

@@ -2,6 +2,7 @@ package nodes
 
 import (
 	"fmt"
+	"strings"
 )
 
 type ShellStatement struct {
@@ -29,5 +30,7 @@ func (node *ShellStatement) String() string {
 }
 
 func (node *ShellStatement) DotString() string {
-	return fmt.Sprintf("\"%p\" [label=\"shell\"]", node)
+	escaped := strings.ReplaceAll(node.ShellString, "\"", "\\\"")
+	escaped = strings.ReplaceAll(escaped, "\n", "\\n")
+	return fmt.Sprintf("\"%p\" [label=\"shell '%s'\"]", node, escaped)
 }

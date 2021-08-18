@@ -24,5 +24,5 @@ func (node *Comment) String() string {
 }
 
 func (node *Comment) DotString() string {
-	return fmt.Sprintf("\"%p\" [label=\"comment '%s'\"];", node, node.Content)
+	return fmt.Sprintf("\"%p\" [label=\"comment '%s'\"];", node, strings.ReplaceAll(node.Content, "\"", "\\\""))
 }

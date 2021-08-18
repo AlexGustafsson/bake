@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"fmt"
 	"runtime"
+	"strings"
 
 	"github.com/AlexGustafsson/bake/lexing"
 	"github.com/AlexGustafsson/bake/parsing/nodes"
@@ -12,6 +13,7 @@ import (
 type Parser struct {
 	lexer  *lexing.Lexer
 	peeked *list.List
+	input  string
 }
 
 func CreateParser() *Parser {
@@ -23,6 +25,7 @@ func CreateParser() *Parser {
 
 func Parse(input string) (*nodes.SourceFile, error) {
 	parser := CreateParser()
+	parser.input = input
 	return parser.Parse(input)
 }
 
@@ -44,6 +47,26 @@ func (parser *Parser) errorf(format string, args ...interface{}) {
 	panic(fmt.Errorf(format, args...))
 }
 
+func (parser *Parser) tokenErrorf(item lexing.Item, format string, args ...interface{}) {
+	// TODO: make less memory intensive
+	lines := strings.Split(parser.input, "\n")
+	line := lines[item.Line]
+
+	var builder strings.Builder
+
+	fmt.Fprintf(&builder, "\033[1mfile.bke:%d:%d\033[0m: \033[31;1merror\033[0m: ", item.Line, item.Column)
+	fmt.Fprintf(&builder, format, args...)
+	builder.WriteRune('\n')
+
+	start := line[0:item.Column]
+	end := line[item.Column+len(item.Value):]
+	fmt.Fprintf(&builder, "%s\033[31;1m%s\033[0m%s\n", start, item.Value, end)
+	builder.WriteString(strings.Repeat(" ", len(start)))
+	fmt.Fprintf(&builder, "\033[31;1m^%s\033[0m\n", strings.Repeat("~", len(item.Value)-1))
+
+	parser.errorf(builder.String())
+}
+
 func (parser *Parser) recover(errp *error) {
 	err := recover()
 	if err != nil {
@@ -60,7 +83,7 @@ func (parser *Parser) recover(errp *error) {
 func (parser *Parser) require(itemType lexing.ItemType) lexing.Item {
 	item, ok := parser.expect(itemType)
 	if !ok {
-		parser.errorf("line %d column %d: expected %s, got %s", item.Line+1, item.Column+1, itemType.String(), item.Type.String())
+		parser.tokenErrorf(item, "expected %s got %s", itemType.String(), item.Type.String())
 	}
 	return item
 }
@@ -69,7 +92,7 @@ func (parser *Parser) expect(itemType lexing.ItemType) (_ lexing.Item, ok bool) 
 	item := parser.nextItem()
 
 	if item.Type == lexing.ItemError {
-		parser.errorf("line %d column %d: %s", item.Line, item.Column, item.Message)
+		parser.tokenErrorf(item, item.Message)
 	}
 
 	if item.Type != itemType {

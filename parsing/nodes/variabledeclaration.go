@@ -41,8 +41,10 @@ func (node *VariableDeclaration) DotString() string {
 	var builder strings.Builder
 	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "variable declaration")
 	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, &node.Identifier, "identifier")
-	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "expression")
 	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", &node.Identifier, node.Identifier)
-	builder.WriteString(node.Expression.DotString())
+	if node.Expression != nil {
+		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "expression")
+		builder.WriteString(node.Expression.DotString())
+	}
 	return builder.String()
 }

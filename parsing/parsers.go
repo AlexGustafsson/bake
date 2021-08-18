@@ -102,10 +102,10 @@ func parseTopLevelDeclaration(parser *Parser) nodes.Node {
 		case lexing.ItemKeywordRule:
 			parser.errorf("rule functions are not implemented")
 		default:
-			parser.errorf("unexpected token '%s'", token.String())
+			parser.tokenErrorf(token, "unexpected %s", token.Type.String())
 		}
 	default:
-		parser.errorf("unexpected token '%s'", token.String())
+		parser.tokenErrorf(token, "unexpected %s", token.Type.String())
 	}
 	return nil
 }
@@ -187,7 +187,7 @@ dec:
 			parser.nextItem()
 			break dec
 		case lexing.ItemEndOfInput:
-			parser.errorf("unexpected end of file, expected '}'")
+			parser.tokenErrorf(token, "unexpected end of file, expected '}'")
 		default:
 			statement := parseStatement(parser)
 			statements = append(statements, statement)
@@ -443,7 +443,7 @@ func parseOperand(parser *Parser) nodes.Node {
 		parser.require(lexing.ItemRightParentheses)
 		return expression
 	default:
-		parser.errorf("line %d column %d: expected operand, found '%s'", token.Line+1, token.Column+1, token.Type.String())
+		parser.tokenErrorf(token, "expected operand, got '%s'", token.Type.String())
 		return nil
 	}
 }

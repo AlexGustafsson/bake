@@ -1,6 +1,7 @@
 package nodes
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -34,5 +35,11 @@ func (node *ImportsDeclaration) String() string {
 }
 
 func (node *ImportsDeclaration) DotString() string {
-	return ""
+	var builder strings.Builder
+	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "imports")
+	for _, literal := range node.Imports {
+		fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, literal)
+		builder.WriteString(literal.DotString())
+	}
+	return builder.String()
 }

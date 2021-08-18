@@ -38,7 +38,9 @@ func (handler Handler) handle(ctx context.Context, connection *jsonrpc2.Conn, re
 			return nil, &jsonrpc2.Error{Code: jsonrpc2.CodeInvalidParams}
 		}
 
-		kind := lsp.TDSKIncremental
+		// TODO: Switch to incremental when there is support
+		// Send full text on each update
+		kind := lsp.TDSKFull
 		return lsp.InitializeResult{
 			Capabilities: lsp.ServerCapabilities{
 				TextDocumentSync: &lsp.TextDocumentSyncOptionsOrKind{
@@ -57,6 +59,11 @@ func (handler Handler) handle(ctx context.Context, connection *jsonrpc2.Conn, re
 	case "initialized":
 		// A notification that the client is ready to receive requests. Ignore
 		return nil, nil
+	case "exit":
+		connection.Close()
+		return nil, nil
+	case "shutdown":
+		return nil, nil
 	case "textDocument/hover":
 		if request.Params == nil {
 			return nil, &jsonrpc2.Error{Code: jsonrpc2.CodeInvalidParams}
@@ -66,6 +73,33 @@ func (handler Handler) handle(ctx context.Context, connection *jsonrpc2.Conn, re
 			return nil, err
 		}
 		log.Infof("Hovering %d %d", params.Position.Line, params.Position.Character)
+		return nil, nil
+	case "textDocument/didOpen":
+		if request.Params == nil {
+			return nil, &jsonrpc2.Error{Code: jsonrpc2.CodeInvalidParams}
+		}
+
+		var params lsp.DidOpenTextDocumentParams
+		if err := json.Unmarshal(*request.Params, &params); err != nil {
+			return nil, err
+		}
+
+		if params.TextDocument.LanguageID != "bake" {
+			return nil, fmt.Errorf("unsupported language")
+		}
+
+		log.Infof("document opened: %s v%d", params.TextDocument.URI, params.TextDocument.Version)
+	case "textDocument/didClose":
+		if request.Params == nil {
+			return nil, &jsonrpc2.Error{Code: jsonrpc2.CodeInvalidParams}
+		}
+
+		var params lsp.DidOpenTextDocumentParams
+		if err := json.Unmarshal(*request.Params, &params); err != nil {
+			return nil, err
+		}
+
+		log.Infof("document closed: %s v%d", params.TextDocument.URI, params.TextDocument.Version)
 		return nil, nil
 	}
 

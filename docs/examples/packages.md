@@ -2,7 +2,7 @@ A package is a reusable bundle of functions, hooks and rules you may share with 
 
 ```bake
 package basic
-````
+```
 
 This package may then be published in a repository such as GitHub and imported in other Bake files. The system borrows a lot from go. The package name is expected to be the same as the directory it is in.
 

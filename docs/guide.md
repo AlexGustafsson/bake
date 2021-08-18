@@ -108,7 +108,7 @@ We can then write a rule for compiling and linking the main executable.
 "main" ["main.c", "lib.so"] {
   shell gcc -o $@ $<
 }
-````
+```
 
 Lastly, for convenience we can add a `clean` function to remove all of the compiled files.
 
@@ -119,7 +119,7 @@ Lastly, for convenience we can add a `clean` function to remove all of the compi
 func clean {
   shell rm lib.o lib.so main &>/dev/null || true
 }
-````
+```
 
 Our final build script looks like this.
 

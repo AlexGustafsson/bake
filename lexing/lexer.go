@@ -8,23 +8,26 @@ import (
 type stateModifier func(lexer *Lexer) stateModifier
 
 type Lexer struct {
-	input     string
-	position  int
-	line      int
+	input    string
+	position int
+	// startColumn is the offset in the current line to the first rune of the current token
+	startColumn int
+	// column is the offset in the current line to the current rune
+	column    int
 	startLine int
-	start     int
-	runeWidth int
-	items     chan Item
+	// lineLengths are the lengths of past lines in runes
+	lineLengths []int
+	line        int
+	start       int
+	runeWidth   int
+	items       chan Item
 }
 
 func Lex(input string) *Lexer {
 	lexer := &Lexer{
-		input:     input,
-		position:  0,
-		line:      0,
-		startLine: 0,
-		start:     0,
-		items:     make(chan Item),
+		input:       input,
+		lineLengths: make([]int, 0),
+		items:       make(chan Item),
 	}
 	go lexer.run()
 	return lexer
@@ -54,6 +57,10 @@ func (lexer *Lexer) Next() rune {
 
 	if rune == '\n' {
 		lexer.line++
+		lexer.lineLengths = append(lexer.lineLengths, lexer.column)
+		lexer.column = 0
+	} else {
+		lexer.column++
 	}
 
 	return rune
@@ -86,8 +93,12 @@ func (lexer *Lexer) Peek() rune {
 
 func (lexer *Lexer) Backtrack() {
 	lexer.position -= lexer.runeWidth
+	lexer.column--
 	if lexer.runeWidth == 1 && lexer.input[lexer.position] == '\n' {
 		lexer.line--
+		stackSize := len(lexer.lineLengths)
+		lexer.column = lexer.lineLengths[stackSize-1]
+		lexer.lineLengths = lexer.lineLengths[:stackSize]
 	}
 }
 
@@ -99,13 +110,15 @@ func (lexer *Lexer) BacktrackCount(count int) {
 
 func (lexer *Lexer) Emit(itemType ItemType) {
 	lexer.items <- Item{
-		Type:  itemType,
-		Start: lexer.start,
-		Value: lexer.input[lexer.start:lexer.position],
-		Line:  lexer.startLine,
+		Type:   itemType,
+		Start:  lexer.start,
+		Value:  lexer.input[lexer.start:lexer.position],
+		Line:   lexer.startLine,
+		Column: lexer.startColumn,
 	}
 	lexer.start = lexer.position
 	lexer.startLine = lexer.line
+	lexer.startColumn = lexer.column
 }
 
 func (lexer *Lexer) EmitWithMessage(itemType ItemType, message string) {
@@ -115,9 +128,11 @@ func (lexer *Lexer) EmitWithMessage(itemType ItemType, message string) {
 		Value:   lexer.input[lexer.start:lexer.position],
 		Message: message,
 		Line:    lexer.startLine,
+		Column:  lexer.startColumn,
 	}
 	lexer.start = lexer.position
 	lexer.startLine = lexer.line
+	lexer.startColumn = lexer.column
 }
 
 func (lexer *Lexer) NextItem() Item {
@@ -144,6 +159,7 @@ func (lexer *Lexer) AllItems() []Item {
 func (lexer *Lexer) Ignore() {
 	lexer.start = lexer.position
 	lexer.startLine = lexer.line
+	lexer.startColumn = lexer.column
 }
 
 func (lexer *Lexer) errorf(format string, args ...interface{}) {

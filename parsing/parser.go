@@ -60,7 +60,7 @@ func (parser *Parser) recover(errp *error) {
 func (parser *Parser) require(itemType lexing.ItemType) lexing.Item {
 	item, ok := parser.expect(itemType)
 	if !ok {
-		parser.errorf("line %d: expected %s, got %s", item.Line+1, itemType.String(), item.Type.String())
+		parser.errorf("line %d column %d: expected %s, got %s", item.Line+1, item.Column+1, itemType.String(), item.Type.String())
 	}
 	return item
 }
@@ -69,7 +69,7 @@ func (parser *Parser) expect(itemType lexing.ItemType) (_ lexing.Item, ok bool) 
 	item := parser.nextItem()
 
 	if item.Type == lexing.ItemError {
-		parser.errorf("line %d: %s", item.Line, item.Message)
+		parser.errorf("line %d column %d: %s", item.Line, item.Column, item.Message)
 	}
 
 	if item.Type != itemType {

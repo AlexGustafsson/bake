@@ -4,7 +4,7 @@
     {
       "type": "extensionHost",
       "request": "launch",
-      "name": "Launch Client",
+      "name": "Launch VSCode Plugin",
       "runtimeExecutable": "${execPath}",
       "args": [
         "--extensionDevelopmentPath=${workspaceRoot}"
@@ -16,25 +16,6 @@
         "type": "npm",
         "script": "compile"
       }
-    },
-    {
-      "type": "node",
-      "request": "attach",
-      "name": "Attach to Server",
-      "port": 6009,
-      "restart": true,
-      "outFiles": [
-        "${workspaceRoot}/server/out/**/*.js"
-      ]
-    }
-  ],
-  "compounds": [
-    {
-      "name": "Client + Server",
-      "configurations": [
-        "Launch Client",
-        "Attach to Server"
-      ]
     }
   ]
 }

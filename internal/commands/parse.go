@@ -31,7 +31,9 @@ func parseCommand(context *cli.Context) error {
 	input := string(inputBytes)
 	sourceFile, err := parsing.Parse(input)
 	if err != nil {
-		return err
+		// Print the formatted error
+		fmt.Fprint(os.Stderr, err)
+		return fmt.Errorf("parsing failed")
 	}
 
 	output := sourceFile.DotString()

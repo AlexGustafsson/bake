@@ -17,12 +17,8 @@ type Equality struct {
 type EqualityOperator int
 
 const (
-	EqualityOperatorEquals EqualityOperator = iota
-	EqualityOperatorNotEquals
-	EqualityOperatorLessThan
-	EqualityOperatorLessThanOrEqual
-	EqualityOperatorGreaterThan
-	EqualityOperatorGreaterThanOrEqual
+	EqualityOperatorOr EqualityOperator = iota
+	EqualityOperatorAnd
 )
 
 func CreateEquality(position NodePosition, operator EqualityOperator, left Node, right Node) *Equality {
@@ -43,18 +39,10 @@ func (node *Equality) String() string {
 	builder.WriteByte(' ')
 
 	switch node.Operator {
-	case EqualityOperatorEquals:
-		builder.WriteString("==")
-	case EqualityOperatorNotEquals:
-		builder.WriteString("!=")
-	case EqualityOperatorLessThan:
-		builder.WriteRune('<')
-	case EqualityOperatorLessThanOrEqual:
-		builder.WriteString("<=")
-	case EqualityOperatorGreaterThan:
-		builder.WriteRune('>')
-	case EqualityOperatorGreaterThanOrEqual:
-		builder.WriteString(">=")
+	case EqualityOperatorOr:
+		builder.WriteString("||")
+	case EqualityOperatorAnd:
+		builder.WriteString("&&")
 	}
 
 	builder.WriteByte(' ')

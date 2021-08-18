@@ -267,24 +267,16 @@ func parseEquality(parser *Parser) nodes.Node {
 	operatorToken := parser.peek()
 	var operator nodes.EqualityOperator = -1
 	switch operatorToken.Type {
-	case lexing.ItemEquals:
-		operator = nodes.EqualityOperatorEquals
-	case lexing.ItemNotEqual:
-		operator = nodes.EqualityOperatorEquals
-	case lexing.ItemLessThan:
-		operator = nodes.EqualityOperatorLessThan
-	case lexing.ItemLessThanOrEqual:
-		operator = nodes.EqualityOperatorLessThanOrEqual
-	case lexing.ItemGreaterThan:
-		operator = nodes.EqualityOperatorGreaterThan
-	case lexing.ItemGreaterThanOrEqual:
-		operator = nodes.EqualityOperatorGreaterThanOrEqual
+	case lexing.ItemOr:
+		operator = nodes.EqualityOperatorOr
+	case lexing.ItemAnd:
+		operator = nodes.EqualityOperatorAnd
 	}
 
 	if operator != -1 {
 		parser.nextItem()
 		right := parseComparison(parser)
-		return nodes.CreateEquality(left.Position(), nodes.EqualityOperatorEquals, left, right)
+		return nodes.CreateEquality(left.Position(), operator, left, right)
 	}
 
 	return left
@@ -296,10 +288,18 @@ func parseComparison(parser *Parser) nodes.Node {
 	operatorToken := parser.peek()
 	var operator nodes.ComparisonOperator = -1
 	switch operatorToken.Type {
-	case lexing.ItemOr:
-		operator = nodes.ComparisonOperatorOr
-	case lexing.ItemAnd:
-		operator = nodes.ComparisonOperatorAnd
+	case lexing.ItemEquals:
+		operator = nodes.ComparisonOperatorEquals
+	case lexing.ItemNotEqual:
+		operator = nodes.ComparisonOperatorNotEquals
+	case lexing.ItemLessThan:
+		operator = nodes.ComparisonOperatorLessThan
+	case lexing.ItemLessThanOrEqual:
+		operator = nodes.ComparisonOperatorLessThanOrEqual
+	case lexing.ItemGreaterThan:
+		operator = nodes.ComparisonOperatorGreaterThan
+	case lexing.ItemGreaterThanOrEqual:
+		operator = nodes.ComparisonOperatorGreaterThanOrEqual
 	}
 
 	if operator != -1 {

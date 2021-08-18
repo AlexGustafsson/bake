@@ -137,7 +137,7 @@ func lexRoot(lexer *Lexer) stateModifier {
 		lexer.Next()
 		if rune := lexer.Peek(); rune == '|' {
 			lexer.Next()
-			lexer.Emit(ItemAnd)
+			lexer.Emit(ItemOr)
 			return lexRoot
 		} else {
 			lexer.errorf("unexpected token '%c'", rune)

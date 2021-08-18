@@ -8,17 +8,13 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[EqualityOperatorEquals-0]
-	_ = x[EqualityOperatorNotEquals-1]
-	_ = x[EqualityOperatorLessThan-2]
-	_ = x[EqualityOperatorLessThanOrEqual-3]
-	_ = x[EqualityOperatorGreaterThan-4]
-	_ = x[EqualityOperatorGreaterThanOrEqual-5]
+	_ = x[EqualityOperatorOr-0]
+	_ = x[EqualityOperatorAnd-1]
 }
 
-const _EqualityOperator_name = "EqualityOperatorEqualsEqualityOperatorNotEqualsEqualityOperatorLessThanEqualityOperatorLessThanOrEqualEqualityOperatorGreaterThanEqualityOperatorGreaterThanOrEqual"
+const _EqualityOperator_name = "EqualityOperatorOrEqualityOperatorAnd"
 
-var _EqualityOperator_index = [...]uint8{0, 22, 47, 71, 102, 129, 163}
+var _EqualityOperator_index = [...]uint8{0, 18, 37}
 
 func (i EqualityOperator) String() string {
 	if i < 0 || i >= EqualityOperator(len(_EqualityOperator_index)-1) {

@@ -103,10 +103,10 @@ assignment_operand = [ additive_operator | multiplicative_operator | "?" ] "=" .
 Expression = Equality .
 
 Equality = Comparison { equality_operator Comparison } .
-equality_operator = "==" | "!=" | "<" | "<=" | ">" | ">=" .
+equality_operator = "||" | "&&" .
 
 Comparison = Term { comparison_operator Term } .
-comparison_operator = "||" | "&&" .
+comparison_operator = "==" | "!=" | "<" | "<=" | ">" | ">=" .
 
 Term = Factor { additive_operator Factor } .
 additive_operator = "+" | "-" .

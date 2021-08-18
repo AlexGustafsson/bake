@@ -17,8 +17,12 @@ type Comparison struct {
 type ComparisonOperator int
 
 const (
-	ComparisonOperatorOr ComparisonOperator = iota
-	ComparisonOperatorAnd
+	ComparisonOperatorEquals ComparisonOperator = iota
+	ComparisonOperatorNotEquals
+	ComparisonOperatorLessThan
+	ComparisonOperatorLessThanOrEqual
+	ComparisonOperatorGreaterThan
+	ComparisonOperatorGreaterThanOrEqual
 )
 
 func CreateComparison(position NodePosition, operator ComparisonOperator, left Node, right Node) *Comparison {
@@ -39,10 +43,18 @@ func (node *Comparison) String() string {
 	builder.WriteByte(' ')
 
 	switch node.Operator {
-	case ComparisonOperatorOr:
-		builder.WriteString("||")
-	case ComparisonOperatorAnd:
-		builder.WriteString("&&")
+	case ComparisonOperatorEquals:
+		builder.WriteString("==")
+	case ComparisonOperatorNotEquals:
+		builder.WriteString("!=")
+	case ComparisonOperatorLessThan:
+		builder.WriteRune('<')
+	case ComparisonOperatorLessThanOrEqual:
+		builder.WriteString("<=")
+	case ComparisonOperatorGreaterThan:
+		builder.WriteRune('>')
+	case ComparisonOperatorGreaterThanOrEqual:
+		builder.WriteString(">=")
 	}
 
 	builder.WriteByte(' ')

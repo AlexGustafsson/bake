@@ -52,19 +52,7 @@ func (parser *Parser) tokenErrorf(item lexing.Item, format string, args ...inter
 	lines := strings.Split(parser.input, "\n")
 	line := lines[item.Line]
 
-	var builder strings.Builder
-
-	fmt.Fprintf(&builder, "\033[1mfile.bke:%d:%d\033[0m: \033[31;1merror\033[0m: ", item.Line, item.Column)
-	fmt.Fprintf(&builder, format, args...)
-	builder.WriteRune('\n')
-
-	start := line[0:item.Column]
-	end := line[item.Column+len(item.Value):]
-	fmt.Fprintf(&builder, "%s\033[31;1m%s\033[0m%s\n", start, item.Value, end)
-	builder.WriteString(strings.Repeat(" ", len(start)))
-	fmt.Fprintf(&builder, "\033[31;1m^%s\033[0m\n", strings.Repeat("~", len(item.Value)-1))
-
-	parser.errorf(builder.String())
+	panic(CreateParseError(item, line, format, args...))
 }
 
 func (parser *Parser) recover(errp *error) {

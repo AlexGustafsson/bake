@@ -12,7 +12,7 @@ type ParseError struct {
 	Line       int
 	Column     int
 	TokenValue string
-	message    string
+	Message    string
 	line       string
 }
 
@@ -23,7 +23,7 @@ func CreateParseError(item lexing.Item, line string, format string, args ...inte
 		Column:     item.Column,
 		TokenValue: item.Value,
 		line:       line,
-		message:    fmt.Sprintf(format, args...),
+		Message:    fmt.Sprintf(format, args...),
 	}
 }
 
@@ -31,7 +31,7 @@ func (parseError *ParseError) Error() string {
 	var builder strings.Builder
 
 	fmt.Fprintf(&builder, "\033[1mfile.bke:%d:%d\033[0m: \033[31;1merror\033[0m: ", parseError.Line, parseError.Column)
-	builder.WriteString(parseError.message)
+	builder.WriteString(parseError.Message)
 	builder.WriteRune('\n')
 
 	start := parseError.line[0:parseError.Column]

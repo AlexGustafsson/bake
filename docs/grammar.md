@@ -126,8 +126,9 @@ Primary = Operand
         | PrimaryExpression Arguments
         .
 
-Operand = Literal | identifier | "(" Expression ")" .
+Operand = Literal | Array | identifier | "(" Expression ")" .
 Literal = boolean_literal | integer_literal | string_literal .
+Array = "[" [ Expression { "," Expression } ] "]" .
 
 Selector = "." identifier .
 ImportSelector = "::" identifier .

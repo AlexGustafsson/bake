@@ -428,6 +428,35 @@ func parseOperand(parser *Parser) nodes.Node {
 		expression := parseExpression(parser)
 		parser.require(lexing.ItemRightParentheses)
 		return expression
+	case lexing.ItemLeftBracket:
+		array := nodes.CreateArray(nodes.CreateRangeFromItem(token), make([]nodes.Node, 0))
+	dec:
+		for {
+			token := parser.peek()
+			switch token.Type {
+			case lexing.ItemNewline:
+				// Ignore
+				parser.nextItem()
+			case lexing.ItemEndOfInput:
+				parser.tokenErrorf(token, "unexpected end of input - missing ']'")
+			case lexing.ItemRightBracket:
+				parser.nextItem()
+				break dec
+			case lexing.ItemComma:
+				parser.nextItem()
+				if len(array.Elements) == 0 {
+					parser.tokenErrorf(token, "unexpected comma - missing expression")
+				}
+
+				expression := parseExpression(parser)
+				array.Elements = append(array.Elements, expression)
+			default:
+				expression := parseExpression(parser)
+				array.Elements = append(array.Elements, expression)
+			}
+		}
+
+		return array
 	default:
 		parser.tokenErrorf(token, "expected operand, got '%s'", token.Type.String())
 		return nil

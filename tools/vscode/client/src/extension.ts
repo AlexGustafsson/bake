@@ -1,7 +1,8 @@
-import * as path from "path";
+import { statSync, watchFile } from "fs";
 import {
   ExtensionContext,
   languages,
+  window,
   workspace
 } from "vscode";
 
@@ -9,7 +10,7 @@ import {
   LanguageClient,
   LanguageClientOptions,
   ServerOptions,
-  TransportKind,
+  TransportKind
 } from "vscode-languageclient/node";
 
 let client: LanguageClient;
@@ -20,8 +21,6 @@ export function activate(context: ExtensionContext) {
   const config = workspace.getConfiguration("bagels");
   const bagelsCommand = config.get<string>("command")!
 
-  // If the extension is launched in debug mode then the debug server options are used
-  // Otherwise the run options are used
   let serverOptions: ServerOptions = {
     run: {command: bagelsCommand, transport: TransportKind.stdio},
     debug: {command: bagelsCommand, transport: TransportKind.stdio},
@@ -42,6 +41,21 @@ export function activate(context: ExtensionContext) {
   );
 
   client.start();
+
+  // In debug mode, automatically restart the server on change
+  const isDebugging = process.env.NODE_ENV === "dev";
+  console.log("bagels - isDebugging", isDebugging)
+  const serverExists = statSync(bagelsCommand).isFile()
+  console.log("bagels - serverExists", serverExists)
+  if (isDebugging && serverExists) {
+    watchFile(bagelsCommand, async current => {
+      if (current.isFile()) {
+        window.setStatusBarMessage("bagels has changed, restarting it", 2000)
+        await client.stop();
+        client.start();
+      }
+    });
+  }
 }
 
 export function deactivate(): Thenable<void> | void {

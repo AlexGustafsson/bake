@@ -15,6 +15,9 @@
       "preLaunchTask": {
         "type": "npm",
         "script": "compile"
+      },
+      "env": {
+        "NODE_ENV": "dev"
       }
     }
   ]

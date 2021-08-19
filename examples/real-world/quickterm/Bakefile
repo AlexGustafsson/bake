@@ -13,37 +13,37 @@ env.CC = "clang"
 let version = mac::get_version("SupportingFiles/QuickTerm/Info.plist")
 
 // Produce a short description of available make commands
-help : util::help
+export alias help : util::help
 
 // Build the application
-alias build ["build/QuickTerm.app"]
+export alias build ["build/QuickTerm.app"]
 
 // Run all tests
-func test {
+export func test {
   shell swift test --build-path "build/test"
 }
 
 // Setup the project for development
-alias setup ["setup-git-hooks"]
+export alias setup ["setup-git-hooks"]
 
 // Install the recommended git hooks
-"setup-git-hooks": git::install_hooks(".githooks/pre-commit")
+export alias setup_git_hooks : git::install_hooks(".githooks/pre-commit")
 
 // Lint all Swift code
 // Requires swiftformat: `brew install swiftformat`
-func lint {
+export func lint {
   shell swiftfromat --lint --verbose --config .swiftformat --cache ignore .
 }
 
 // Format all Swift code
 // Requires swiftformat: `brew install swiftformat`
-func format {
+export func format {
   shell swiftformat --config .swiftformat --cache ignore .
 }
 
 // Package the application, ready for distribution. Does not sign the binaries.
 // To package signed binaries run "bake build sign package" instead
-alias package [
+export alias package [
   "distribution/QuickTerm v$(version).app.zip",
   "distribution/QuickTerm v$(version).dmg"
 ]
@@ -111,7 +111,7 @@ rule build_module(module) {
 // Sign the built application
 // Use "security find-identity -v -p codesigning" to find available certificates.
 // Specify your identity in CODESIGN_IDENTITY
-func sign {
+export func sign {
   shell {
     codesign -o runtime --force --entitlements SupportingFiles/QuickTermBroker/Entitlements.plist --sign "$(env.CODESIGN_IDENTITY)" --timestamp build/QuickTerm.app/Contents/XPCServices/QuickTermBroker.xpc/Contents/MacOS/QuickTermBroker
     codesign -o runtime --force --entitlements SupportingFiles/QuickTermBroker/Entitlements.plist --sign "$(env.CODESIGN_IDENTITY)" --timestamp build/QuickTerm.app/Contents/XPCServices/QuickTermBroker.xpc
@@ -120,11 +120,11 @@ func sign {
 }
 
 // Tail logs produced by QuickTerm
-func logs {
+export func logs {
   shell log stream --info --debug --predicate 'subsystem BEGINSWITH "se.axgn.QuickTerm" || (eventMessage CONTAINS "QuickTerm" && messageType IN {16, 17})'
 }
 
 // Remove all dynamically created files
-func clean {
+export func clean {
   shell rm -rf build distribution &> /dev/null || true
 }

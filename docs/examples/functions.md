@@ -81,3 +81,27 @@ The rule may then be used like any other.
 ```bake
 "build/module/app" : build_module("app")
 ```
+
+In order use functions directly via the CLI, you may export them.
+
+```bake
+export func clean {
+  shell rm -rf build
+}
+```
+
+```shell
+bake run clean
+```
+
+Identifiers that are `snake_cased` are available via `kebab-cased` arguments in the CLI.
+
+```bake
+export func my_longer_function {
+  // ...
+}
+```
+
+```shell
+bake run my-longer-function
+```

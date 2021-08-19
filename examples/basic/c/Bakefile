@@ -12,6 +12,6 @@ import (
 }
 
 // Delete any output files
-func clean {
+export func clean {
   shell rm lib.o lib.so main &>/dev/null || true
 }

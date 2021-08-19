@@ -28,7 +28,7 @@ func version_prefix {
 // Generate clients etc.
 // Requires openapi-generator
 // `brew install openapi-generator`
-func generate {
+export func generate {
   shell {
     openapi-generator generate --package-name api --generator-name go --input-spec api.yml --output api
     # The code is not automatically formatted after generation
@@ -37,29 +37,29 @@ func generate {
 }
 
 // Format Go code
-func format {
+export func format {
   shell gofmt -l -s -w
 }
 
 // Lint Go code
-func lint {
+export func lint {
   shell golint .
 }
 
 // Vet Go code
-func vet {
+export func vet {
 	shell go vet ./...
 }
 
 // Check the code for security issues
 // Requires gosec
 // https://github.com/securego/gosec
-func gosec {
+export func gosec {
   shell gosec -exclude-dir=api ./...
 }
 
 // Test Go code
-func test {
+export func test {
   shell go test -v ./...
 }
 
@@ -71,10 +71,10 @@ func test {
   }
 }
 
-alias install_tools : go::install_tools
+export alias install_tools : go::install_tools
 
-alias build : "build/upmon"
+export alias build : "build/upmon"
 
-func clean {
+export func clean {
   shell rm -rf ./build &> /dev/null || true
 }

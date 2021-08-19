@@ -65,8 +65,14 @@ func main {
 }
 ```
 
-If you want to alias a build rule, such as "build" for build/app you may use an alias like so, where each dependant rule is specified much like dependencies of a regular rule.
+If you want to alias a build rule, such as "build" for build/app you may use an alias like so, where each dependant rule is specified much like dependencies of a regular rule. In order to use it via the CLI, it must be exported.
 
 ```bake
-alias build ["build/app"]
+export alias build ["build/app"]
+```
+
+Rules do not need to be exported to use via the CLI, instead, they are available via the `bake rule` command.
+
+```shell
+bake rule new-file3.txt
 ```

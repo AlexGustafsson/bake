@@ -9,10 +9,10 @@ Here's a simple example of a phony build rule which ensures that some files are 
 build: build/my-app.exe build/my-app.dmg build/my-app
 ```
 
-In Bake, one would instead use an alias
+In Bake, one would instead use an alias. In order to make it accessible via the CLI, we also export it.
 
 ```bake
-alias build ["build/my-app.exe", "build/my-app.dmg", "build/my-app"]
+export alias build ["build/my-app.exe", "build/my-app.dmg", "build/my-app"]
 ```
 
 ## Functions
@@ -29,7 +29,7 @@ generate:
 Such a rule in Bake would be called a function, as it does not care for dependencies.
 
 ```bake
-func generate {
+export func generate {
   shell {
     mkdir -p ./api
     api-generation-tool --input api.yml --output ./api

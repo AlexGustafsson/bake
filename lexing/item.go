@@ -12,12 +12,7 @@ type Item struct {
 	Value string
 	// Message is an optional string for the token
 	Message string
-	// Start is the offset to the start of the token in bytes
-	Start int
-	// Line is the zero-based line of the input on which the token is found
-	Line int
-	// Column is the zero-based column (in runes) of the line in which the token is found
-	Column int
+	Range   Range
 }
 
 func (item Item) String() string {
@@ -29,8 +24,8 @@ func (item Item) DebugString() string {
 	formattedValue := strings.ReplaceAll(strings.ReplaceAll(item.Value, "\n", "\\n"), "\t", "\\t")
 
 	if item.Message != "" {
-		return fmt.Sprintf("[item @%d:%d - %s \"%s\" - '%s']", item.Line+1, item.Column+1, item.Type.String(), item.Message, formattedValue)
+		return fmt.Sprintf("[%s %s - \"%s\" - '%s']", item.Type, item.Range, item.Message, formattedValue)
 	}
 
-	return fmt.Sprintf("[item @%d:%d - %s '%s']", item.Line+1, item.Column+1, item.Type.String(), formattedValue)
+	return fmt.Sprintf("[%s %s - '%s']", item.Type, item.Range, formattedValue)
 }

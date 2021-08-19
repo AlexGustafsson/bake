@@ -7,15 +7,15 @@ import (
 
 type Signature struct {
 	NodeType
-	NodePosition
+	Range
 	Arguments []string
 }
 
-func CreateSignature(position NodePosition, arguments []string) *Signature {
+func CreateSignature(r Range, arguments []string) *Signature {
 	return &Signature{
-		NodeType:     NodeTypeSignature,
-		NodePosition: position,
-		Arguments:    arguments,
+		NodeType:  NodeTypeSignature,
+		Range:     r,
+		Arguments: arguments,
 	}
 }
 

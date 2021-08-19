@@ -7,15 +7,15 @@ import (
 
 type SourceFile struct {
 	NodeType
-	NodePosition
+	Range
 	Nodes []Node
 }
 
-func CreateSourceFile(position NodePosition) *SourceFile {
+func CreateSourceFile(r Range) *SourceFile {
 	return &SourceFile{
-		NodeType:     NodeTypeSourceFile,
-		NodePosition: position,
-		Nodes:        make([]Node, 0),
+		NodeType: NodeTypeSourceFile,
+		Range:    r,
+		Nodes:    make([]Node, 0),
 	}
 }
 

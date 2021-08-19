@@ -7,17 +7,17 @@ import (
 
 type Index struct {
 	NodeType
-	NodePosition
+	Range
 	Operand    Node
 	Expression Node
 }
 
-func CreateIndex(position NodePosition, operand Node, expression Node) *Index {
+func CreateIndex(r Range, operand Node, expression Node) *Index {
 	return &Index{
-		NodeType:     NodeTypeIndex,
-		NodePosition: position,
-		Operand:      operand,
-		Expression:   expression,
+		NodeType:   NodeTypeIndex,
+		Range:      r,
+		Operand:    operand,
+		Expression: expression,
 	}
 }
 

@@ -4,41 +4,45 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/AlexGustafsson/bake/lexing"
+	"github.com/AlexGustafsson/bake/parsing/nodes"
 )
 
 type ParseError struct {
-	Start      int
-	Line       int
-	Column     int
-	TokenValue string
-	Message    string
-	line       string
+	Message string
+	lines   []string
+	Range   *nodes.Range
 }
 
-func CreateParseError(item lexing.Item, line string, format string, args ...interface{}) *ParseError {
+func CreateParseError(input string, r *nodes.Range, format string, args ...interface{}) *ParseError {
+	// TODO: make less memory intensive
+	allLines := strings.Split(input, "\n")
+	lines := make([]string, 0)
+	if r != nil {
+		lines = allLines[r.Start().Line : r.End().Line+1]
+	}
+
 	return &ParseError{
-		Start:      item.Start,
-		Line:       item.Line,
-		Column:     item.Column,
-		TokenValue: item.Value,
-		line:       line,
-		Message:    fmt.Sprintf(format, args...),
+		Range:   r,
+		lines:   lines,
+		Message: fmt.Sprintf(format, args...),
 	}
 }
 
 func (parseError *ParseError) Error() string {
 	var builder strings.Builder
 
-	fmt.Fprintf(&builder, "\033[1mfile.bke:%d:%d\033[0m: \033[31;1merror\033[0m: ", parseError.Line, parseError.Column)
+	fmt.Fprintf(&builder, "\033[1mfile.bke:%d:%d\033[0m: \033[31;1merror\033[0m: ", parseError.Range.Start().Line+1, parseError.Range.Start().Character+1)
 	builder.WriteString(parseError.Message)
 	builder.WriteRune('\n')
 
-	start := parseError.line[0:parseError.Column]
-	end := parseError.line[parseError.Column+len(parseError.TokenValue):]
-	fmt.Fprintf(&builder, "%s\033[31;1m%s\033[0m%s\n", start, parseError.TokenValue, end)
-	builder.WriteString(strings.Repeat(" ", len(start)))
-	fmt.Fprintf(&builder, "\033[31;1m^%s\033[0m\n", strings.Repeat("~", len(parseError.TokenValue)-1))
+	if parseError.Range.Start().Line == parseError.Range.End().Line {
+		start := parseError.lines[0][0:parseError.Range.Start().Character]
+		middle := parseError.lines[0][parseError.Range.Start().Character:parseError.Range.End().Character]
+		end := parseError.lines[0][parseError.Range.End().Character:]
+		fmt.Fprintf(&builder, "%s\033[31;1m%s\033[0m%s\n", start, middle, end)
+		builder.WriteString(strings.Repeat(" ", len(start)))
+		fmt.Fprintf(&builder, "\033[31;1m^%s\033[0m\n", strings.Repeat("~", parseError.Range.End().Character-parseError.Range.Start().Character-1))
+	}
 
 	return builder.String()
 }

@@ -7,7 +7,7 @@ import (
 
 type Equality struct {
 	NodeType
-	NodePosition
+	Range
 	Operator EqualityOperator
 	Left     Node
 	Right    Node
@@ -21,13 +21,13 @@ const (
 	EqualityOperatorAnd
 )
 
-func CreateEquality(position NodePosition, operator EqualityOperator, left Node, right Node) *Equality {
+func CreateEquality(r Range, operator EqualityOperator, left Node, right Node) *Equality {
 	return &Equality{
-		NodeType:     NodeTypeEquality,
-		NodePosition: position,
-		Operator:     operator,
-		Left:         left,
-		Right:        right,
+		NodeType: NodeTypeEquality,
+		Range:    r,
+		Operator: operator,
+		Left:     left,
+		Right:    right,
 	}
 }
 

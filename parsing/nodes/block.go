@@ -7,15 +7,15 @@ import (
 
 type Block struct {
 	NodeType
-	NodePosition
+	Range
 	Statements []Node
 }
 
-func CreateBlock(position NodePosition, statements []Node) *Block {
+func CreateBlock(r Range, statements []Node) *Block {
 	return &Block{
-		NodeType:     NodeTypeBlock,
-		NodePosition: position,
-		Statements:   statements,
+		NodeType:   NodeTypeBlock,
+		Range:      r,
+		Statements: statements,
 	}
 }
 

@@ -104,12 +104,12 @@ func (handler Handler) handle(ctx context.Context, connection *jsonrpc2.Conn, re
 						{
 							Range: lsp.Range{
 								Start: lsp.Position{
-									Line:      parseError.Line,
-									Character: parseError.Column,
+									Line:      parseError.Range.Start().Line,
+									Character: parseError.Range.Start().Character,
 								},
 								End: lsp.Position{
-									Line:      parseError.Line,
-									Character: parseError.Column + len(parseError.TokenValue),
+									Line:      parseError.Range.End().Line,
+									Character: parseError.Range.End().Character,
 								},
 							},
 							Severity: lsp.Error,

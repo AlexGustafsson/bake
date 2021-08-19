@@ -7,19 +7,19 @@ import (
 
 type FunctionDeclaration struct {
 	NodeType
-	NodePosition
+	Range
 	Exported   bool
 	Identifier string
 	Signature  *Signature
 	Block      *Block
 }
 
-func CreateFunctionDeclaration(position NodePosition, exported bool, identifier string, signature *Signature, block *Block) *FunctionDeclaration {
+func CreateFunctionDeclaration(r Range, exported bool, identifier string, signature *Signature, block *Block) *FunctionDeclaration {
 	return &FunctionDeclaration{
-		NodeType:     NodeTypeFunctionDeclaration,
-		NodePosition: position,
-		Exported:     exported,
-		Identifier:   identifier,
+		NodeType:   NodeTypeFunctionDeclaration,
+		Range:      r,
+		Exported:   exported,
+		Identifier: identifier,
 		// Signature may be nil
 		Signature: signature,
 		Block:     block,

@@ -4,15 +4,15 @@ import "fmt"
 
 type Integer struct {
 	NodeType
-	NodePosition
+	Range
 	Value string
 }
 
-func CreateInteger(position NodePosition, value string) *Integer {
+func CreateInteger(r Range, value string) *Integer {
 	return &Integer{
-		NodeType:     NodeTypeInteger,
-		NodePosition: position,
-		Value:        value,
+		NodeType: NodeTypeInteger,
+		Range:    r,
+		Value:    value,
 	}
 }
 

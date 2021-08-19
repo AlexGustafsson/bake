@@ -7,17 +7,17 @@ import (
 
 type ShellStatement struct {
 	NodeType
-	NodePosition
+	Range
 	Multiline   bool
 	ShellString string
 }
 
-func CreateShellStatement(position NodePosition, multiline bool, shellString string) *ShellStatement {
+func CreateShellStatement(r Range, multiline bool, shellString string) *ShellStatement {
 	return &ShellStatement{
-		NodeType:     NodeTypeShellStatement,
-		NodePosition: position,
-		Multiline:    multiline,
-		ShellString:  shellString,
+		NodeType:    NodeTypeShellStatement,
+		Range:       r,
+		Multiline:   multiline,
+		ShellString: shellString,
 	}
 }
 

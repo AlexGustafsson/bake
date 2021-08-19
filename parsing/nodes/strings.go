@@ -7,29 +7,29 @@ import (
 
 type InterpretedString struct {
 	NodeType
-	NodePosition
+	Range
 	Content string
 }
 
 type RawString struct {
 	NodeType
-	NodePosition
+	Range
 	Content string
 }
 
-func CreateInterpretedString(position NodePosition, content string) *InterpretedString {
+func CreateInterpretedString(r Range, content string) *InterpretedString {
 	return &InterpretedString{
-		NodeType:     NodeTypeInterpretedString,
-		NodePosition: position,
-		Content:      content,
+		NodeType: NodeTypeInterpretedString,
+		Range:    r,
+		Content:  content,
 	}
 }
 
-func CreateRawString(position NodePosition, content string) *RawString {
+func CreateRawString(r Range, content string) *RawString {
 	return &RawString{
-		NodeType:     NodeTypeRawString,
-		NodePosition: position,
-		Content:      content,
+		NodeType: NodeTypeRawString,
+		Range:    r,
+		Content:  content,
 	}
 }
 

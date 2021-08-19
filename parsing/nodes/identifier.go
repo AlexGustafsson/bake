@@ -4,15 +4,15 @@ import "fmt"
 
 type Identifier struct {
 	NodeType
-	NodePosition
+	Range
 	Value string
 }
 
-func CreateIdentifier(position NodePosition, value string) *Identifier {
+func CreateIdentifier(r Range, value string) *Identifier {
 	return &Identifier{
-		NodeType:     NodeTypeIdentifier,
-		NodePosition: position,
-		Value:        value,
+		NodeType: NodeTypeIdentifier,
+		Range:    r,
+		Value:    value,
 	}
 }
 

@@ -7,17 +7,17 @@ import (
 
 type Selector struct {
 	NodeType
-	NodePosition
+	Range
 	Operand    Node
 	Identifier string
 }
 
-func CreateSelector(position NodePosition, operand Node, identifier string) *Selector {
+func CreateSelector(r Range, operand Node, identifier string) *Selector {
 	return &Selector{
-		NodeType:     NodeTypeSelector,
-		NodePosition: position,
-		Operand:      operand,
-		Identifier:   identifier,
+		NodeType:   NodeTypeSelector,
+		Range:      r,
+		Operand:    operand,
+		Identifier: identifier,
 	}
 }
 

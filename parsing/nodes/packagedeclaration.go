@@ -6,15 +6,15 @@ import (
 
 type PackageDeclaration struct {
 	NodeType
-	NodePosition
+	Range
 	Identifier string
 }
 
-func CreatePackageDeclaration(position NodePosition, identifier string) *PackageDeclaration {
+func CreatePackageDeclaration(r Range, identifier string) *PackageDeclaration {
 	return &PackageDeclaration{
-		NodeType:     NodeTypePackageDeclaration,
-		NodePosition: position,
-		Identifier:   identifier,
+		NodeType:   NodeTypePackageDeclaration,
+		Range:      r,
+		Identifier: identifier,
 	}
 }
 

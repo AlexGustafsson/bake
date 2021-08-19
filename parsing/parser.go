@@ -4,7 +4,6 @@ import (
 	"container/list"
 	"fmt"
 	"runtime"
-	"strings"
 
 	"github.com/AlexGustafsson/bake/lexing"
 	"github.com/AlexGustafsson/bake/parsing/nodes"
@@ -48,11 +47,8 @@ func (parser *Parser) errorf(format string, args ...interface{}) {
 }
 
 func (parser *Parser) tokenErrorf(item lexing.Item, format string, args ...interface{}) {
-	// TODO: make less memory intensive
-	lines := strings.Split(parser.input, "\n")
-	line := lines[item.Line]
-
-	panic(CreateParseError(item, line, format, args...))
+	r := nodes.CreateRangeFromItem(item)
+	panic(CreateParseError(parser.input, &r, format, args...))
 }
 
 func (parser *Parser) recover(errp *error) {

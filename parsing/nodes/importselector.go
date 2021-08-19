@@ -7,17 +7,17 @@ import (
 
 type ImportSelector struct {
 	NodeType
-	NodePosition
+	Range
 	Operand    Node
 	Identifier string
 }
 
-func CreateImportSelector(position NodePosition, operand Node, identifier string) *ImportSelector {
+func CreateImportSelector(r Range, operand Node, identifier string) *ImportSelector {
 	return &ImportSelector{
-		NodeType:     NodeTypeImportSelector,
-		NodePosition: position,
-		Operand:      operand,
-		Identifier:   identifier,
+		NodeType:   NodeTypeImportSelector,
+		Range:      r,
+		Operand:    operand,
+		Identifier: identifier,
 	}
 }
 

@@ -7,17 +7,17 @@ import (
 
 type VariableDeclaration struct {
 	NodeType
-	NodePosition
+	Range
 	Identifier string
 	Expression Node
 }
 
-func CreateVariableDeclaration(position NodePosition, identifier string, expression Node) *VariableDeclaration {
+func CreateVariableDeclaration(r Range, identifier string, expression Node) *VariableDeclaration {
 	return &VariableDeclaration{
-		NodeType:     NodeTypeVariableDeclaration,
-		NodePosition: position,
-		Identifier:   identifier,
-		Expression:   expression,
+		NodeType:   NodeTypeVariableDeclaration,
+		Range:      r,
+		Identifier: identifier,
+		Expression: expression,
 	}
 }
 

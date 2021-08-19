@@ -7,7 +7,7 @@ import (
 
 type Unary struct {
 	NodeType
-	NodePosition
+	Range
 	Operator UnaryOperator
 	Primary  Node
 }
@@ -21,12 +21,12 @@ const (
 	UnaryOperatorSpread
 )
 
-func CreateUnary(position NodePosition, operator UnaryOperator, primary Node) *Unary {
+func CreateUnary(r Range, operator UnaryOperator, primary Node) *Unary {
 	return &Unary{
-		NodeType:     NodeTypeUnary,
-		NodePosition: position,
-		Operator:     operator,
-		Primary:      primary,
+		NodeType: NodeTypeUnary,
+		Range:    r,
+		Operator: operator,
+		Primary:  primary,
 	}
 }
 

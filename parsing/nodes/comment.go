@@ -7,15 +7,15 @@ import (
 
 type Comment struct {
 	NodeType
-	NodePosition
+	Range
 	Content string
 }
 
-func CreateComment(position NodePosition, content string) *Comment {
+func CreateComment(r Range, content string) *Comment {
 	return &Comment{
-		NodeType:     NodeTypeComment,
-		NodePosition: position,
-		Content:      content,
+		NodeType: NodeTypeComment,
+		Range:    r,
+		Content:  content,
 	}
 }
 

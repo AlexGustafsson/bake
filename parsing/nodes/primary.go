@@ -7,17 +7,17 @@ import (
 
 type Primary struct {
 	NodeType
-	NodePosition
+	Range
 	Operand Node
 }
 
 type PrimaryOperator int
 
-func CreatePrimary(position NodePosition, operator PrimaryOperator, operand Node) *Primary {
+func CreatePrimary(r Range, operator PrimaryOperator, operand Node) *Primary {
 	return &Primary{
-		NodeType:     NodeTypePrimary,
-		NodePosition: position,
-		Operand:      operand,
+		NodeType: NodeTypePrimary,
+		Range:    r,
+		Operand:  operand,
 	}
 }
 

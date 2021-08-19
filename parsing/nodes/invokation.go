@@ -7,17 +7,17 @@ import (
 
 type Invokation struct {
 	NodeType
-	NodePosition
+	Range
 	Operand   Node
 	Arguments []Node
 }
 
-func CreateInvokation(position NodePosition, operand Node, arguments []Node) *Invokation {
+func CreateInvokation(r Range, operand Node, arguments []Node) *Invokation {
 	return &Invokation{
-		NodeType:     NodeTypeInvokation,
-		NodePosition: position,
-		Operand:      operand,
-		Arguments:    arguments,
+		NodeType:  NodeTypeInvokation,
+		Range:     r,
+		Operand:   operand,
+		Arguments: arguments,
 	}
 }
 

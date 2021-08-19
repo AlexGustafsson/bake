@@ -7,17 +7,17 @@ import (
 
 type Assignment struct {
 	NodeType
-	NodePosition
+	Range
 	Expression Node
 	Value      Node
 }
 
-func CreateAssignment(position NodePosition, expression Node, value Node) *Assignment {
+func CreateAssignment(r Range, expression Node, value Node) *Assignment {
 	return &Assignment{
-		NodeType:     NodeTypeAssignment,
-		NodePosition: position,
-		Expression:   expression,
-		Value:        value,
+		NodeType:   NodeTypeAssignment,
+		Range:      r,
+		Expression: expression,
+		Value:      value,
 	}
 }
 
@@ -36,15 +36,15 @@ func (node *Assignment) DotString() string {
 
 type Increment struct {
 	NodeType
-	NodePosition
+	Range
 	Expression Node
 }
 
-func CreateIncrement(position NodePosition, expression Node) *Increment {
+func CreateIncrement(r Range, expression Node) *Increment {
 	return &Increment{
-		NodeType:     NodeTypeIncrement,
-		NodePosition: position,
-		Expression:   expression,
+		NodeType:   NodeTypeIncrement,
+		Range:      r,
+		Expression: expression,
 	}
 }
 
@@ -62,15 +62,15 @@ func (node *Increment) DotString() string {
 
 type Decrement struct {
 	NodeType
-	NodePosition
+	Range
 	Expression Node
 }
 
-func CreateDecrement(position NodePosition, expression Node) *Decrement {
+func CreateDecrement(r Range, expression Node) *Decrement {
 	return &Decrement{
-		NodeType:     NodeTypeDecrement,
-		NodePosition: position,
-		Expression:   expression,
+		NodeType:   NodeTypeDecrement,
+		Range:      r,
+		Expression: expression,
 	}
 }
 
@@ -88,17 +88,17 @@ func (node *Decrement) DotString() string {
 
 type LooseAssignment struct {
 	NodeType
-	NodePosition
+	Range
 	Expression Node
 	Value      Node
 }
 
-func CreateLooseAssignment(position NodePosition, expression Node, value Node) *LooseAssignment {
+func CreateLooseAssignment(r Range, expression Node, value Node) *LooseAssignment {
 	return &LooseAssignment{
-		NodeType:     NodeTypeLooseAssignment,
-		NodePosition: position,
-		Expression:   expression,
-		Value:        value,
+		NodeType:   NodeTypeLooseAssignment,
+		Range:      r,
+		Expression: expression,
+		Value:      value,
 	}
 }
 
@@ -117,17 +117,17 @@ func (node *LooseAssignment) DotString() string {
 
 type AdditionAssignment struct {
 	NodeType
-	NodePosition
+	Range
 	Expression Node
 	Value      Node
 }
 
-func CreateAdditionAssignment(position NodePosition, expression Node, value Node) *AdditionAssignment {
+func CreateAdditionAssignment(r Range, expression Node, value Node) *AdditionAssignment {
 	return &AdditionAssignment{
-		NodeType:     NodeTypeAdditionAssignment,
-		NodePosition: position,
-		Expression:   expression,
-		Value:        value,
+		NodeType:   NodeTypeAdditionAssignment,
+		Range:      r,
+		Expression: expression,
+		Value:      value,
 	}
 }
 
@@ -146,17 +146,17 @@ func (node *AdditionAssignment) DotString() string {
 
 type SubtractionAssignment struct {
 	NodeType
-	NodePosition
+	Range
 	Expression Node
 	Value      Node
 }
 
-func CreateSubtractionAssignment(position NodePosition, expression Node, value Node) *SubtractionAssignment {
+func CreateSubtractionAssignment(r Range, expression Node, value Node) *SubtractionAssignment {
 	return &SubtractionAssignment{
-		NodeType:     NodeTypeSubtractionAssignment,
-		NodePosition: position,
-		Expression:   expression,
-		Value:        value,
+		NodeType:   NodeTypeSubtractionAssignment,
+		Range:      r,
+		Expression: expression,
+		Value:      value,
 	}
 }
 
@@ -175,17 +175,17 @@ func (node *SubtractionAssignment) DotString() string {
 
 type MultiplicationAssignment struct {
 	NodeType
-	NodePosition
+	Range
 	Expression Node
 	Value      Node
 }
 
-func CreateMultiplicationAssignment(position NodePosition, expression Node, value Node) *MultiplicationAssignment {
+func CreateMultiplicationAssignment(r Range, expression Node, value Node) *MultiplicationAssignment {
 	return &MultiplicationAssignment{
-		NodeType:     NodeTypeMultiplicationAssignment,
-		NodePosition: position,
-		Expression:   expression,
-		Value:        value,
+		NodeType:   NodeTypeMultiplicationAssignment,
+		Range:      r,
+		Expression: expression,
+		Value:      value,
 	}
 }
 
@@ -204,17 +204,17 @@ func (node *MultiplicationAssignment) DotString() string {
 
 type DivisionAssignment struct {
 	NodeType
-	NodePosition
+	Range
 	Expression Node
 	Value      Node
 }
 
-func CreateDivisionAssignment(position NodePosition, expression Node, value Node) *DivisionAssignment {
+func CreateDivisionAssignment(r Range, expression Node, value Node) *DivisionAssignment {
 	return &DivisionAssignment{
-		NodeType:     NodeTypeDivisionAssignment,
-		NodePosition: position,
-		Expression:   expression,
-		Value:        value,
+		NodeType:   NodeTypeDivisionAssignment,
+		Range:      r,
+		Expression: expression,
+		Value:      value,
 	}
 }
 

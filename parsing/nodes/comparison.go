@@ -7,7 +7,7 @@ import (
 
 type Comparison struct {
 	NodeType
-	NodePosition
+	Range
 	Operator ComparisonOperator
 	Left     Node
 	Right    Node
@@ -25,13 +25,13 @@ const (
 	ComparisonOperatorGreaterThanOrEqual
 )
 
-func CreateComparison(position NodePosition, operator ComparisonOperator, left Node, right Node) *Comparison {
+func CreateComparison(r Range, operator ComparisonOperator, left Node, right Node) *Comparison {
 	return &Comparison{
-		NodeType:     NodeTypeComparison,
-		NodePosition: position,
-		Operator:     operator,
-		Left:         left,
-		Right:        right,
+		NodeType: NodeTypeComparison,
+		Range:    r,
+		Operator: operator,
+		Left:     left,
+		Right:    right,
 	}
 }
 

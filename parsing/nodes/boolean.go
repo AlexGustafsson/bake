@@ -4,15 +4,15 @@ import "fmt"
 
 type Boolean struct {
 	NodeType
-	NodePosition
+	Range
 	Value string
 }
 
-func CreateBoolean(position NodePosition, value string) *Boolean {
+func CreateBoolean(r Range, value string) *Boolean {
 	return &Boolean{
-		NodeType:     NodeTypeInteger,
-		NodePosition: position,
-		Value:        value,
+		NodeType: NodeTypeInteger,
+		Range:    r,
+		Value:    value,
 	}
 }
 

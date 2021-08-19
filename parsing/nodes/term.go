@@ -7,7 +7,7 @@ import (
 
 type Term struct {
 	NodeType
-	NodePosition
+	Range
 	Operator AdditiveOperator
 	Left     Node
 	Right    Node
@@ -21,13 +21,13 @@ const (
 	AdditiveOperatorSubtraction
 )
 
-func CreateTerm(position NodePosition, operator AdditiveOperator, left Node, right Node) *Term {
+func CreateTerm(r Range, operator AdditiveOperator, left Node, right Node) *Term {
 	return &Term{
-		NodeType:     NodeTypeTerm,
-		NodePosition: position,
-		Operator:     operator,
-		Left:         left,
-		Right:        right,
+		NodeType: NodeTypeTerm,
+		Range:    r,
+		Operator: operator,
+		Left:     left,
+		Right:    right,
 	}
 }
 

@@ -7,15 +7,15 @@ import (
 
 type ImportsDeclaration struct {
 	NodeType
-	NodePosition
+	Range
 	Imports []*InterpretedString
 }
 
-func CreateImportsDeclaration(position NodePosition, imports []*InterpretedString) *ImportsDeclaration {
+func CreateImportsDeclaration(r Range, imports []*InterpretedString) *ImportsDeclaration {
 	return &ImportsDeclaration{
-		NodeType:     NodeTypeImportsDeclaration,
-		NodePosition: position,
-		Imports:      imports,
+		NodeType: NodeTypeImportsDeclaration,
+		Range:    r,
+		Imports:  imports,
 	}
 }
 

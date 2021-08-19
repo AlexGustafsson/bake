@@ -7,7 +7,7 @@ import (
 
 type Factor struct {
 	NodeType
-	NodePosition
+	Range
 	Operator MultiplicativeOperator
 	Left     Node
 	Right    Node
@@ -21,13 +21,13 @@ const (
 	MultiplicativeOperatorDivision
 )
 
-func CreateFactor(position NodePosition, operator MultiplicativeOperator, left Node, right Node) *Factor {
+func CreateFactor(r Range, operator MultiplicativeOperator, left Node, right Node) *Factor {
 	return &Factor{
-		NodeType:     NodeTypeFactor,
-		NodePosition: position,
-		Operator:     operator,
-		Left:         left,
-		Right:        right,
+		NodeType: NodeTypeFactor,
+		Range:    r,
+		Operator: operator,
+		Left:     left,
+		Right:    right,
 	}
 }
 

@@ -16,7 +16,7 @@ let version = mac::get_version("SupportingFiles/QuickTerm/Info.plist")
 export alias help : util::help
 
 // Build the application
-export alias build ["build/QuickTerm.app"]
+export alias build : ["build/QuickTerm.app"]
 
 // Run all tests
 export func test {
@@ -24,7 +24,7 @@ export func test {
 }
 
 // Setup the project for development
-export alias setup ["setup-git-hooks"]
+export alias setup : ["setup-git-hooks"]
 
 // Install the recommended git hooks
 export alias setup_git_hooks : git::install_hooks(".githooks/pre-commit")
@@ -43,7 +43,7 @@ export func format {
 
 // Package the application, ready for distribution. Does not sign the binaries.
 // To package signed binaries run "bake build sign package" instead
-export alias package [
+export alias package : [
   "distribution/QuickTerm v$(version).app.zip",
   "distribution/QuickTerm v$(version).dmg"
 ]

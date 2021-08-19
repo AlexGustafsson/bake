@@ -68,7 +68,7 @@ export func init_testlibs {
 }
 
 // Install full dependencies in virtualenv
-export alias install [install_venv, init_testlibs]
+export alias install : [install_venv, init_testlibs]
 
 // Install basic dependencies for CLI usage in virtualenv
 export func install_basic {

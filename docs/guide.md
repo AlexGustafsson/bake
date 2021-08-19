@@ -116,7 +116,7 @@ Lastly, for convenience we can add a `clean` function to remove all of the compi
 // Bakefile
 
 // Delete any output files
-func clean {
+export func clean {
   shell rm lib.o lib.so main &>/dev/null || true
 }
 ```
@@ -140,7 +140,7 @@ import (
 }
 
 // Delete any output files
-func clean {
+export func clean {
   shell rm lib.o lib.so main &>/dev/null || true
 }
 ```

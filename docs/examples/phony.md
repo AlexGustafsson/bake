@@ -12,7 +12,7 @@ build: build/my-app.exe build/my-app.dmg build/my-app
 In Bake, one would instead use an alias. In order to make it accessible via the CLI, we also export it.
 
 ```bake
-export alias build ["build/my-app.exe", "build/my-app.dmg", "build/my-app"]
+export alias build : ["build/my-app.exe", "build/my-app.dmg", "build/my-app"]
 ```
 
 ## Functions

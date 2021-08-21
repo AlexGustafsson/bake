@@ -48,9 +48,7 @@ ImportsDeclaration = "import" "(" { string_literal } ")" .
 ### Declarations
 
 ```
-TopLevelDeclaration = Declaration | FunctionDeclaration | RuleFunctionDeclaration | AliasDeclaration | RuleDeclaration | Statement .
-
-Declaration = VarDeclaration .
+TopLevelDeclaration = FunctionDeclaration | RuleFunctionDeclaration | AliasDeclaration | RuleDeclaration | Statement .
 
 VarDeclaration = "let" identifier [ "=" Expression ] .
 
@@ -78,6 +76,8 @@ Statement = Declaration
           | ForStatement
           | ReturnStatement
           .
+
+Declaration = VarDeclaration .
 
 ReturnStatement = "return" Expression .
 

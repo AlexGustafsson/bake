@@ -26,6 +26,7 @@ func (node *AliasDeclaration) String() string {
 
 	fmt.Fprintf(&builder, "alias %s : ", node.Identifier)
 	builder.WriteString(node.Expression.String())
+	builder.WriteRune('\n')
 
 	return builder.String()
 }

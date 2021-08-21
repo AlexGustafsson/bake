@@ -62,7 +62,9 @@ func (node *RuleDeclaration) String() string {
 		builder.WriteString(node.Derived.String())
 	}
 
-	if node.Block != nil {
+	if node.Block == nil {
+		builder.WriteRune('\n')
+	} else {
 		builder.WriteRune(' ')
 		builder.WriteString(node.Block.String())
 	}

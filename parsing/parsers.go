@@ -470,7 +470,11 @@ dec:
 		switch token.Type {
 		case lexing.ItemDot:
 			startToken := parser.nextItem()
-			identifier := parser.require(lexing.ItemIdentifier)
+			identifier := parser.nextItem()
+			// Allow keywords not lexed as identifiers to be used in selections
+			if identifier.Type != lexing.ItemIdentifier && !identifier.IsKeyword() {
+				parser.tokenErrorf(identifier, "expected identifier, got '%s'", identifier.Value)
+			}
 			left = nodes.CreateSelector(nodes.CreateRangeFromItem(startToken), left, identifier.Value)
 		case lexing.ItemLeftBracket:
 			startToken := parser.nextItem()

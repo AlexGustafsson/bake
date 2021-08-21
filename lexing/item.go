@@ -29,3 +29,12 @@ func (item Item) DebugString() string {
 
 	return fmt.Sprintf("[%s %s - '%s']", item.Type, item.Range, formattedValue)
 }
+
+func (item Item) IsKeyword() bool {
+	switch item.Type {
+	case ItemKeywordPackage, ItemKeywordImport, ItemKeywordFunc, ItemKeywordRule, ItemKeywordExport, ItemKeywordIf, ItemKeywordElse, ItemKeywordReturn, ItemKeywordLet, ItemKeywordShell, ItemKeywordAlias:
+		return true
+	default:
+		return false
+	}
+}

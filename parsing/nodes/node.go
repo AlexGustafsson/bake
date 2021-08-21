@@ -49,4 +49,5 @@ const (
 	NodeTypeUnary
 	NodeTypeAliasDeclaration
 	NodeTypeRuleDeclaration
+	NodeTypeReturnStatement
 )

@@ -256,47 +256,56 @@ func parseRule(parser *Parser) *nodes.RuleDeclaration {
 
 func parseStatement(parser *Parser) nodes.Node {
 	token := parser.peek()
-	if token.Type == lexing.ItemKeywordShell {
+	switch token.Type {
+	case lexing.ItemKeywordShell:
 		return parseShellStatement(parser)
-	} else {
-		expression := parseExpression(parser)
-
-		token := parser.peek()
-		switch token.Type {
-		case lexing.ItemIncrement:
-			parser.nextItem()
-			return nodes.CreateIncrement(nodes.CreateRange(expression.Start(), expression.End()), expression)
-		case lexing.ItemDecrement:
-			parser.nextItem()
-			return nodes.CreateDecrement(nodes.CreateRange(expression.Start(), expression.End()), expression)
-		case lexing.ItemLooseAssignment:
-			parser.nextItem()
-			value := parseExpression(parser)
-			return nodes.CreateLooseAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
-		case lexing.ItemAdditionAssign:
-			parser.nextItem()
-			value := parseExpression(parser)
-			return nodes.CreateAdditionAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
-		case lexing.ItemSubtractionAssign:
-			parser.nextItem()
-			value := parseExpression(parser)
-			return nodes.CreateSubtractionAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
-		case lexing.ItemMultiplicationAssign:
-			parser.nextItem()
-			value := parseExpression(parser)
-			return nodes.CreateMultiplicationAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
-		case lexing.ItemDivisionAssign:
-			parser.nextItem()
-			value := parseExpression(parser)
-			return nodes.CreateDivisionAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
-		case lexing.ItemAssignment:
-			parser.nextItem()
-			value := parseExpression(parser)
-			return nodes.CreateAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
-		}
-
-		return expression
+	case lexing.ItemKeywordReturn:
+		startToken := parser.nextItem()
+		value := parseExpression(parser)
+		return nodes.CreateReturnStatement(nodes.CreateRangeFromItem(startToken), value)
+	default:
+		return parseSimpleStatement(parser)
 	}
+}
+
+func parseSimpleStatement(parser *Parser) nodes.Node {
+	expression := parseExpression(parser)
+
+	token := parser.peek()
+	switch token.Type {
+	case lexing.ItemIncrement:
+		parser.nextItem()
+		return nodes.CreateIncrement(nodes.CreateRange(expression.Start(), expression.End()), expression)
+	case lexing.ItemDecrement:
+		parser.nextItem()
+		return nodes.CreateDecrement(nodes.CreateRange(expression.Start(), expression.End()), expression)
+	case lexing.ItemLooseAssignment:
+		parser.nextItem()
+		value := parseExpression(parser)
+		return nodes.CreateLooseAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
+	case lexing.ItemAdditionAssign:
+		parser.nextItem()
+		value := parseExpression(parser)
+		return nodes.CreateAdditionAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
+	case lexing.ItemSubtractionAssign:
+		parser.nextItem()
+		value := parseExpression(parser)
+		return nodes.CreateSubtractionAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
+	case lexing.ItemMultiplicationAssign:
+		parser.nextItem()
+		value := parseExpression(parser)
+		return nodes.CreateMultiplicationAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
+	case lexing.ItemDivisionAssign:
+		parser.nextItem()
+		value := parseExpression(parser)
+		return nodes.CreateDivisionAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
+	case lexing.ItemAssignment:
+		parser.nextItem()
+		value := parseExpression(parser)
+		return nodes.CreateAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
+	}
+
+	return expression
 }
 
 func parseShellStatement(parser *Parser) *nodes.ShellStatement {

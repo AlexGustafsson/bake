@@ -76,16 +76,17 @@ Statement = Declaration
           | SimpleStatement
           | IfStatement
           | ForStatement
+          | ReturnStatement
           .
 
-SimpleStatement = EmptyStatement
-                | ExpressionStatement
+ReturnStatement = "return" Expression .
+
+SimpleStatement = ExpressionStatement
                 | IncreaseDecreaseStatement
                 | ShellStatement
                 | Assignment
                 .
 
-EmptyStatement = .
 ExpressionStatement = Expression .
 IncreaseDecreaseStatement = Expression ( "++" | "--" ) .
 ShellStatement = ShellLine | ShellBlock .
@@ -117,7 +118,7 @@ multiplicative_operator = "*" | "/" .
 Unary = [ unary_operator ] Primary .
 unary_operator = "-" | "!" | "..." .
 
-Primary = Operand { Selector | Index | Arguments }
+Primary = Operand { Selector | Index | Arguments } .
 
 Operand = Literal | Array | ImportSelector | identifier | "(" Expression ")" .
 Literal = boolean_literal | integer_literal | string_literal .

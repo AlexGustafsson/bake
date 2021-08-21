@@ -168,17 +168,13 @@ func Format(root nodes.Node) string {
 			builder.WriteString(Format(node.Expression))
 		}
 	case *nodes.InterpretedString:
-		escaped := strings.ReplaceAll(node.Content, "\"", "\\\"")
-		fmt.Fprintf(&builder, "\"%p\" [label=\"interpreted string '%s'\"];\n", node, escaped)
+		fmt.Fprintf(&builder, "\"%p\" [label=\"interpreted string '%s'\"];\n", node, escape(node.Content))
 	case *nodes.RawString:
-		escaped := strings.ReplaceAll(node.Content, "\"", "\\\"")
-		escaped = strings.ReplaceAll(escaped, "\n", "\\n")
-		fmt.Fprintf(&builder, "\"%p\" [label=\"raw string '%s'\"];\n", node, escaped)
+		fmt.Fprintf(&builder, "\"%p\" [label=\"raw string '%s'\"];\n", node, escape(node.Content))
 	case *nodes.Boolean:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"boolean '%s'\"];", node, node.Value)
 	case *nodes.Comment:
-		escaped := strings.ReplaceAll(node.Content, "\"", "\\\"")
-		fmt.Fprintf(&builder, "\"%p\" [label=\"comment '%s'\"];", node, escaped)
+		fmt.Fprintf(&builder, "\"%p\" [label=\"comment '%s'\"];", node, escape(node.Content))
 	case *nodes.Identifier:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"identifier '%s'\"];\n", node, node.Value)
 	case *nodes.ImportSelector:
@@ -198,9 +194,7 @@ func Format(root nodes.Node) string {
 			fmt.Fprintf(&builder, "\"%p%d\" [label=\"%s\"];\n", node.Arguments, i, argument)
 		}
 	case *nodes.ShellStatement:
-		escaped := strings.ReplaceAll(node.ShellString, "\"", "\\\"")
-		escaped = strings.ReplaceAll(escaped, "\n", "\\n")
-		fmt.Fprintf(&builder, "\"%p\" [label=\"shell '%s'\"]", node, escaped)
+		fmt.Fprintf(&builder, "\"%p\" [label=\"shell '%s'\"]", node, escape(node.ShellString))
 	case *nodes.PackageDeclaration:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"package declaration '%s'\"];\n", node, node.Identifier)
 	case *nodes.ImportsDeclaration:
@@ -262,4 +256,11 @@ func Format(root nodes.Node) string {
 	}
 
 	return builder.String()
+}
+
+func escape(unescaped string) string {
+	escaped := strings.ReplaceAll(unescaped, "\\", "\\\\")
+	escaped = strings.ReplaceAll(escaped, "\"", "\\\"")
+	escaped = strings.ReplaceAll(escaped, "\n", "\\n")
+	return escaped
 }

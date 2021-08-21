@@ -47,8 +47,8 @@ func (node *Invokation) DotString() string {
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, node.Arguments)
 		fmt.Fprintf(&builder, "\"%p\" [label=\"arguments\"];\n", node.Arguments)
 		for i, argument := range node.Arguments {
-			fmt.Fprintf(&builder, "\"%p\" -> \"%p%d\"\n", node.Arguments, &argument, i)
-			fmt.Fprintf(&builder, "\"%p%d\" [label=\"%s\"];\n", &argument, i, argument)
+			fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%d\"];\n", node.Arguments, &argument, i)
+			builder.WriteString(argument.DotString())
 		}
 	}
 	builder.WriteString(node.Operand.DotString())

@@ -42,7 +42,9 @@ func (node *InterpretedString) String() string {
 }
 
 func (node *InterpretedString) DotString() string {
-	return fmt.Sprintf("\"%p\" [label=\"interpreted string '%s'\"];\n", node, strings.ReplaceAll(node.Content, "\"", "\\\""))
+	escaped := strings.ReplaceAll(node.Content, "\"", "\\\"")
+	escaped = strings.ReplaceAll(escaped, "\n", "\\n")
+	return fmt.Sprintf("\"%p\" [label=\"interpreted string '%s'\"];\n", node, escaped)
 }
 
 func (node *RawString) DotString() string {

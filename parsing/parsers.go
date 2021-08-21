@@ -140,7 +140,11 @@ func parseRuleFuncionDeclaration(parser *Parser, exported bool) nodes.Node {
 func parseAliasDeclaration(parser *Parser, exported bool) nodes.Node {
 	startToken := parser.require(lexing.ItemKeywordAlias)
 
-	identifier := parser.require(lexing.ItemIdentifier)
+	identifier := parser.nextItem()
+	// Allow keywords not lexed as identifiers to be used in selections
+	if identifier.Type != lexing.ItemIdentifier && !identifier.IsKeyword() {
+		parser.tokenErrorf(identifier, "expected identifier, got '%s'", identifier.Value)
+	}
 
 	parser.require(lexing.ItemColon)
 

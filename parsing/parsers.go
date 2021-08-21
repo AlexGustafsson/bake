@@ -335,20 +335,28 @@ func parseSimpleStatement(parser *Parser) nodes.Node {
 func parseShellStatement(parser *Parser) *nodes.ShellStatement {
 	startToken := parser.require(lexing.ItemKeywordShell)
 
-	var shellString lexing.Item
+	var shellString string
 	multiline := false
-	if _, ok := parser.expectPeek(lexing.ItemLeftCurly); ok {
+
+	token := parser.peek()
+	switch token.Type {
+	case lexing.ItemLeftCurly:
 		parser.nextItem()
 
-		shellString = parser.require(lexing.ItemShellString)
+		shellString = parser.require(lexing.ItemShellString).Value
 		multiline = true
 
 		parser.require(lexing.ItemRightCurly)
-	} else {
-		shellString = parser.require(lexing.ItemShellString)
+	case lexing.ItemNewline:
+		// Ignore - empty shell statement
+		parser.nextItem()
+	case lexing.ItemShellString:
+		shellString = parser.nextItem().Value
+	default:
+		parser.tokenErrorf(token, "expected '{', newline or shell string, got '%s'", token.Type)
 	}
 
-	return nodes.CreateShellStatement(nodes.CreateRangeFromItem(startToken), multiline, shellString.Value)
+	return nodes.CreateShellStatement(nodes.CreateRangeFromItem(startToken), multiline, shellString)
 }
 
 func parseExpression(parser *Parser) nodes.Node {

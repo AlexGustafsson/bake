@@ -1,50 +1,86 @@
 package main
 
 import (
-	"context"
 	"os"
-	"os/signal"
-	"syscall"
+	"path/filepath"
+	"sort"
 
-	"github.com/AlexGustafsson/bake/lsp"
+	"github.com/AlexGustafsson/bake/internal/version"
 	log "github.com/sirupsen/logrus"
-	"github.com/sourcegraph/jsonrpc2"
+	"github.com/urfave/cli/v2"
 )
 
-type stdstream struct{}
+var appHelpTemplate = `Usage: {{.Name}} [global options] command [command options] [arguments]
 
-func (stdstream) Read(p []byte) (int, error) {
-	return os.Stdin.Read(p)
-}
+{{.Usage}}
 
-func (stdstream) Write(p []byte) (int, error) {
-	return os.Stdout.Write(p)
-}
+Version: {{.Version}}
 
-func (stdstream) Close() error {
-	if err := os.Stdin.Close(); err != nil {
-		return err
+Options:
+  {{range .Flags}}{{.}}
+  {{end}}
+Commands:
+  {{range .Commands}}{{.Name}}{{ "\t" }}{{.Usage}}
+  {{end}}
+Run '{{.Name}} help command' for more information on a command.
+`
+
+var commandHelpTemplate = `Usage: bake {{.Name}} [options] {{if .ArgsUsage}}{{.ArgsUsage}}{{end}}
+
+{{.Usage}}{{if .Description}}
+
+Description:
+   {{.Description}}{{end}}{{if .Flags}}
+
+Options:{{range .Flags}}
+   {{.}}{{end}}{{end}}
+`
+
+func setDebugOutputLevel() {
+	for _, flag := range os.Args {
+		if flag == "-v" || flag == "--verbose" {
+			log.SetLevel(log.DebugLevel)
+		}
 	}
+}
 
-	return os.Stdout.Close()
+func commandNotFound(context *cli.Context, command string) {
+	log.Errorf(
+		"%s: '%s' is not a %s command. See '%s help'.",
+		context.App.Name,
+		command,
+		context.App.Name,
+		os.Args[0],
+	)
+	os.Exit(1)
 }
 
 func main() {
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill, syscall.SIGTERM)
-	defer stop()
+	setDebugOutputLevel()
 
-	handler := lsp.NewHandler()
+	cli.AppHelpTemplate = appHelpTemplate
+	cli.CommandHelpTemplate = commandHelpTemplate
 
-	stream := jsonrpc2.NewBufferedStream(stdstream{}, jsonrpc2.VSCodeObjectCodec{})
-	rpcLogger := jsonrpc2.LogMessages(log.New())
-	connection := jsonrpc2.NewConn(ctx, stream, handler, rpcLogger)
-	select {
-	case <-ctx.Done():
-		log.Info("signal received")
-		connection.Close()
-	case <-connection.DisconnectNotify():
-		log.Info("client disconnected")
+	app := cli.NewApp()
+	app.Name = filepath.Base(os.Args[0])
+	app.Usage = "A cross-platform language and tool for building things"
+	app.Version = version.FullVersion()
+	app.CommandNotFound = commandNotFound
+	app.EnableBashCompletion = true
+	app.Commands = commands
+	app.HideVersion = true
+	app.Flags = []cli.Flag{
+		&cli.BoolFlag{
+			Name:  "verbose, v",
+			Usage: "Enable verbose logging",
+		},
 	}
 
-	log.Info("stopped")
+	sort.Sort(cli.FlagsByName(app.Flags))
+	sort.Sort(cli.CommandsByName(app.Commands))
+
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -54,7 +54,7 @@ build/bake: $(server_source) Makefile
 # Build for the native platform
 build/bagels: $(server_source) Makefile
 	go generate ./...
-	go build $(BUILD_FLAGS) -o $@ cmd/bagels/bagels.go
+	go build $(BUILD_FLAGS) -o $@ cmd/bagels/*.go
 
 install-tools:
 	cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %

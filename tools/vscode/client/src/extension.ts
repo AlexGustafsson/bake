@@ -22,8 +22,8 @@ export function activate(context: ExtensionContext) {
   const bagelsCommand = config.get<string>("command")!
 
   let serverOptions: ServerOptions = {
-    run: {command: bagelsCommand, transport: TransportKind.stdio},
-    debug: {command: bagelsCommand, transport: TransportKind.stdio},
+    run: {command: bagelsCommand, args: ['start'], transport: TransportKind.stdio},
+    debug: {command: bagelsCommand, args: ['start'], transport: TransportKind.stdio},
   };
 
   let clientOptions: LanguageClientOptions = {

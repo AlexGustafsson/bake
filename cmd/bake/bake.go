@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/AlexGustafsson/bake/internal/commands"
 	"github.com/AlexGustafsson/bake/internal/version"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -68,7 +67,7 @@ func main() {
 	app.Version = version.FullVersion()
 	app.CommandNotFound = commandNotFound
 	app.EnableBashCompletion = true
-	app.Commands = commands.Commands
+	app.Commands = commands
 	app.HideVersion = true
 	app.Flags = []cli.Flag{
 		&cli.BoolFlag{

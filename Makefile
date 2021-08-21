@@ -49,7 +49,7 @@ test: $(server_source) Makefile
 # Build for the native platform
 build/bake: $(server_source) Makefile
 	go generate ./...
-	go build $(BUILD_FLAGS) -o $@ cmd/bake/bake.go
+	go build $(BUILD_FLAGS) -o $@ cmd/bake/*.go
 
 # Build for the native platform
 build/bagels: $(server_source) Makefile

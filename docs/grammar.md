@@ -60,9 +60,7 @@ RuleFunctionDeclaration = [ "export" ] "rule" identifier [Signature] Block .
 
 AliasDeclaration = [ "export" ] "alias" identifier ":" Expression .
 
-RuleDeclaration = ( file_path | FileList ) [ FileList ] ( ":" PrimaryExpression [ Block ] | Block ) .
-FileList = "[" file_path { "," file_path } "]" .
-file_path = string_literal .
+RuleDeclaration = ( string_literal | Array ) [ Array ] ( ":" PrimaryExpression [ Block ] | Block ) .
 
 Signature = "(" [ ParameterList ] ")" .
 ParameterList = identifier { "," identifier } .

@@ -532,7 +532,7 @@ func parseOperand(parser *Parser) nodes.Node {
 		parser.nextItem()
 		if _, ok := parser.expectPeek(lexing.ItemColonColon); ok {
 			parser.nextItem()
-			identifier := parser.nextItem()
+			identifier := parser.require(lexing.ItemIdentifier)
 			return nodes.CreateImportSelector(nodes.CreateRangeFromItem(token), token.Value, identifier.Value)
 		} else {
 			return nodes.CreateIdentifier(nodes.CreateRangeFromItem(token), token.Value)

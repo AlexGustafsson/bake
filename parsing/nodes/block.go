@@ -30,7 +30,7 @@ func (node *Block) String() string {
 		builder.WriteRune('\n')
 	}
 
-	builder.WriteString("}\n")
+	builder.WriteString("}")
 
 	return builder.String()
 }

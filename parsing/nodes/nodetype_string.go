@@ -43,11 +43,12 @@ func _() {
 	_ = x[NodeTypeAliasDeclaration-32]
 	_ = x[NodeTypeRuleDeclaration-33]
 	_ = x[NodeTypeReturnStatement-34]
+	_ = x[NodeTypeIfStatement-35]
 }
 
-const _NodeType_name = "NodeTypeSourceFileNodeTypePackageDeclarationNodeTypeImportsDeclarationNodeTypeCommentNodeTypeInterpretedStringNodeTypeRawStringNodeTypeVariableDeclarationNodeTypeIdentifierNodeTypeIntegerNodeTypeSignatureNodeTypeFunctionDeclarationNodeTypeRuleFunctionDeclarationNodeTypeBlockNodeTypeSelectorNodeTypeImportSelectorNodeTypeIndexNodeTypeInvocationNodeTypeIncrementNodeTypeDecrementNodeTypeLooseAssignmentNodeTypeAdditionAssignmentNodeTypeSubtractionAssignmentNodeTypeMultiplicationAssignmentNodeTypeDivisionAssignmentNodeTypeShellStatementNodeTypeAssignmentNodeTypeComparisonNodeTypeEqualityNodeTypeFactorNodeTypePrimaryNodeTypeTermNodeTypeUnaryNodeTypeAliasDeclarationNodeTypeRuleDeclarationNodeTypeReturnStatement"
+const _NodeType_name = "NodeTypeSourceFileNodeTypePackageDeclarationNodeTypeImportsDeclarationNodeTypeCommentNodeTypeInterpretedStringNodeTypeRawStringNodeTypeVariableDeclarationNodeTypeIdentifierNodeTypeIntegerNodeTypeSignatureNodeTypeFunctionDeclarationNodeTypeRuleFunctionDeclarationNodeTypeBlockNodeTypeSelectorNodeTypeImportSelectorNodeTypeIndexNodeTypeInvocationNodeTypeIncrementNodeTypeDecrementNodeTypeLooseAssignmentNodeTypeAdditionAssignmentNodeTypeSubtractionAssignmentNodeTypeMultiplicationAssignmentNodeTypeDivisionAssignmentNodeTypeShellStatementNodeTypeAssignmentNodeTypeComparisonNodeTypeEqualityNodeTypeFactorNodeTypePrimaryNodeTypeTermNodeTypeUnaryNodeTypeAliasDeclarationNodeTypeRuleDeclarationNodeTypeReturnStatementNodeTypeIfStatement"
 
-var _NodeType_index = [...]uint16{0, 18, 44, 70, 85, 110, 127, 154, 172, 187, 204, 231, 262, 275, 291, 313, 326, 344, 361, 378, 401, 427, 456, 488, 514, 536, 554, 572, 588, 602, 617, 629, 642, 666, 689, 712}
+var _NodeType_index = [...]uint16{0, 18, 44, 70, 85, 110, 127, 154, 172, 187, 204, 231, 262, 275, 291, 313, 326, 344, 361, 378, 401, 427, 456, 488, 514, 536, 554, 572, 588, 602, 617, 629, 642, 666, 689, 712, 731}
 
 func (i NodeType) String() string {
 	if i < 0 || i >= NodeType(len(_NodeType_index)-1) {

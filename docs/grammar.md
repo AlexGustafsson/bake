@@ -81,6 +81,8 @@ Statement = Declaration
 
 ReturnStatement = "return" Expression .
 
+IfStatement = "if" Expression Block [ "else" ( IfStatement | Block ) ] .
+
 SimpleStatement = ExpressionStatement
                 | IncreaseDecreaseStatement
                 | ShellStatement

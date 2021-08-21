@@ -50,4 +50,5 @@ const (
 	NodeTypeAliasDeclaration
 	NodeTypeRuleDeclaration
 	NodeTypeReturnStatement
+	NodeTypeIfStatement
 )

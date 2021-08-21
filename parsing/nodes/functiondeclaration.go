@@ -42,6 +42,7 @@ func (node *FunctionDeclaration) String() string {
 	}
 
 	builder.WriteString(node.Block.String())
+	builder.WriteRune('\n')
 
 	return builder.String()
 }

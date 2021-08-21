@@ -247,6 +247,16 @@ func Format(root nodes.Node) string {
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
 		builder.WriteString(Format(node.Expression))
+	case *nodes.IfStatement:
+		fmt.Fprintf(&builder, "\"%p\" [label=\"if statement\"];\n", node)
+		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"expression\"];\n", node, node.Expression)
+		builder.WriteString(Format(node.Expression))
+		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"positive branch\"];\n", node, node.PositiveBranch)
+		builder.WriteString(Format(node.PositiveBranch))
+		if node.NegativeBranch != nil {
+			fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"negative branch\"];\n", node, node.NegativeBranch)
+			builder.WriteString(Format(node.NegativeBranch))
+		}
 	default:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"UNKNOWN '%s'\"", node, node.Type().String())
 	}

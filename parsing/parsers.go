@@ -267,9 +267,29 @@ func parseStatement(parser *Parser) nodes.Node {
 		startToken := parser.nextItem()
 		value := parseExpression(parser)
 		return nodes.CreateReturnStatement(nodes.CreateRangeFromItem(startToken), value)
+	case lexing.ItemKeywordIf:
+		return parseIfStatement(parser)
 	default:
 		return parseSimpleStatement(parser)
 	}
+}
+
+func parseIfStatement(parser *Parser) *nodes.IfStatement {
+	startToken := parser.require(lexing.ItemKeywordIf)
+	expression := parseExpression(parser)
+	positiveBranch := parseBlock(parser)
+
+	var negativeBranch nodes.Node = nil
+	if _, ok := parser.expectPeek(lexing.ItemKeywordElse); ok {
+		parser.nextItem()
+		if _, ok := parser.expectPeek(lexing.ItemKeywordIf); ok {
+			negativeBranch = parseIfStatement(parser)
+		} else {
+			negativeBranch = parseBlock(parser)
+		}
+	}
+
+	return nodes.CreateIfStatement(nodes.CreateRangeFromItem(startToken), expression, positiveBranch, negativeBranch)
 }
 
 func parseSimpleStatement(parser *Parser) nodes.Node {

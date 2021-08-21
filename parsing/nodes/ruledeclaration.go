@@ -66,6 +66,7 @@ func (node *RuleDeclaration) String() string {
 	} else {
 		builder.WriteRune(' ')
 		builder.WriteString(node.Block.String())
+		builder.WriteRune('\n')
 	}
 
 	return builder.String()

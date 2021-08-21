@@ -42,6 +42,7 @@ func (node *RuleFunctionDeclaration) String() string {
 	}
 
 	builder.WriteString(node.Block.String())
+	builder.WriteRune('\n')
 
 	return builder.String()
 }

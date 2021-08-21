@@ -48,7 +48,7 @@ ImportsDeclaration = "import" "(" { string_literal } ")" .
 ### Declarations
 
 ```
-TopLevelDeclaration = Declaration | FunctionDeclaration | RuleFunctionDeclaration | AliasDeclaration | RuleDeclaration .
+TopLevelDeclaration = Declaration | FunctionDeclaration | RuleFunctionDeclaration | AliasDeclaration | RuleDeclaration | Statement .
 
 Declaration = VarDeclaration .
 

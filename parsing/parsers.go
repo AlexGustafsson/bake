@@ -96,7 +96,7 @@ func parseTopLevelDeclaration(parser *Parser) nodes.Node {
 	case lexing.ItemInterpretedString, lexing.ItemRawString, lexing.ItemLeftBracket:
 		return parseRule(parser)
 	default:
-		parser.tokenErrorf(token, "unexpected %s", token.Type.String())
+		return parseStatement(parser)
 	}
 	return nil
 }

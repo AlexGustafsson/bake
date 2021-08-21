@@ -10,8 +10,8 @@ func find_source {
   return context.shell.stdout.string
 }
 
-alias package "bake-lsp-$(version).vsix"
+alias package : "bake-lsp-$(version).vsix"
 
-"bake-lsp-$(version).vsix" source {
+"bake-lsp-$(version).vsix" [...source] {
 	shell yarn package
 }

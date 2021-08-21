@@ -12,10 +12,10 @@ env.CC = "clang"
 // Add build-time variables
 let version = "v0.1.0"
 let commit = git::commit()
-let go_version := go::version()
-let compile_time := util::date()
+let go_version = go::version()
+let compile_time = util::date()
 
-let build_variables := "-X $(prefix).Version=$(version) -X $(prefix).Commit=$(commit) -X $(prefix).GoVersion=$(go_version) -X $(prefix).CompileTime=$(compile_time)"
+let build_variables = "-X $(prefix).Version=$(version) -X $(prefix).Commit=$(commit) -X $(prefix).GoVersion=$(go_version) -X $(prefix).CompileTime=$(compile_time)"
 let build_flags = "-ldflags '$(build_variables)'"
 
 let server_source = util::find("*.go")
@@ -69,7 +69,7 @@ alias install_tools : go::install_tools
 alias build : "build/upmon"
 
 // Build tools
-alias tools ["vscode", "nano"]
+alias tools : ["vscode", "nano"]
 
 // Build the vscode tool
 func vscode {

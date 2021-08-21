@@ -11,8 +11,9 @@
   * [Phony](examples/phony.md)
 
 * Tools
-  * [Editors](editors.md)
-  * [Terminals](terminals.md)
+  * [Bagels Language Server](tools/bagels.md)
+  * [Editor plugins](tools/editors.md)
+  * [Terminal tools](tools/terminals.md)
 
 * Syntax
   * [Grammar](grammar.md)

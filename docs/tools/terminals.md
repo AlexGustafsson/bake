@@ -1,4 +1,4 @@
-# Terminals
+# Terminal tools
 
 ## Fish Autocompletion
 

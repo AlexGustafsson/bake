@@ -1,16 +1,4 @@
-# Editors
-
-## Bagels - The Bake Language Server
-
-### Features
-
-### Installation
-
-```shell
-make build
-```
-
-Follow your editor's implementation details on using `build/bagels` with communication over JSON RPC v2 over the standard streams.
+# Editor plugins
 
 ## VSCode, VSCodium and Friends
 
@@ -18,7 +6,7 @@ Follow your editor's implementation details on using `build/bagels` with communi
 
 * Syntax highlighting
 * Syntax highlighting injection in Markdown
-* Language server support
+* Bagels language server support
 * Snippets
 
 ### Installation

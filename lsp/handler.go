@@ -43,7 +43,7 @@ func (handler Handler) handle(ctx context.Context, connection *jsonrpc2.Conn, re
 			return nil, err
 		}
 
-		log.Info("starting in '%s'", params.RootURI)
+		log.Infof("starting in '%s'", params.RootURI)
 
 		// TODO: Switch to incremental when there is support
 		// Send full text on each update
@@ -97,33 +97,8 @@ func (handler Handler) handle(ctx context.Context, connection *jsonrpc2.Conn, re
 
 		_, err := parsing.Parse(params.TextDocument.Text)
 		if err != nil {
-			if parseError, ok := err.(*parsing.ParseError); ok {
-				connection.Notify(ctx, "textDocument/publishDiagnostics", lsp.PublishDiagnosticsParams{
-					URI: params.TextDocument.URI,
-					Diagnostics: []lsp.Diagnostic{
-						{
-							Range: lsp.Range{
-								Start: lsp.Position{
-									Line:      parseError.Range.Start().Line,
-									Character: parseError.Range.Start().Character,
-								},
-								End: lsp.Position{
-									Line:      parseError.Range.End().Line,
-									Character: parseError.Range.End().Character,
-								},
-							},
-							Severity: lsp.Error,
-							Source:   "bake",
-							Message:  parseError.Message,
-						},
-					},
-				})
-			} else {
-				connection.Notify(ctx, "window/showMessage", lsp.ShowMessageParams{
-					Type:    lsp.MTError,
-					Message: err.Error(),
-				})
-			}
+			sendParseError(connection, ctx, params.TextDocument.URI, err)
+			break
 		}
 
 		return nil, nil
@@ -148,12 +123,48 @@ func (handler Handler) handle(ctx context.Context, connection *jsonrpc2.Conn, re
 			return nil, err
 		}
 
-		for _, change := range params.ContentChanges {
-			log.Info("from %d:%d to %d:%d: %s", change.Range.Start.Line, change.Range.Start.Character, change.Range.End.Line, change.Range.End.Character, change.Text)
+		// Right now there will only be one change, without any range (it is nil) - as the entire document is sent each time
+		if len(params.ContentChanges) == 1 {
+			change := params.ContentChanges[0]
+			_, err := parsing.Parse(change.Text)
+			if err != nil {
+				sendParseError(connection, ctx, params.TextDocument.URI, err)
+				break
+			}
 		}
 
 		return nil, nil
 	}
 
 	return nil, &jsonrpc2.Error{Code: jsonrpc2.CodeMethodNotFound, Message: fmt.Sprintf("method not supported: %s", request.Method)}
+}
+
+func sendParseError(connection *jsonrpc2.Conn, ctx context.Context, uri lsp.DocumentURI, err error) {
+	if parseError, ok := err.(*parsing.ParseError); ok {
+		connection.Notify(ctx, "textDocument/publishDiagnostics", lsp.PublishDiagnosticsParams{
+			URI: uri,
+			Diagnostics: []lsp.Diagnostic{
+				{
+					Range: lsp.Range{
+						Start: lsp.Position{
+							Line:      parseError.Range.Start().Line,
+							Character: parseError.Range.Start().Character,
+						},
+						End: lsp.Position{
+							Line:      parseError.Range.End().Line,
+							Character: parseError.Range.End().Character,
+						},
+					},
+					Severity: lsp.Error,
+					Source:   "bake",
+					Message:  parseError.Message,
+				},
+			},
+		})
+	} else {
+		connection.Notify(ctx, "window/showMessage", lsp.ShowMessageParams{
+			Type:    lsp.MTError,
+			Message: err.Error(),
+		})
+	}
 }

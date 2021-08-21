@@ -37,14 +37,14 @@ func main() {
 
 	stream := jsonrpc2.NewBufferedStream(stdstream{}, jsonrpc2.VSCodeObjectCodec{})
 	rpcLogger := jsonrpc2.LogMessages(log.New())
-	conn := jsonrpc2.NewConn(ctx, stream, handler, rpcLogger)
+	connection := jsonrpc2.NewConn(ctx, stream, handler, rpcLogger)
 	select {
 	case <-ctx.Done():
-		log.Info("Signal received")
-		conn.Close()
-	case <-conn.DisconnectNotify():
-		log.Info("Client disconnected")
+		log.Info("signal received")
+		connection.Close()
+	case <-connection.DisconnectNotify():
+		log.Info("client disconnected")
 	}
 
-	log.Info("Stopped...")
+	log.Info("stopped")
 }

@@ -4,20 +4,28 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"runtime"
 
-	"github.com/AlexGustafsson/bake/parsing"
+	"github.com/AlexGustafsson/bake/lsp/events"
+	"github.com/AlexGustafsson/bake/lsp/state"
 	log "github.com/sirupsen/logrus"
 	"github.com/sourcegraph/go-lsp"
 	"github.com/sourcegraph/jsonrpc2"
 )
 
-type Handler struct{}
-
-func NewHandler() *Handler {
-	return &Handler{}
+type Handler struct {
+	State *state.State
 }
 
+func NewHandler() *Handler {
+	return &Handler{
+		State: state.CreateState(),
+	}
+}
+
+// Handle is the main entrypoint for events
 func (handler Handler) Handle(ctx context.Context, connection *jsonrpc2.Conn, request *jsonrpc2.Request) {
+	// Call the internal handle function and send any potential error or reply
 	response, err := handler.handle(ctx, connection, request)
 	if err != nil {
 		log.Error("error creating response", err)
@@ -30,39 +38,18 @@ func (handler Handler) Handle(ctx context.Context, connection *jsonrpc2.Conn, re
 	}
 }
 
-// https://github.com/a-h/qt-lsp/blob/6c6909dc8457bdd14ee3c80513c0cc87394c6aa7/handler.go#L18
-func (handler Handler) handle(ctx context.Context, connection *jsonrpc2.Conn, request *jsonrpc2.Request) (interface{}, error) {
+// handle is the internal handler for determining the correct action for an event
+func (handler Handler) handle(ctx context.Context, connection *jsonrpc2.Conn, request *jsonrpc2.Request) (reply interface{}, err error) {
+	defer handler.recover(&err)
+
 	switch request.Method {
 	case "initialize":
-		if request.Params == nil {
-			return nil, &jsonrpc2.Error{Code: jsonrpc2.CodeInvalidParams}
-		}
-
 		var params lsp.InitializeParams
-		if err := json.Unmarshal(*request.Params, &params); err != nil {
-			return nil, err
-		}
+		handler.requireParameters(request, &params)
 
-		log.Infof("starting in '%s'", params.RootURI)
-
-		// TODO: Switch to incremental when there is support
-		// Send full text on each update
-		kind := lsp.TDSKFull
-		return lsp.InitializeResult{
-			Capabilities: lsp.ServerCapabilities{
-				TextDocumentSync: &lsp.TextDocumentSyncOptionsOrKind{
-					Kind: &kind,
-				},
-				CompletionProvider:     &lsp.CompletionOptions{ResolveProvider: true, TriggerCharacters: []string{"(", "."}},
-				DefinitionProvider:     true,
-				TypeDefinitionProvider: true,
-				DocumentSymbolProvider: true,
-				HoverProvider:          true,
-				ReferencesProvider:     true,
-				ImplementationProvider: true,
-				SignatureHelpProvider:  &lsp.SignatureHelpOptions{TriggerCharacters: []string{"(", ","}},
-			},
-		}, nil
+		event := events.CreateEvent(ctx, connection, params)
+		response := events.HandleInitialize(event)
+		return response, nil
 	case "initialized":
 		// A notification that the client is ready to receive requests. Ignore
 		return nil, nil
@@ -72,99 +59,79 @@ func (handler Handler) handle(ctx context.Context, connection *jsonrpc2.Conn, re
 	case "shutdown":
 		return nil, nil
 	case "textDocument/hover":
-		if request.Params == nil {
-			return nil, &jsonrpc2.Error{Code: jsonrpc2.CodeInvalidParams}
-		}
 		var params lsp.TextDocumentPositionParams
-		if err := json.Unmarshal(*request.Params, &params); err != nil {
-			return nil, err
-		}
+		handler.requireParameters(request, &params)
 
+		event := events.CreateEvent(ctx, connection, params)
+		events.HandleHover(event)
 		return nil, nil
 	case "textDocument/didOpen":
-		if request.Params == nil {
-			return nil, &jsonrpc2.Error{Code: jsonrpc2.CodeInvalidParams}
-		}
-
 		var params lsp.DidOpenTextDocumentParams
-		if err := json.Unmarshal(*request.Params, &params); err != nil {
-			return nil, err
-		}
+		handler.requireParameters(request, &params)
 
-		if params.TextDocument.LanguageID != "bake" {
-			return nil, fmt.Errorf("unsupported language")
-		}
-
-		_, err := parsing.Parse(params.TextDocument.Text)
-		if err != nil {
-			sendParseError(connection, ctx, params.TextDocument.URI, err)
-			break
-		}
-
-		return nil, nil
+		event := events.CreateEvent(ctx, connection, params)
+		err = events.HandleOpen(event, handler.State)
+		return nil, err
 	case "textDocument/didClose":
-		if request.Params == nil {
-			return nil, &jsonrpc2.Error{Code: jsonrpc2.CodeInvalidParams}
-		}
+		var parameters lsp.DidCloseTextDocumentParams
+		handler.requireParameters(request, &parameters)
 
-		var params lsp.DidOpenTextDocumentParams
-		if err := json.Unmarshal(*request.Params, &params); err != nil {
-			return nil, err
-		}
-
+		event := events.CreateEvent(ctx, connection, parameters)
+		events.HandleClose(event, handler.State)
 		return nil, nil
 	case "textDocument/didChange":
-		if request.Params == nil {
-			return nil, &jsonrpc2.Error{Code: jsonrpc2.CodeInvalidParams}
-		}
-
 		var params lsp.DidChangeTextDocumentParams
-		if err := json.Unmarshal(*request.Params, &params); err != nil {
-			return nil, err
-		}
+		handler.requireParameters(request, &params)
 
-		// Right now there will only be one change, without any range (it is nil) - as the entire document is sent each time
-		if len(params.ContentChanges) == 1 {
-			change := params.ContentChanges[0]
-			_, err := parsing.Parse(change.Text)
-			if err != nil {
-				sendParseError(connection, ctx, params.TextDocument.URI, err)
-				break
-			}
-		}
+		document := handler.requireDocument(string(params.TextDocument.URI))
 
+		event := events.CreateEvent(ctx, connection, params)
+		events.HandleChange(event, document)
+		return nil, nil
+	case "textDocument/didSave":
+		var params lsp.DidSaveTextDocumentParams
+		handler.requireParameters(request, &params)
+
+		document := handler.requireDocument(string(params.TextDocument.URI))
+
+		event := events.CreateEvent(ctx, connection, params)
+		events.HandleSave(event, document)
 		return nil, nil
 	}
 
 	return nil, &jsonrpc2.Error{Code: jsonrpc2.CodeMethodNotFound, Message: fmt.Sprintf("method not supported: %s", request.Method)}
 }
 
-func sendParseError(connection *jsonrpc2.Conn, ctx context.Context, uri lsp.DocumentURI, err error) {
-	if parseError, ok := err.(*parsing.ParseError); ok {
-		connection.Notify(ctx, "textDocument/publishDiagnostics", lsp.PublishDiagnosticsParams{
-			URI: uri,
-			Diagnostics: []lsp.Diagnostic{
-				{
-					Range: lsp.Range{
-						Start: lsp.Position{
-							Line:      parseError.Range.Start().Line,
-							Character: parseError.Range.Start().Character,
-						},
-						End: lsp.Position{
-							Line:      parseError.Range.End().Line,
-							Character: parseError.Range.End().Character,
-						},
-					},
-					Severity: lsp.Error,
-					Source:   "bake",
-					Message:  parseError.Message,
-				},
-			},
-		})
+func (handler *Handler) recover(errp *error) {
+	err := recover()
+	if err != nil {
+		if _, ok := err.(runtime.Error); ok {
+			panic(err)
+		}
+
+		if handler != nil {
+			*errp = err.(error)
+		}
+	}
+}
+
+// requireParameters handles unmarshalling of a request's parameter that must not be nil.
+// the parameters argument is expected to be a pointer to a value of the type to unmarshal
+func (handler *Handler) requireParameters(request *jsonrpc2.Request, parameters interface{}) {
+	if request.Params == nil {
+		panic(&jsonrpc2.Error{Code: jsonrpc2.CodeInvalidParams})
+	}
+
+	if err := json.Unmarshal(*request.Params, parameters); err != nil {
+		panic(err)
+	}
+}
+
+// requireDocument handles document retrieval. The document is required to exist
+func (handler *Handler) requireDocument(uri string) *state.Document {
+	if document, ok := handler.State.Documents[uri]; ok {
+		return document
 	} else {
-		connection.Notify(ctx, "window/showMessage", lsp.ShowMessageParams{
-			Type:    lsp.MTError,
-			Message: err.Error(),
-		})
+		panic(&jsonrpc2.Error{Code: jsonrpc2.CodeInvalidParams, Message: "no such document"})
 	}
 }

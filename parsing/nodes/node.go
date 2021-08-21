@@ -26,6 +26,7 @@ const (
 	NodeTypeInteger
 	NodeTypeSignature
 	NodeTypeFunctionDeclaration
+	NodeTypeRuleFunctionDeclaration
 	NodeTypeBlock
 	NodeTypeSelector
 	NodeTypeImportSelector
@@ -46,4 +47,5 @@ const (
 	NodeTypePrimary
 	NodeTypeTerm
 	NodeTypeUnary
+	NodeTypeAliasDeclaration
 )

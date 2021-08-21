@@ -77,16 +77,19 @@ func parseTopLevelDeclaration(parser *Parser) nodes.Node {
 	case lexing.ItemKeywordFunc:
 		return parseFunctionDeclaration(parser, false)
 	case lexing.ItemKeywordRule:
-		parser.errorf("rule functions are not implemented")
+		return parseRuleFuncionDeclaration(parser, false)
 	case lexing.ItemKeywordAlias:
-		parser.errorf("aliases are not implemented")
+		return parseAliasDeclaration(parser, false)
 	case lexing.ItemKeywordExport:
 		parser.nextItem()
+		token := parser.peek()
 		switch token.Type {
 		case lexing.ItemKeywordFunc:
 			return parseFunctionDeclaration(parser, true)
 		case lexing.ItemKeywordRule:
-			parser.errorf("rule functions are not implemented")
+			return parseRuleFuncionDeclaration(parser, true)
+		case lexing.ItemKeywordAlias:
+			return parseAliasDeclaration(parser, true)
 		default:
 			parser.tokenErrorf(token, "unexpected %s", token.Type.String())
 		}
@@ -118,6 +121,30 @@ func parseFunctionDeclaration(parser *Parser, exported bool) nodes.Node {
 	block := parseBlock(parser)
 
 	return nodes.CreateFunctionDeclaration(nodes.CreateRangeFromItem(startToken), exported, identifier.Value, signature, block)
+}
+
+func parseRuleFuncionDeclaration(parser *Parser, exported bool) nodes.Node {
+	startToken := parser.require(lexing.ItemKeywordRule)
+
+	identifier := parser.require(lexing.ItemIdentifier)
+
+	signature, _ := parseSignature(parser)
+
+	block := parseBlock(parser)
+
+	return nodes.CreateRuleFunctionDeclaration(nodes.CreateRangeFromItem(startToken), exported, identifier.Value, signature, block)
+}
+
+func parseAliasDeclaration(parser *Parser, exported bool) nodes.Node {
+	startToken := parser.require(lexing.ItemKeywordAlias)
+
+	identifier := parser.require(lexing.ItemIdentifier)
+
+	parser.require(lexing.ItemColon)
+
+	expression := parseExpression(parser)
+
+	return nodes.CreateAliasDeclaration(nodes.CreateRangeFromItem(startToken), identifier.String(), expression)
 }
 
 func parseSignature(parser *Parser) (*nodes.Signature, bool) {

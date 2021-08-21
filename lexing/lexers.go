@@ -303,6 +303,12 @@ func lexRoot(lexer *Lexer) stateModifier {
 }
 
 func lexShell(lexer *Lexer) stateModifier {
+	// Require at least one whitespace after the shell keyword. This solves cases
+	// such as when "shell" is used as an identifier (context.shell.stdout.string)
+	if rune := lexer.Peek(); rune != ' ' && rune != '\t' {
+		return lexRoot
+	}
+
 	// Consume leading whitespace
 	for {
 		rune := lexer.Peek()

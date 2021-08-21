@@ -21,7 +21,7 @@ ifeq ($(shell uname),Darwin)
 	CC=clang
 endif
 
-.PHONY: help build tools vscode nano prism format lint test clean
+.PHONY: help build tools vscode nano prism format lint test install-tools clean
 
 # Produce a short description of available make commands
 help:
@@ -55,6 +55,9 @@ build/bake: $(server_source) Makefile
 build/bagels: $(server_source) Makefile
 	go generate ./...
 	go build $(BUILD_FLAGS) -o $@ cmd/bagels/bagels.go
+
+install-tools:
+	cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %
 
 # Build tools
 tools: vscode nano

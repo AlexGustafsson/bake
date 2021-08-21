@@ -563,8 +563,11 @@ dec:
 				parser.tokenErrorf(token, "unexpected comma - missing expression")
 			}
 
-			expression := parseExpression(parser)
-			expressions = append(expressions, expression)
+			// Don't allow two commas after each other - this is done here so that the main switch
+			// loop may be reused each iteration to handle whitespace uniformly etc.
+			if token, ok := parser.expectPeek(lexing.ItemComma); ok {
+				parser.tokenErrorf(token, "unexpected comma")
+			}
 		default:
 			expression := parseExpression(parser)
 			expressions = append(expressions, expression)

@@ -208,6 +208,7 @@ func Format(root nodes.Node) string {
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
 		builder.WriteString(Format(node.Expression))
+		builder.WriteString(Format(node.Value))
 	case *nodes.Increment:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "increment")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
@@ -221,26 +222,31 @@ func Format(root nodes.Node) string {
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
 		builder.WriteString(Format(node.Expression))
+		builder.WriteString(Format(node.Value))
 	case *nodes.AdditionAssignment:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "addition assignment")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
 		builder.WriteString(Format(node.Expression))
+		builder.WriteString(Format(node.Value))
 	case *nodes.SubtractionAssignment:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "subtraction assignment")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
 		builder.WriteString(Format(node.Expression))
+		builder.WriteString(Format(node.Value))
 	case *nodes.MultiplicationAssignment:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "multiplication assignment")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
 		builder.WriteString(Format(node.Expression))
+		builder.WriteString(Format(node.Value))
 	case *nodes.DivisionAssignment:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "division assignment")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
 		builder.WriteString(Format(node.Expression))
+		builder.WriteString(Format(node.Value))
 	case *nodes.IfStatement:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"if statement\"];\n", node)
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"expression\"];\n", node, node.Expression)

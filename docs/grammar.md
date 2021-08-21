@@ -117,19 +117,14 @@ multiplicative_operator = "*" | "/" .
 Unary = [ unary_operator ] Primary .
 unary_operator = "-" | "!" | "..." .
 
-Primary = Operand
-        | PrimaryExpression Selector
-        | PrimaryExpression ImportSelector
-        | PrimaryExpression Index
-        | PrimaryExpression Arguments
-        .
+Primary = Operand { Selector | Index | Arguments }
 
-Operand = Literal | Array | identifier | "(" Expression ")" .
+Operand = Literal | Array | ImportSelector | identifier | "(" Expression ")" .
 Literal = boolean_literal | integer_literal | string_literal .
-Array = "[" [ Expression { "," Expression } ] "]" .
+Array = "[" [ ExpressionList ] "]" .
+ImportSelector = identifier "::" identifier .
 
 Selector = "." identifier .
-ImportSelector = "::" identifier .
 Index = "[" Expression "]" .
 Arguments = "(" [ ExpressionList ] ")" .
 ExpressionList = Expression { "," Expression } .

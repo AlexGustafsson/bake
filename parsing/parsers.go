@@ -453,51 +453,30 @@ func parseUnary(parser *Parser) nodes.Node {
 }
 
 func parsePrimary(parser *Parser) nodes.Node {
-	return parsePrimaryImport(parser)
-}
+	left := parseOperand(parser)
 
-func parsePrimaryImport(parser *Parser) nodes.Node {
-	node := parsePrimaryArguments(parser)
-	if _, ok := parser.expectPeek(lexing.ItemColonColon); ok {
-		parser.nextItem()
-		identifier := parser.require(lexing.ItemIdentifier)
-		return nodes.CreateImportSelector(nodes.CreateRange(node.Start(), node.End()), node, identifier.Value)
-	} else {
-		return node
-	}
-}
-
-func parsePrimaryArguments(parser *Parser) nodes.Node {
-	node := parsePrimaryIndex(parser)
-	if _, ok := parser.expectPeek(lexing.ItemLeftParentheses); ok {
-		arguments := parseExpressionList(parser, lexing.ItemLeftParentheses, lexing.ItemRightParentheses)
-		return nodes.CreateInvokation(nodes.CreateRange(node.Start(), node.End()), node, arguments)
-				} else {
-		return node
-				}
-}
-
-func parsePrimaryIndex(parser *Parser) nodes.Node {
-	node := parsePrimarySelector(parser)
-	if _, ok := parser.expectPeek(lexing.ItemLeftBracket); ok {
-		parser.nextItem()
-		expression := parseExpression(parser)
-		parser.require(lexing.ItemRightBracket)
-		return nodes.CreateIndex(nodes.CreateRange(node.Start(), node.End()), node, expression)
-			} else {
-		return node
-			}
+dec:
+	for {
+		token := parser.peek()
+		switch token.Type {
+		case lexing.ItemDot:
+			startToken := parser.nextItem()
+			identifier := parser.require(lexing.ItemIdentifier)
+			left = nodes.CreateSelector(nodes.CreateRangeFromItem(startToken), left, identifier.Value)
+		case lexing.ItemLeftBracket:
+			startToken := parser.nextItem()
+			expression := parseExpression(parser)
+			parser.require(lexing.ItemRightBracket)
+			left = nodes.CreateIndex(nodes.CreateRangeFromItem(startToken), left, expression)
+		case lexing.ItemLeftParentheses:
+			arguments := parseExpressionList(parser, lexing.ItemLeftParentheses, lexing.ItemRightParentheses)
+			left = nodes.CreateInvokation(nodes.CreateRangeFromItem(token), left, arguments)
+		default:
+			break dec
 		}
-
-func parsePrimarySelector(parser *Parser) nodes.Node {
-	node := parseOperand(parser)
-	if _, ok := parser.expectPeek(lexing.ItemDot); ok {
-		parser.nextItem()
-		identifier := parser.require(lexing.ItemIdentifier)
-		return nodes.CreateSelector(nodes.CreateRange(node.Start(), node.End()), node, identifier.Value)
-	} else {
-		return node
 	}
+
+	return left
 }
 
 func parseOperand(parser *Parser) nodes.Node {
@@ -514,7 +493,13 @@ func parseOperand(parser *Parser) nodes.Node {
 		return nodes.CreateRawString(nodes.CreateRangeFromItem(token), token.Value)
 	case lexing.ItemIdentifier:
 		parser.nextItem()
-		return nodes.CreateIdentifier(nodes.CreateRangeFromItem(token), token.Value)
+		if _, ok := parser.expectPeek(lexing.ItemColonColon); ok {
+			parser.nextItem()
+			identifier := parser.nextItem()
+			return nodes.CreateImportSelector(nodes.CreateRangeFromItem(token), token.Value, identifier.Value)
+		} else {
+			return nodes.CreateIdentifier(nodes.CreateRangeFromItem(token), token.Value)
+		}
 	case lexing.ItemBoolean:
 		parser.nextItem()
 		return nodes.CreateBoolean(nodes.CreateRangeFromItem(token), token.Value)
@@ -534,8 +519,15 @@ func parseOperand(parser *Parser) nodes.Node {
 }
 
 func parseArray(parser *Parser) *nodes.Array {
-	startToken := parser.require(lexing.ItemLeftBracket)
+	startToken := parser.peek()
 	array := nodes.CreateArray(nodes.CreateRangeFromItem(startToken), make([]nodes.Node, 0))
+	array.Elements = parseExpressionList(parser, lexing.ItemLeftBracket, lexing.ItemRightBracket)
+	return array
+}
+
+func parseExpressionList(parser *Parser, start lexing.ItemType, end lexing.ItemType) []nodes.Node {
+	parser.require(start)
+	expressions := make([]nodes.Node, 0)
 dec:
 	for {
 		token := parser.peek()
@@ -544,23 +536,23 @@ dec:
 			// Ignore
 			parser.nextItem()
 		case lexing.ItemEndOfInput:
-			parser.tokenErrorf(token, "unexpected end of input - missing ']'")
-		case lexing.ItemRightBracket:
+			parser.tokenErrorf(token, "unexpected end of input - missing '%s'", end)
+		case end:
 			parser.nextItem()
 			break dec
 		case lexing.ItemComma:
 			parser.nextItem()
-			if len(array.Elements) == 0 {
+			if len(expressions) == 0 {
 				parser.tokenErrorf(token, "unexpected comma - missing expression")
 			}
 
 			expression := parseExpression(parser)
-			array.Elements = append(array.Elements, expression)
+			expressions = append(expressions, expression)
 		default:
 			expression := parseExpression(parser)
-			array.Elements = append(array.Elements, expression)
+			expressions = append(expressions, expression)
 		}
 	}
 
-	return array
+	return expressions
 }

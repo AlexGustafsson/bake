@@ -1,7 +1,6 @@
 package nodes
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -32,19 +31,6 @@ func (node *Block) String() string {
 	}
 
 	builder.WriteString("}\n")
-
-	return builder.String()
-}
-
-func (node *Block) DotString() string {
-	var builder strings.Builder
-
-	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "block")
-
-	for _, statement := range node.Statements {
-		fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, statement)
-		builder.WriteString(statement.DotString())
-	}
 
 	return builder.String()
 }

@@ -1,7 +1,6 @@
 package nodes
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -67,43 +66,6 @@ func (node *RuleDeclaration) String() string {
 	} else {
 		builder.WriteRune(' ')
 		builder.WriteString(node.Block.String())
-	}
-
-	return builder.String()
-}
-
-func (node *RuleDeclaration) DotString() string {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "\"%p\" [label=\"rule\"];\n", node)
-
-	// Outputs
-	fmt.Fprintf(&builder, "\"%p\" [label=\"outputs\"];\n", node.Outputs)
-	fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, node.Outputs)
-	for i, output := range node.Outputs {
-		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%d\"];\n", node.Outputs, output, i)
-		builder.WriteString(output.DotString())
-	}
-
-	// Dependencies
-	if len(node.Dependencies) > 0 {
-		fmt.Fprintf(&builder, "\"%p\" [label=\"dependencies\"];\n", node.Dependencies)
-		fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, node.Dependencies)
-		for i, dependency := range node.Dependencies {
-			fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%d\"];\n", node.Dependencies, dependency, i)
-			builder.WriteString(dependency.DotString())
-		}
-	}
-
-	// Derived
-	if node.Derived != nil {
-		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"derived\"];\n", node, node.Derived)
-		builder.WriteString(node.Derived.DotString())
-	}
-
-	// Block
-	if node.Block != nil {
-		fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, node.Block)
-		builder.WriteString(node.Block.DotString())
 	}
 
 	return builder.String()

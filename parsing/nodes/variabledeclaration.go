@@ -1,7 +1,6 @@
 package nodes
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -34,17 +33,5 @@ func (node *VariableDeclaration) String() string {
 
 	builder.WriteString("\n")
 
-	return builder.String()
-}
-
-func (node *VariableDeclaration) DotString() string {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "variable declaration")
-	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, &node.Identifier, "identifier")
-	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", &node.Identifier, node.Identifier)
-	if node.Expression != nil {
-		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "expression")
-		builder.WriteString(node.Expression.DotString())
-	}
 	return builder.String()
 }

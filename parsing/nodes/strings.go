@@ -1,10 +1,5 @@
 package nodes
 
-import (
-	"fmt"
-	"strings"
-)
-
 type InterpretedString struct {
 	NodeType
 	Range
@@ -39,16 +34,4 @@ func (node *RawString) String() string {
 
 func (node *InterpretedString) String() string {
 	return node.Content
-}
-
-func (node *InterpretedString) DotString() string {
-	escaped := strings.ReplaceAll(node.Content, "\"", "\\\"")
-	escaped = strings.ReplaceAll(escaped, "\n", "\\n")
-	return fmt.Sprintf("\"%p\" [label=\"interpreted string '%s'\"];\n", node, escaped)
-}
-
-func (node *RawString) DotString() string {
-	escaped := strings.ReplaceAll(node.Content, "\"", "\\\"")
-	escaped = strings.ReplaceAll(escaped, "\n", "\\n")
-	return fmt.Sprintf("\"%p\" [label=\"raw string '%s'\"];\n", node, escaped)
 }

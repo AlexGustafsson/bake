@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/AlexGustafsson/bake/internal/dot"
 	"github.com/AlexGustafsson/bake/parsing"
 	"github.com/urfave/cli/v2"
 )
@@ -36,7 +37,7 @@ func parseCommand(context *cli.Context) error {
 		return fmt.Errorf("parsing failed")
 	}
 
-	output := sourceFile.DotString()
+	output := dot.Format(sourceFile)
 
 	if outputType == "dot" {
 		fmt.Print(output)

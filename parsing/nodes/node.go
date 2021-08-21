@@ -3,11 +3,11 @@ package nodes
 type Node interface {
 	Type() NodeType
 	String() string
-	DotString() string
 	Start() Position
 	End() Position
 }
 
+//go:generate stringer -type=NodeType
 type NodeType int
 
 func (nodeType NodeType) Type() NodeType {

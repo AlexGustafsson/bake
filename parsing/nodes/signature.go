@@ -1,7 +1,6 @@
 package nodes
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -37,17 +36,5 @@ func (node *Signature) String() string {
 
 	}
 
-	return builder.String()
-}
-
-func (node *Signature) DotString() string {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "signature")
-	fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, node.Arguments)
-	fmt.Fprintf(&builder, "\"%p\" [label=\"arguments\"];\n", node.Arguments)
-	for i, argument := range node.Arguments {
-		fmt.Fprintf(&builder, "\"%p\" -> \"%p%d\"\n", node.Arguments, &argument, i)
-		fmt.Fprintf(&builder, "\"%p%d\" [label=\"%s\"];\n", &argument, i, argument)
-	}
 	return builder.String()
 }

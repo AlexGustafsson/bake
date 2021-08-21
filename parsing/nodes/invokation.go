@@ -1,7 +1,6 @@
 package nodes
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -36,21 +35,5 @@ func (node *Invokation) String() string {
 
 	builder.WriteRune(')')
 
-	return builder.String()
-}
-
-func (node *Invokation) DotString() string {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "invocation")
-	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Operand, "operand")
-	if len(node.Arguments) > 0 {
-		fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, node.Arguments)
-		fmt.Fprintf(&builder, "\"%p\" [label=\"arguments\"];\n", node.Arguments)
-		for i, argument := range node.Arguments {
-			fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%d\"];\n", node.Arguments, &argument, i)
-			builder.WriteString(argument.DotString())
-		}
-	}
-	builder.WriteString(node.Operand.DotString())
 	return builder.String()
 }

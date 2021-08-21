@@ -1,7 +1,6 @@
 package nodes
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -49,15 +48,5 @@ func (node *Equality) String() string {
 
 	builder.WriteString(node.Right.String())
 
-	return builder.String()
-}
-
-func (node *Equality) DotString() string {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, node.Operator.String())
-	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Left, "left")
-	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Right, "right")
-	builder.WriteString(node.Left.DotString())
-	builder.WriteString(node.Right.DotString())
 	return builder.String()
 }

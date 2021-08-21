@@ -1,7 +1,5 @@
 package nodes
 
-import "fmt"
-
 type Boolean struct {
 	NodeType
 	Range
@@ -18,8 +16,4 @@ func CreateBoolean(r Range, value string) *Boolean {
 
 func (node *Boolean) String() string {
 	return node.Value
-}
-
-func (node *Boolean) DotString() string {
-	return fmt.Sprintf("\"%p\" [label=\"boolean '%s'\"];", node, node.Value)
 }

@@ -21,7 +21,3 @@ func CreatePackageDeclaration(r Range, identifier string) *PackageDeclaration {
 func (node *PackageDeclaration) String() string {
 	return fmt.Sprintf("package %s\n", node.Identifier)
 }
-
-func (node *PackageDeclaration) DotString() string {
-	return fmt.Sprintf("\"%p\" [label=\"package declaration '%s'\"];\n", node, node.Identifier)
-}

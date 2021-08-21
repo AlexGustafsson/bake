@@ -1,7 +1,6 @@
 package nodes
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -44,13 +43,5 @@ func (node *Unary) String() string {
 
 	builder.WriteString(node.Primary.String())
 
-	return builder.String()
-}
-
-func (node *Unary) DotString() string {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "unary")
-	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Primary, "primary")
-	builder.WriteString(node.Primary.DotString())
 	return builder.String()
 }

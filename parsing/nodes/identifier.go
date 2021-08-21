@@ -1,7 +1,5 @@
 package nodes
 
-import "fmt"
-
 type Identifier struct {
 	NodeType
 	Range
@@ -18,8 +16,4 @@ func CreateIdentifier(r Range, value string) *Identifier {
 
 func (node *Identifier) String() string {
 	return node.Value
-}
-
-func (node *Identifier) DotString() string {
-	return fmt.Sprintf("\"%p\" [label=\"identifier '%s'\"];\n", node, node.Value)
 }

@@ -30,11 +30,3 @@ func (node *AliasDeclaration) String() string {
 
 	return builder.String()
 }
-
-func (node *AliasDeclaration) DotString() string {
-	var builder strings.Builder
-	fmt.Fprintf(&builder, "\"%p\" [label=\"alias %s\"];\n", node, node.Identifier)
-	fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"expression\"];\n", node, node.Expression)
-	builder.WriteString(node.Expression.DotString())
-	return builder.String()
-}

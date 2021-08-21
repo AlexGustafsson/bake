@@ -325,19 +325,23 @@ func parseExpression(parser *Parser) nodes.Node {
 func parseEquality(parser *Parser) nodes.Node {
 	left := parseComparison(parser)
 
-	operatorToken := parser.peek()
-	var operator nodes.EqualityOperator = -1
-	switch operatorToken.Type {
-	case lexing.ItemOr:
-		operator = nodes.EqualityOperatorOr
-	case lexing.ItemAnd:
-		operator = nodes.EqualityOperatorAnd
-	}
+	for {
+		operatorToken := parser.peek()
+		var operator nodes.EqualityOperator = -1
+		switch operatorToken.Type {
+		case lexing.ItemOr:
+			operator = nodes.EqualityOperatorOr
+		case lexing.ItemAnd:
+			operator = nodes.EqualityOperatorAnd
+		}
 
-	if operator != -1 {
-		parser.nextItem()
-		right := parseComparison(parser)
-		return nodes.CreateEquality(nodes.CreateRange(left.Start(), left.End()), operator, left, right)
+		if operator == -1 {
+			break
+		} else {
+			parser.nextItem()
+			right := parseComparison(parser)
+			left = nodes.CreateEquality(nodes.CreateRange(left.Start(), left.End()), operator, left, right)
+		}
 	}
 
 	return left
@@ -346,27 +350,32 @@ func parseEquality(parser *Parser) nodes.Node {
 func parseComparison(parser *Parser) nodes.Node {
 	left := parseTerm(parser)
 
-	operatorToken := parser.peek()
-	var operator nodes.ComparisonOperator = -1
-	switch operatorToken.Type {
-	case lexing.ItemEquals:
-		operator = nodes.ComparisonOperatorEquals
-	case lexing.ItemNotEqual:
-		operator = nodes.ComparisonOperatorNotEquals
-	case lexing.ItemLessThan:
-		operator = nodes.ComparisonOperatorLessThan
-	case lexing.ItemLessThanOrEqual:
-		operator = nodes.ComparisonOperatorLessThanOrEqual
-	case lexing.ItemGreaterThan:
-		operator = nodes.ComparisonOperatorGreaterThan
-	case lexing.ItemGreaterThanOrEqual:
-		operator = nodes.ComparisonOperatorGreaterThanOrEqual
-	}
+	for {
+		operatorToken := parser.peek()
+		var operator nodes.ComparisonOperator = -1
+		switch operatorToken.Type {
+		case lexing.ItemEquals:
+			operator = nodes.ComparisonOperatorEquals
+		case lexing.ItemNotEqual:
+			operator = nodes.ComparisonOperatorNotEquals
+		case lexing.ItemLessThan:
+			operator = nodes.ComparisonOperatorLessThan
+		case lexing.ItemLessThanOrEqual:
+			operator = nodes.ComparisonOperatorLessThanOrEqual
+		case lexing.ItemGreaterThan:
+			operator = nodes.ComparisonOperatorGreaterThan
+		case lexing.ItemGreaterThanOrEqual:
+			operator = nodes.ComparisonOperatorGreaterThanOrEqual
+		}
 
-	if operator != -1 {
-		parser.nextItem()
-		right := parseTerm(parser)
-		return nodes.CreateComparison(nodes.CreateRange(left.Start(), left.End()), operator, left, right)
+		if operator == -1 {
+			break
+		} else {
+			parser.nextItem()
+			right := parseTerm(parser)
+			left = nodes.CreateComparison(nodes.CreateRange(left.Start(), left.End()), operator, left, right)
+		}
+
 	}
 
 	return left
@@ -375,19 +384,23 @@ func parseComparison(parser *Parser) nodes.Node {
 func parseTerm(parser *Parser) nodes.Node {
 	left := parseFactor(parser)
 
-	operatorToken := parser.peek()
-	var operator nodes.AdditiveOperator = -1
-	switch operatorToken.Type {
-	case lexing.ItemAddition:
-		operator = nodes.AdditiveOperatorAddition
-	case lexing.ItemSubtraction:
-		operator = nodes.AdditiveOperatorSubtraction
-	}
+	for {
+		operatorToken := parser.peek()
+		var operator nodes.AdditiveOperator = -1
+		switch operatorToken.Type {
+		case lexing.ItemAddition:
+			operator = nodes.AdditiveOperatorAddition
+		case lexing.ItemSubtraction:
+			operator = nodes.AdditiveOperatorSubtraction
+		}
 
-	if operator != -1 {
-		parser.nextItem()
-		right := parseFactor(parser)
-		return nodes.CreateTerm(nodes.CreateRange(left.Start(), left.End()), operator, left, right)
+		if operator == -1 {
+			break
+		} else {
+			parser.nextItem()
+			right := parseFactor(parser)
+			left = nodes.CreateTerm(nodes.CreateRange(left.Start(), left.End()), operator, left, right)
+		}
 	}
 
 	return left
@@ -396,19 +409,23 @@ func parseTerm(parser *Parser) nodes.Node {
 func parseFactor(parser *Parser) nodes.Node {
 	left := parseUnary(parser)
 
-	operatorToken := parser.peek()
-	var operator nodes.MultiplicativeOperator = -1
-	switch operatorToken.Type {
-	case lexing.ItemMultiplication:
-		operator = nodes.MultiplicativeOperatorMultiplication
-	case lexing.ItemDivision:
-		operator = nodes.MultiplicativeOperatorDivision
-	}
+	for {
+		operatorToken := parser.peek()
+		var operator nodes.MultiplicativeOperator = -1
+		switch operatorToken.Type {
+		case lexing.ItemMultiplication:
+			operator = nodes.MultiplicativeOperatorMultiplication
+		case lexing.ItemDivision:
+			operator = nodes.MultiplicativeOperatorDivision
+		}
 
-	if operator != -1 {
-		parser.nextItem()
-		right := parseUnary(parser)
-		return nodes.CreateFactor(nodes.CreateRange(left.Start(), left.End()), operator, left, right)
+		if operator == -1 {
+			break
+		} else {
+			parser.nextItem()
+			right := parseUnary(parser)
+			left = nodes.CreateFactor(nodes.CreateRange(left.Start(), left.End()), operator, left, right)
+		}
 	}
 
 	return left
@@ -436,48 +453,50 @@ func parseUnary(parser *Parser) nodes.Node {
 }
 
 func parsePrimary(parser *Parser) nodes.Node {
-	// TODO: fix recursion
-	operand := parseOperand(parser)
+	return parsePrimaryImport(parser)
+}
 
-	token := parser.peek()
-	switch token.Type {
-	case lexing.ItemDot:
-		startToken := parser.nextItem()
+func parsePrimaryImport(parser *Parser) nodes.Node {
+	node := parsePrimaryArguments(parser)
+	if _, ok := parser.expectPeek(lexing.ItemColonColon); ok {
+		parser.nextItem()
 		identifier := parser.require(lexing.ItemIdentifier)
-		return nodes.CreateSelector(nodes.CreateRangeFromItem(startToken), operand, identifier.Value)
-	case lexing.ItemColonColon:
-		startToken := parser.nextItem()
-		identifier := parser.require(lexing.ItemIdentifier)
-		return nodes.CreateImportSelector(nodes.CreateRangeFromItem(startToken), operand, identifier.Value)
-	case lexing.ItemLeftBracket:
-		startToken := parser.nextItem()
+		return nodes.CreateImportSelector(nodes.CreateRange(node.Start(), node.End()), node, identifier.Value)
+	} else {
+		return node
+	}
+}
+
+func parsePrimaryArguments(parser *Parser) nodes.Node {
+	node := parsePrimaryIndex(parser)
+	if _, ok := parser.expectPeek(lexing.ItemLeftParentheses); ok {
+		arguments := parseExpressionList(parser, lexing.ItemLeftParentheses, lexing.ItemRightParentheses)
+		return nodes.CreateInvokation(nodes.CreateRange(node.Start(), node.End()), node, arguments)
+				} else {
+		return node
+				}
+}
+
+func parsePrimaryIndex(parser *Parser) nodes.Node {
+	node := parsePrimarySelector(parser)
+	if _, ok := parser.expectPeek(lexing.ItemLeftBracket); ok {
+		parser.nextItem()
 		expression := parseExpression(parser)
 		parser.require(lexing.ItemRightBracket)
-		return nodes.CreateIndex(nodes.CreateRangeFromItem(startToken), operand, expression)
-	case lexing.ItemLeftParentheses:
-		startToken := parser.nextItem()
-
-		arguments := make([]nodes.Node, 0)
-		for {
-			// If there's an argument already specified, require comma separation
-			if len(arguments) > 0 {
-				_, ok := parser.expectPeek(lexing.ItemComma)
-				if ok {
-					parser.nextItem()
-					arguments = append(arguments, parseExpression(parser))
-				} else {
-					break
-				}
+		return nodes.CreateIndex(nodes.CreateRange(node.Start(), node.End()), node, expression)
 			} else {
-				arguments = append(arguments, parseExpression(parser))
+		return node
 			}
 		}
 
-		parser.require(lexing.ItemRightParentheses)
-
-		return nodes.CreateInvokation(nodes.CreateRangeFromItem(startToken), operand, arguments)
-	default:
-		return operand
+func parsePrimarySelector(parser *Parser) nodes.Node {
+	node := parseOperand(parser)
+	if _, ok := parser.expectPeek(lexing.ItemDot); ok {
+		parser.nextItem()
+		identifier := parser.require(lexing.ItemIdentifier)
+		return nodes.CreateSelector(nodes.CreateRange(node.Start(), node.End()), node, identifier.Value)
+	} else {
+		return node
 	}
 }
 

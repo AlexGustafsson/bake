@@ -487,7 +487,7 @@ dec:
 			left = nodes.CreateIndex(nodes.CreateRangeFromItem(startToken), left, expression)
 		case lexing.ItemLeftParentheses:
 			arguments := parseExpressionList(parser, lexing.ItemLeftParentheses, lexing.ItemRightParentheses)
-			left = nodes.CreateInvokation(nodes.CreateRangeFromItem(token), left, arguments)
+			left = nodes.CreateInvocation(nodes.CreateRangeFromItem(token), left, arguments)
 		default:
 			break dec
 		}

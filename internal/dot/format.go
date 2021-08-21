@@ -66,7 +66,7 @@ func Format(root nodes.Node) string {
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "expression")
 		builder.WriteString(Format(node.Operand))
 		builder.WriteString(Format(node.Expression))
-	case *nodes.Invokation:
+	case *nodes.Invocation:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "invocation")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Operand, "operand")
 		if len(node.Arguments) > 0 {

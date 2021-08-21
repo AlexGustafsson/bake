@@ -24,7 +24,7 @@ func _() {
 	_ = x[NodeTypeSelector-13]
 	_ = x[NodeTypeImportSelector-14]
 	_ = x[NodeTypeIndex-15]
-	_ = x[NodeTypeInvokation-16]
+	_ = x[NodeTypeInvocation-16]
 	_ = x[NodeTypeIncrement-17]
 	_ = x[NodeTypeDecrement-18]
 	_ = x[NodeTypeLooseAssignment-19]
@@ -45,7 +45,7 @@ func _() {
 	_ = x[NodeTypeReturnStatement-34]
 }
 
-const _NodeType_name = "NodeTypeSourceFileNodeTypePackageDeclarationNodeTypeImportsDeclarationNodeTypeCommentNodeTypeInterpretedStringNodeTypeRawStringNodeTypeVariableDeclarationNodeTypeIdentifierNodeTypeIntegerNodeTypeSignatureNodeTypeFunctionDeclarationNodeTypeRuleFunctionDeclarationNodeTypeBlockNodeTypeSelectorNodeTypeImportSelectorNodeTypeIndexNodeTypeInvokationNodeTypeIncrementNodeTypeDecrementNodeTypeLooseAssignmentNodeTypeAdditionAssignmentNodeTypeSubtractionAssignmentNodeTypeMultiplicationAssignmentNodeTypeDivisionAssignmentNodeTypeShellStatementNodeTypeAssignmentNodeTypeComparisonNodeTypeEqualityNodeTypeFactorNodeTypePrimaryNodeTypeTermNodeTypeUnaryNodeTypeAliasDeclarationNodeTypeRuleDeclarationNodeTypeReturnStatement"
+const _NodeType_name = "NodeTypeSourceFileNodeTypePackageDeclarationNodeTypeImportsDeclarationNodeTypeCommentNodeTypeInterpretedStringNodeTypeRawStringNodeTypeVariableDeclarationNodeTypeIdentifierNodeTypeIntegerNodeTypeSignatureNodeTypeFunctionDeclarationNodeTypeRuleFunctionDeclarationNodeTypeBlockNodeTypeSelectorNodeTypeImportSelectorNodeTypeIndexNodeTypeInvocationNodeTypeIncrementNodeTypeDecrementNodeTypeLooseAssignmentNodeTypeAdditionAssignmentNodeTypeSubtractionAssignmentNodeTypeMultiplicationAssignmentNodeTypeDivisionAssignmentNodeTypeShellStatementNodeTypeAssignmentNodeTypeComparisonNodeTypeEqualityNodeTypeFactorNodeTypePrimaryNodeTypeTermNodeTypeUnaryNodeTypeAliasDeclarationNodeTypeRuleDeclarationNodeTypeReturnStatement"
 
 var _NodeType_index = [...]uint16{0, 18, 44, 70, 85, 110, 127, 154, 172, 187, 204, 231, 262, 275, 291, 313, 326, 344, 361, 378, 401, 427, 456, 488, 514, 536, 554, 572, 588, 602, 617, 629, 642, 666, 689, 712}
 

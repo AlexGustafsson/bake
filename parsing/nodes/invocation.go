@@ -4,23 +4,23 @@ import (
 	"strings"
 )
 
-type Invokation struct {
+type Invocation struct {
 	NodeType
 	Range
 	Operand   Node
 	Arguments []Node
 }
 
-func CreateInvokation(r Range, operand Node, arguments []Node) *Invokation {
-	return &Invokation{
-		NodeType:  NodeTypeInvokation,
+func CreateInvocation(r Range, operand Node, arguments []Node) *Invocation {
+	return &Invocation{
+		NodeType:  NodeTypeInvocation,
 		Range:     r,
 		Operand:   operand,
 		Arguments: arguments,
 	}
 }
 
-func (node *Invokation) String() string {
+func (node *Invocation) String() string {
 	var builder strings.Builder
 
 	builder.WriteString(node.Operand.String())

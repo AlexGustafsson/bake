@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/AlexGustafsson/bake/parsing/nodes"
+	"github.com/AlexGustafsson/bake/ast"
 	"github.com/sourcegraph/go-lsp"
 	"github.com/sourcegraph/jsonrpc2"
 )
@@ -26,7 +26,7 @@ func CreateDocument(uri string, content string, version int) *Document {
 	}
 }
 
-func (document *Document) CreateDiagnostic(severity lsp.DiagnosticSeverity, r nodes.Range, message string) {
+func (document *Document) CreateDiagnostic(severity lsp.DiagnosticSeverity, r ast.Range, message string) {
 	document.Lock()
 	defer document.Unlock()
 

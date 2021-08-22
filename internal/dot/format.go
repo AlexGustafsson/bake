@@ -4,49 +4,49 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/AlexGustafsson/bake/parsing/nodes"
+	"github.com/AlexGustafsson/bake/ast"
 )
 
-func Format(root nodes.Node) string {
+func Format(root ast.Node) string {
 	var builder strings.Builder
 
 	switch node := root.(type) {
-	case *nodes.AliasDeclaration:
+	case *ast.AliasDeclaration:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"alias %s\"];\n", node, node.Identifier)
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"expression\"];\n", node, node.Expression)
 		builder.WriteString(Format(node.Expression))
-	case *nodes.Array:
+	case *ast.Array:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "array")
 		for i, element := range node.Elements {
 			fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%d\"];\n", node, element, i)
 			builder.WriteString(Format(element))
 		}
-	case *nodes.Block:
+	case *ast.Block:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "block")
 
 		for _, statement := range node.Statements {
 			fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, statement)
 			builder.WriteString(Format(statement))
 		}
-	case *nodes.Comparison:
+	case *ast.Comparison:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, node.Operator.String())
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Left, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Right, "right")
 		builder.WriteString(Format(node.Left))
 		builder.WriteString(Format(node.Right))
-	case *nodes.Equality:
+	case *ast.Equality:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, node.Operator.String())
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Left, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Right, "right")
 		builder.WriteString(Format(node.Left))
 		builder.WriteString(Format(node.Right))
-	case *nodes.Factor:
+	case *ast.Factor:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, node.Operator.String())
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Left, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Right, "right")
 		builder.WriteString(Format(node.Left))
 		builder.WriteString(Format(node.Right))
-	case *nodes.FunctionDeclaration:
+	case *ast.FunctionDeclaration:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"", node)
 		if node.Exported {
 			builder.WriteString("export ")
@@ -60,13 +60,13 @@ func Format(root nodes.Node) string {
 
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, node.Block)
 		builder.WriteString(Format(node.Block))
-	case *nodes.Index:
+	case *ast.Index:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "index")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Operand, "operand")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "expression")
 		builder.WriteString(Format(node.Operand))
 		builder.WriteString(Format(node.Expression))
-	case *nodes.Invocation:
+	case *ast.Invocation:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "invocation")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Operand, "operand")
 		if len(node.Arguments) > 0 {
@@ -78,15 +78,15 @@ func Format(root nodes.Node) string {
 			}
 		}
 		builder.WriteString(Format(node.Operand))
-	case *nodes.Primary:
+	case *ast.Primary:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "primary")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Operand, "operand")
 		builder.WriteString(Format(node.Operand))
-	case *nodes.ReturnStatement:
+	case *ast.ReturnStatement:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"return\"];\n", node)
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"value\"];\n", node, node.Value)
 		builder.WriteString(Format(node.Value))
-	case *nodes.RuleDeclaration:
+	case *ast.RuleDeclaration:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"rule\"];\n", node)
 
 		// Outputs
@@ -118,7 +118,7 @@ func Format(root nodes.Node) string {
 			fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, node.Block)
 			builder.WriteString(Format(node.Block))
 		}
-	case *nodes.RuleFunctionDeclaration:
+	case *ast.RuleFunctionDeclaration:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"", node)
 		if node.Exported {
 			builder.WriteString("export ")
@@ -132,13 +132,13 @@ func Format(root nodes.Node) string {
 
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, node.Block)
 		builder.WriteString(Format(node.Block))
-	case *nodes.Selector:
+	case *ast.Selector:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "selector")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Operand, "operand")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, &node.Identifier, "identifier")
 		builder.WriteString(Format(node.Operand))
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", &node.Identifier, node.Identifier)
-	case *nodes.SourceFile:
+	case *ast.SourceFile:
 		builder.WriteString("digraph G {\n")
 
 		fmt.Fprintf(&builder, "\"%p\" [label=\"source file\"];\n", node)
@@ -149,17 +149,17 @@ func Format(root nodes.Node) string {
 		}
 
 		builder.WriteString("}\n")
-	case *nodes.Term:
+	case *ast.Term:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, node.Operator.String())
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Left, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Right, "right")
 		builder.WriteString(Format(node.Left))
 		builder.WriteString(Format(node.Right))
-	case *nodes.Unary:
+	case *ast.Unary:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "unary")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Primary, "primary")
 		builder.WriteString(Format(node.Primary))
-	case *nodes.VariableDeclaration:
+	case *ast.VariableDeclaration:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "variable declaration")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, &node.Identifier, "identifier")
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", &node.Identifier, node.Identifier)
@@ -167,25 +167,25 @@ func Format(root nodes.Node) string {
 			fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "expression")
 			builder.WriteString(Format(node.Expression))
 		}
-	case *nodes.InterpretedString:
+	case *ast.InterpretedString:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"interpreted string '%s'\"];\n", node, escape(node.Content))
-	case *nodes.RawString:
+	case *ast.RawString:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"raw string '%s'\"];\n", node, escape(node.Content))
-	case *nodes.Boolean:
+	case *ast.Boolean:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"boolean '%s'\"];", node, node.Value)
-	case *nodes.Comment:
+	case *ast.Comment:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"comment '%s'\"];", node, escape(node.Content))
-	case *nodes.Identifier:
+	case *ast.Identifier:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"identifier '%s'\"];\n", node, node.Value)
-	case *nodes.ImportSelector:
+	case *ast.ImportSelector:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "index")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, &node.From, "operand")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, &node.Identifier, "identifier")
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", &node.From, node.From)
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", &node.Identifier, node.Identifier)
-	case *nodes.Integer:
+	case *ast.Integer:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"integer %s\"];\n", node, node.Value)
-	case *nodes.Signature:
+	case *ast.Signature:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "signature")
 		fmt.Fprintf(&builder, "\"%p\" [label=\"arguments\"];\n", node.Arguments)
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, node.Arguments)
@@ -193,61 +193,61 @@ func Format(root nodes.Node) string {
 			fmt.Fprintf(&builder, "\"%p\" -> \"%p%d\" [label=\"%d\"];\n", node.Arguments, node.Arguments, i, i)
 			fmt.Fprintf(&builder, "\"%p%d\" [label=\"%s\"];\n", node.Arguments, i, argument)
 		}
-	case *nodes.ShellStatement:
+	case *ast.ShellStatement:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"shell '%s'\"]", node, escape(node.ShellString))
-	case *nodes.PackageDeclaration:
+	case *ast.PackageDeclaration:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"package declaration '%s'\"];\n", node, node.Identifier)
-	case *nodes.ImportsDeclaration:
+	case *ast.ImportsDeclaration:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "imports")
 		for _, literal := range node.Imports {
 			fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, literal)
 			builder.WriteString(Format(literal))
 		}
-	case *nodes.Assignment:
+	case *ast.Assignment:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "assignment")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
 		builder.WriteString(Format(node.Expression))
 		builder.WriteString(Format(node.Value))
-	case *nodes.Increment:
+	case *ast.Increment:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "increment")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		builder.WriteString(Format(node.Expression))
-	case *nodes.Decrement:
+	case *ast.Decrement:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "decrement")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		builder.WriteString(Format(node.Expression))
-	case *nodes.LooseAssignment:
+	case *ast.LooseAssignment:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "loose assignment")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
 		builder.WriteString(Format(node.Expression))
 		builder.WriteString(Format(node.Value))
-	case *nodes.AdditionAssignment:
+	case *ast.AdditionAssignment:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "addition assignment")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
 		builder.WriteString(Format(node.Expression))
 		builder.WriteString(Format(node.Value))
-	case *nodes.SubtractionAssignment:
+	case *ast.SubtractionAssignment:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "subtraction assignment")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
 		builder.WriteString(Format(node.Expression))
 		builder.WriteString(Format(node.Value))
-	case *nodes.MultiplicationAssignment:
+	case *ast.MultiplicationAssignment:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "multiplication assignment")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
 		builder.WriteString(Format(node.Expression))
 		builder.WriteString(Format(node.Value))
-	case *nodes.DivisionAssignment:
+	case *ast.DivisionAssignment:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", node, "division assignment")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "left")
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Value, "right")
 		builder.WriteString(Format(node.Expression))
 		builder.WriteString(Format(node.Value))
-	case *nodes.IfStatement:
+	case *ast.IfStatement:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"if statement\"];\n", node)
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"expression\"];\n", node, node.Expression)
 		builder.WriteString(Format(node.Expression))

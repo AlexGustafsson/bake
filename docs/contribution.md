@@ -16,7 +16,8 @@ The tool and grammar is inspired from several projects, mostly Go (grammar, lexe
 | :--: | :---------: |
 | `internal` | Internal code supporting the binaries, such as build information in `version` or Grapviz dot formatting of parse trees in `dot`. |
 | `lexing` | The zero-dependency bake lexer. Takes care of handling an input source, providing a stream of tokens. |
-| `parsing` | The bake parser. Uses `lexing` and forms a parse tree from `parsing/nodes`. |
+| `ast` | The zero-dependency bake abstract syntax tree package. Represents a parse tree. |
+| `parsing` | The bake parser. Uses `lexing` and forms a parse tree from `ast`. |
 | `semantics` | The bake semantic analysis. Traverses a parse tree from `parsing` and provides a semantically correct program. |
 | `lsp` | The core of bagels - the bake language server. Uses `lexing`, `parsing` and `semantics` to provide all facets of a language server. |
 

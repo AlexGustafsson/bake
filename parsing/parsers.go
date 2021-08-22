@@ -1,16 +1,16 @@
 package parsing
 
 import (
+	"github.com/AlexGustafsson/bake/ast"
 	"github.com/AlexGustafsson/bake/lexing"
-	"github.com/AlexGustafsson/bake/parsing/nodes"
 )
 
-func parseSourceFile(parser *Parser) (*nodes.SourceFile, error) {
+func parseSourceFile(parser *Parser) (*ast.SourceFile, error) {
 	parser.require(lexing.ItemStartOfInput)
 
-	sourceFile := nodes.CreateSourceFile(nodes.Range{})
+	sourceFile := ast.CreateSourceFile(ast.Range{})
 
-	declarations := make([]nodes.Node, 0)
+	declarations := make([]ast.Node, 0)
 dec:
 	for {
 		token := parser.peek()
@@ -38,24 +38,24 @@ dec:
 	return sourceFile, nil
 }
 
-func parsePackageDeclaration(parser *Parser) *nodes.PackageDeclaration {
+func parsePackageDeclaration(parser *Parser) *ast.PackageDeclaration {
 	startToken := parser.require(lexing.ItemKeywordPackage)
 	identifier := parser.require(lexing.ItemIdentifier)
 	parser.require(lexing.ItemNewline)
-	return nodes.CreatePackageDeclaration(nodes.CreateRangeFromItem(startToken), identifier.Value)
+	return ast.CreatePackageDeclaration(createRangeFromItem(startToken), identifier.Value)
 }
 
-func parseImportsDeclaration(parser *Parser) *nodes.ImportsDeclaration {
+func parseImportsDeclaration(parser *Parser) *ast.ImportsDeclaration {
 	startToken := parser.require(lexing.ItemKeywordImport)
 
 	parser.require(lexing.ItemLeftParentheses)
 	parser.require(lexing.ItemNewline)
 
-	imports := make([]*nodes.InterpretedString, 0)
+	imports := make([]*ast.InterpretedString, 0)
 	for {
 		if token, ok := parser.expectPeek(lexing.ItemInterpretedString); ok {
 			parser.nextItem()
-			node := nodes.CreateInterpretedString(nodes.CreateRangeFromItem(startToken), token.Value)
+			node := ast.CreateInterpretedString(createRangeFromItem(startToken), token.Value)
 			imports = append(imports, node)
 			parser.require(lexing.ItemNewline)
 		} else {
@@ -65,10 +65,10 @@ func parseImportsDeclaration(parser *Parser) *nodes.ImportsDeclaration {
 
 	parser.require(lexing.ItemRightParentheses)
 
-	return nodes.CreateImportsDeclaration(nodes.CreateRangeFromItem(startToken), imports)
+	return ast.CreateImportsDeclaration(createRangeFromItem(startToken), imports)
 }
 
-func parseTopLevelDeclaration(parser *Parser) nodes.Node {
+func parseTopLevelDeclaration(parser *Parser) ast.Node {
 	token := parser.peek()
 
 	switch token.Type {
@@ -99,19 +99,19 @@ func parseTopLevelDeclaration(parser *Parser) nodes.Node {
 	return nil
 }
 
-func parseVariableDeclaration(parser *Parser) nodes.Node {
+func parseVariableDeclaration(parser *Parser) ast.Node {
 	startToken := parser.nextItem()
 	identifier := parser.require(lexing.ItemIdentifier)
-	var expression nodes.Node = nil
+	var expression ast.Node = nil
 	if _, ok := parser.expectPeek(lexing.ItemAssignment); ok {
 		parser.nextItem()
 		expression = parseExpression(parser)
 	}
 
-	return nodes.CreateVariableDeclaration(nodes.CreateRangeFromItem(startToken), identifier.Value, expression)
+	return ast.CreateVariableDeclaration(createRangeFromItem(startToken), identifier.Value, expression)
 }
 
-func parseFunctionDeclaration(parser *Parser, exported bool) nodes.Node {
+func parseFunctionDeclaration(parser *Parser, exported bool) ast.Node {
 	startToken := parser.require(lexing.ItemKeywordFunc)
 
 	identifier := parser.require(lexing.ItemIdentifier)
@@ -120,10 +120,10 @@ func parseFunctionDeclaration(parser *Parser, exported bool) nodes.Node {
 
 	block := parseBlock(parser)
 
-	return nodes.CreateFunctionDeclaration(nodes.CreateRangeFromItem(startToken), exported, identifier.Value, signature, block)
+	return ast.CreateFunctionDeclaration(createRangeFromItem(startToken), exported, identifier.Value, signature, block)
 }
 
-func parseRuleFuncionDeclaration(parser *Parser, exported bool) nodes.Node {
+func parseRuleFuncionDeclaration(parser *Parser, exported bool) ast.Node {
 	startToken := parser.require(lexing.ItemKeywordRule)
 
 	identifier := parser.require(lexing.ItemIdentifier)
@@ -132,10 +132,10 @@ func parseRuleFuncionDeclaration(parser *Parser, exported bool) nodes.Node {
 
 	block := parseBlock(parser)
 
-	return nodes.CreateRuleFunctionDeclaration(nodes.CreateRangeFromItem(startToken), exported, identifier.Value, signature, block)
+	return ast.CreateRuleFunctionDeclaration(createRangeFromItem(startToken), exported, identifier.Value, signature, block)
 }
 
-func parseAliasDeclaration(parser *Parser, exported bool) nodes.Node {
+func parseAliasDeclaration(parser *Parser, exported bool) ast.Node {
 	startToken := parser.require(lexing.ItemKeywordAlias)
 
 	identifier := parser.nextItem()
@@ -148,10 +148,10 @@ func parseAliasDeclaration(parser *Parser, exported bool) nodes.Node {
 
 	expression := parseExpression(parser)
 
-	return nodes.CreateAliasDeclaration(nodes.CreateRangeFromItem(startToken), identifier.String(), expression)
+	return ast.CreateAliasDeclaration(createRangeFromItem(startToken), identifier.String(), expression)
 }
 
-func parseSignature(parser *Parser) (*nodes.Signature, bool) {
+func parseSignature(parser *Parser) (*ast.Signature, bool) {
 	if _, ok := parser.expectPeek(lexing.ItemLeftParentheses); !ok {
 		return nil, false
 	}
@@ -166,7 +166,7 @@ func parseSignature(parser *Parser) (*nodes.Signature, bool) {
 			if ok {
 				parser.nextItem()
 				token := parser.require(lexing.ItemIdentifier)
-				argument := nodes.CreateIdentifier(nodes.CreateRangeFromItem(startToken), token.Value)
+				argument := ast.CreateIdentifier(createRangeFromItem(startToken), token.Value)
 				arguments = append(arguments, argument.Value)
 			} else {
 				break
@@ -175,7 +175,7 @@ func parseSignature(parser *Parser) (*nodes.Signature, bool) {
 			token, ok := parser.expectPeek(lexing.ItemIdentifier)
 			if ok {
 				parser.nextItem()
-				argument := nodes.CreateIdentifier(nodes.CreateRangeFromItem(startToken), token.Value)
+				argument := ast.CreateIdentifier(createRangeFromItem(startToken), token.Value)
 				arguments = append(arguments, argument.Value)
 			} else {
 				break
@@ -185,13 +185,13 @@ func parseSignature(parser *Parser) (*nodes.Signature, bool) {
 
 	parser.require(lexing.ItemRightParentheses)
 
-	return nodes.CreateSignature(nodes.CreateRangeFromItem(startToken), arguments), true
+	return ast.CreateSignature(createRangeFromItem(startToken), arguments), true
 }
 
-func parseBlock(parser *Parser) *nodes.Block {
+func parseBlock(parser *Parser) *ast.Block {
 	startToken := parser.require(lexing.ItemLeftCurly)
 
-	statements := make([]nodes.Node, 0)
+	statements := make([]ast.Node, 0)
 
 dec:
 	for {
@@ -211,24 +211,24 @@ dec:
 		}
 	}
 
-	return nodes.CreateBlock(nodes.CreateRangeFromItem(startToken), statements)
+	return ast.CreateBlock(createRangeFromItem(startToken), statements)
 }
 
-func parseRule(parser *Parser) *nodes.RuleDeclaration {
-	outputs := make([]nodes.Node, 0)
-	dependencies := make([]nodes.Node, 0)
-	var block *nodes.Block = nil
-	var derived nodes.Node = nil
+func parseRule(parser *Parser) *ast.RuleDeclaration {
+	outputs := make([]ast.Node, 0)
+	dependencies := make([]ast.Node, 0)
+	var block *ast.Block = nil
+	var derived ast.Node = nil
 
 	// Parse a string literal or an array as the outputs
 	startToken := parser.peek()
 	switch startToken.Type {
 	case lexing.ItemInterpretedString:
 		parser.nextItem()
-		outputs = append(outputs, nodes.CreateInterpretedString(nodes.CreateRangeFromItem(startToken), startToken.Value))
+		outputs = append(outputs, ast.CreateInterpretedString(createRangeFromItem(startToken), startToken.Value))
 	case lexing.ItemRawString:
 		parser.nextItem()
-		outputs = append(outputs, nodes.CreateRawString(nodes.CreateRangeFromItem(startToken), startToken.Value))
+		outputs = append(outputs, ast.CreateRawString(createRangeFromItem(startToken), startToken.Value))
 	case lexing.ItemLeftBracket:
 		array := parseArray(parser)
 		outputs = array.Elements
@@ -253,10 +253,10 @@ func parseRule(parser *Parser) *nodes.RuleDeclaration {
 		block = parseBlock(parser)
 	}
 
-	return nodes.CreateRuleDeclaration(nodes.CreateRangeFromItem(startToken), outputs, dependencies, derived, block)
+	return ast.CreateRuleDeclaration(createRangeFromItem(startToken), outputs, dependencies, derived, block)
 }
 
-func parseStatement(parser *Parser) nodes.Node {
+func parseStatement(parser *Parser) ast.Node {
 	token := parser.peek()
 	switch token.Type {
 	case lexing.ItemKeywordLet:
@@ -266,7 +266,7 @@ func parseStatement(parser *Parser) nodes.Node {
 	case lexing.ItemKeywordReturn:
 		startToken := parser.nextItem()
 		value := parseExpression(parser)
-		return nodes.CreateReturnStatement(nodes.CreateRangeFromItem(startToken), value)
+		return ast.CreateReturnStatement(createRangeFromItem(startToken), value)
 	case lexing.ItemKeywordIf:
 		return parseIfStatement(parser)
 	default:
@@ -274,12 +274,12 @@ func parseStatement(parser *Parser) nodes.Node {
 	}
 }
 
-func parseIfStatement(parser *Parser) *nodes.IfStatement {
+func parseIfStatement(parser *Parser) *ast.IfStatement {
 	startToken := parser.require(lexing.ItemKeywordIf)
 	expression := parseExpression(parser)
 	positiveBranch := parseBlock(parser)
 
-	var negativeBranch nodes.Node = nil
+	var negativeBranch ast.Node = nil
 	if _, ok := parser.expectPeek(lexing.ItemKeywordElse); ok {
 		parser.nextItem()
 		if _, ok := parser.expectPeek(lexing.ItemKeywordIf); ok {
@@ -289,50 +289,50 @@ func parseIfStatement(parser *Parser) *nodes.IfStatement {
 		}
 	}
 
-	return nodes.CreateIfStatement(nodes.CreateRangeFromItem(startToken), expression, positiveBranch, negativeBranch)
+	return ast.CreateIfStatement(createRangeFromItem(startToken), expression, positiveBranch, negativeBranch)
 }
 
-func parseSimpleStatement(parser *Parser) nodes.Node {
+func parseSimpleStatement(parser *Parser) ast.Node {
 	expression := parseExpression(parser)
 
 	token := parser.peek()
 	switch token.Type {
 	case lexing.ItemIncrement:
 		parser.nextItem()
-		return nodes.CreateIncrement(nodes.CreateRange(expression.Start(), expression.End()), expression)
+		return ast.CreateIncrement(ast.CreateRange(expression.Start(), expression.End()), expression)
 	case lexing.ItemDecrement:
 		parser.nextItem()
-		return nodes.CreateDecrement(nodes.CreateRange(expression.Start(), expression.End()), expression)
+		return ast.CreateDecrement(ast.CreateRange(expression.Start(), expression.End()), expression)
 	case lexing.ItemLooseAssignment:
 		parser.nextItem()
 		value := parseExpression(parser)
-		return nodes.CreateLooseAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
+		return ast.CreateLooseAssignment(ast.CreateRange(expression.Start(), expression.End()), expression, value)
 	case lexing.ItemAdditionAssign:
 		parser.nextItem()
 		value := parseExpression(parser)
-		return nodes.CreateAdditionAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
+		return ast.CreateAdditionAssignment(ast.CreateRange(expression.Start(), expression.End()), expression, value)
 	case lexing.ItemSubtractionAssign:
 		parser.nextItem()
 		value := parseExpression(parser)
-		return nodes.CreateSubtractionAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
+		return ast.CreateSubtractionAssignment(ast.CreateRange(expression.Start(), expression.End()), expression, value)
 	case lexing.ItemMultiplicationAssign:
 		parser.nextItem()
 		value := parseExpression(parser)
-		return nodes.CreateMultiplicationAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
+		return ast.CreateMultiplicationAssignment(ast.CreateRange(expression.Start(), expression.End()), expression, value)
 	case lexing.ItemDivisionAssign:
 		parser.nextItem()
 		value := parseExpression(parser)
-		return nodes.CreateDivisionAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
+		return ast.CreateDivisionAssignment(ast.CreateRange(expression.Start(), expression.End()), expression, value)
 	case lexing.ItemAssignment:
 		parser.nextItem()
 		value := parseExpression(parser)
-		return nodes.CreateAssignment(nodes.CreateRange(expression.Start(), expression.End()), expression, value)
+		return ast.CreateAssignment(ast.CreateRange(expression.Start(), expression.End()), expression, value)
 	}
 
 	return expression
 }
 
-func parseShellStatement(parser *Parser) *nodes.ShellStatement {
+func parseShellStatement(parser *Parser) *ast.ShellStatement {
 	startToken := parser.require(lexing.ItemKeywordShell)
 
 	var shellString string
@@ -356,24 +356,24 @@ func parseShellStatement(parser *Parser) *nodes.ShellStatement {
 		parser.tokenErrorf(token, "expected '{', newline or shell string, got '%s'", token.Type)
 	}
 
-	return nodes.CreateShellStatement(nodes.CreateRangeFromItem(startToken), multiline, shellString)
+	return ast.CreateShellStatement(createRangeFromItem(startToken), multiline, shellString)
 }
 
-func parseExpression(parser *Parser) nodes.Node {
+func parseExpression(parser *Parser) ast.Node {
 	return parseEquality(parser)
 }
 
-func parseEquality(parser *Parser) nodes.Node {
+func parseEquality(parser *Parser) ast.Node {
 	left := parseComparison(parser)
 
 	for {
 		operatorToken := parser.peek()
-		var operator nodes.EqualityOperator = -1
+		var operator ast.EqualityOperator = -1
 		switch operatorToken.Type {
 		case lexing.ItemOr:
-			operator = nodes.EqualityOperatorOr
+			operator = ast.EqualityOperatorOr
 		case lexing.ItemAnd:
-			operator = nodes.EqualityOperatorAnd
+			operator = ast.EqualityOperatorAnd
 		}
 
 		if operator == -1 {
@@ -381,32 +381,32 @@ func parseEquality(parser *Parser) nodes.Node {
 		} else {
 			parser.nextItem()
 			right := parseComparison(parser)
-			left = nodes.CreateEquality(nodes.CreateRange(left.Start(), left.End()), operator, left, right)
+			left = ast.CreateEquality(ast.CreateRange(left.Start(), left.End()), operator, left, right)
 		}
 	}
 
 	return left
 }
 
-func parseComparison(parser *Parser) nodes.Node {
+func parseComparison(parser *Parser) ast.Node {
 	left := parseTerm(parser)
 
 	for {
 		operatorToken := parser.peek()
-		var operator nodes.ComparisonOperator = -1
+		var operator ast.ComparisonOperator = -1
 		switch operatorToken.Type {
 		case lexing.ItemEquals:
-			operator = nodes.ComparisonOperatorEquals
+			operator = ast.ComparisonOperatorEquals
 		case lexing.ItemNotEqual:
-			operator = nodes.ComparisonOperatorNotEquals
+			operator = ast.ComparisonOperatorNotEquals
 		case lexing.ItemLessThan:
-			operator = nodes.ComparisonOperatorLessThan
+			operator = ast.ComparisonOperatorLessThan
 		case lexing.ItemLessThanOrEqual:
-			operator = nodes.ComparisonOperatorLessThanOrEqual
+			operator = ast.ComparisonOperatorLessThanOrEqual
 		case lexing.ItemGreaterThan:
-			operator = nodes.ComparisonOperatorGreaterThan
+			operator = ast.ComparisonOperatorGreaterThan
 		case lexing.ItemGreaterThanOrEqual:
-			operator = nodes.ComparisonOperatorGreaterThanOrEqual
+			operator = ast.ComparisonOperatorGreaterThanOrEqual
 		}
 
 		if operator == -1 {
@@ -414,7 +414,7 @@ func parseComparison(parser *Parser) nodes.Node {
 		} else {
 			parser.nextItem()
 			right := parseTerm(parser)
-			left = nodes.CreateComparison(nodes.CreateRange(left.Start(), left.End()), operator, left, right)
+			left = ast.CreateComparison(ast.CreateRange(left.Start(), left.End()), operator, left, right)
 		}
 
 	}
@@ -422,17 +422,17 @@ func parseComparison(parser *Parser) nodes.Node {
 	return left
 }
 
-func parseTerm(parser *Parser) nodes.Node {
+func parseTerm(parser *Parser) ast.Node {
 	left := parseFactor(parser)
 
 	for {
 		operatorToken := parser.peek()
-		var operator nodes.AdditiveOperator = -1
+		var operator ast.AdditiveOperator = -1
 		switch operatorToken.Type {
 		case lexing.ItemAddition:
-			operator = nodes.AdditiveOperatorAddition
+			operator = ast.AdditiveOperatorAddition
 		case lexing.ItemSubtraction:
-			operator = nodes.AdditiveOperatorSubtraction
+			operator = ast.AdditiveOperatorSubtraction
 		}
 
 		if operator == -1 {
@@ -440,24 +440,24 @@ func parseTerm(parser *Parser) nodes.Node {
 		} else {
 			parser.nextItem()
 			right := parseFactor(parser)
-			left = nodes.CreateTerm(nodes.CreateRange(left.Start(), left.End()), operator, left, right)
+			left = ast.CreateTerm(ast.CreateRange(left.Start(), left.End()), operator, left, right)
 		}
 	}
 
 	return left
 }
 
-func parseFactor(parser *Parser) nodes.Node {
+func parseFactor(parser *Parser) ast.Node {
 	left := parseUnary(parser)
 
 	for {
 		operatorToken := parser.peek()
-		var operator nodes.MultiplicativeOperator = -1
+		var operator ast.MultiplicativeOperator = -1
 		switch operatorToken.Type {
 		case lexing.ItemMultiplication:
-			operator = nodes.MultiplicativeOperatorMultiplication
+			operator = ast.MultiplicativeOperatorMultiplication
 		case lexing.ItemDivision:
-			operator = nodes.MultiplicativeOperatorDivision
+			operator = ast.MultiplicativeOperatorDivision
 		}
 
 		if operator == -1 {
@@ -465,23 +465,23 @@ func parseFactor(parser *Parser) nodes.Node {
 		} else {
 			parser.nextItem()
 			right := parseUnary(parser)
-			left = nodes.CreateFactor(nodes.CreateRange(left.Start(), left.End()), operator, left, right)
+			left = ast.CreateFactor(ast.CreateRange(left.Start(), left.End()), operator, left, right)
 		}
 	}
 
 	return left
 }
 
-func parseUnary(parser *Parser) nodes.Node {
+func parseUnary(parser *Parser) ast.Node {
 	operatorToken := parser.peek()
-	var operator nodes.UnaryOperator = -1
+	var operator ast.UnaryOperator = -1
 	switch operatorToken.Type {
 	case lexing.ItemSubtraction:
-		operator = nodes.UnaryOperatorSubtraction
+		operator = ast.UnaryOperatorSubtraction
 	case lexing.ItemNot:
-		operator = nodes.UnaryOperatorNot
+		operator = ast.UnaryOperatorNot
 	case lexing.ItemSpread:
-		operator = nodes.UnaryOperatorSpread
+		operator = ast.UnaryOperatorSpread
 	}
 
 	if operator == -1 {
@@ -489,11 +489,11 @@ func parseUnary(parser *Parser) nodes.Node {
 	} else {
 		parser.nextItem()
 		primary := parsePrimary(parser)
-		return nodes.CreateUnary(nodes.CreateRangeFromItem(operatorToken), operator, primary)
+		return ast.CreateUnary(createRangeFromItem(operatorToken), operator, primary)
 	}
 }
 
-func parsePrimary(parser *Parser) nodes.Node {
+func parsePrimary(parser *Parser) ast.Node {
 	left := parseOperand(parser)
 
 dec:
@@ -507,15 +507,15 @@ dec:
 			if identifier.Type != lexing.ItemIdentifier && !identifier.IsKeyword() {
 				parser.tokenErrorf(identifier, "expected identifier, got '%s'", identifier.Value)
 			}
-			left = nodes.CreateSelector(nodes.CreateRangeFromItem(startToken), left, identifier.Value)
+			left = ast.CreateSelector(createRangeFromItem(startToken), left, identifier.Value)
 		case lexing.ItemLeftBracket:
 			startToken := parser.nextItem()
 			expression := parseExpression(parser)
 			parser.require(lexing.ItemRightBracket)
-			left = nodes.CreateIndex(nodes.CreateRangeFromItem(startToken), left, expression)
+			left = ast.CreateIndex(createRangeFromItem(startToken), left, expression)
 		case lexing.ItemLeftParentheses:
 			arguments := parseExpressionList(parser, lexing.ItemLeftParentheses, lexing.ItemRightParentheses)
-			left = nodes.CreateInvocation(nodes.CreateRangeFromItem(token), left, arguments)
+			left = ast.CreateInvocation(createRangeFromItem(token), left, arguments)
 		default:
 			break dec
 		}
@@ -524,30 +524,30 @@ dec:
 	return left
 }
 
-func parseOperand(parser *Parser) nodes.Node {
+func parseOperand(parser *Parser) ast.Node {
 	token := parser.peek()
 	switch token.Type {
 	case lexing.ItemInteger:
 		parser.nextItem()
-		return nodes.CreateInteger(nodes.CreateRangeFromItem(token), token.Value)
+		return ast.CreateInteger(createRangeFromItem(token), token.Value)
 	case lexing.ItemInterpretedString:
 		parser.nextItem()
-		return nodes.CreateInterpretedString(nodes.CreateRangeFromItem(token), token.Value)
+		return ast.CreateInterpretedString(createRangeFromItem(token), token.Value)
 	case lexing.ItemRawString:
 		parser.nextItem()
-		return nodes.CreateRawString(nodes.CreateRangeFromItem(token), token.Value)
+		return ast.CreateRawString(createRangeFromItem(token), token.Value)
 	case lexing.ItemIdentifier:
 		parser.nextItem()
 		if _, ok := parser.expectPeek(lexing.ItemColonColon); ok {
 			parser.nextItem()
 			identifier := parser.require(lexing.ItemIdentifier)
-			return nodes.CreateImportSelector(nodes.CreateRangeFromItem(token), token.Value, identifier.Value)
+			return ast.CreateImportSelector(createRangeFromItem(token), token.Value, identifier.Value)
 		} else {
-			return nodes.CreateIdentifier(nodes.CreateRangeFromItem(token), token.Value)
+			return ast.CreateIdentifier(createRangeFromItem(token), token.Value)
 		}
 	case lexing.ItemBoolean:
 		parser.nextItem()
-		return nodes.CreateBoolean(nodes.CreateRangeFromItem(token), token.Value)
+		return ast.CreateBoolean(createRangeFromItem(token), token.Value)
 	case lexing.ItemLeftParentheses:
 		parser.nextItem()
 		// TODO: do we need to keep the parentheses?
@@ -563,16 +563,16 @@ func parseOperand(parser *Parser) nodes.Node {
 	}
 }
 
-func parseArray(parser *Parser) *nodes.Array {
+func parseArray(parser *Parser) *ast.Array {
 	startToken := parser.peek()
-	array := nodes.CreateArray(nodes.CreateRangeFromItem(startToken), make([]nodes.Node, 0))
+	array := ast.CreateArray(createRangeFromItem(startToken), make([]ast.Node, 0))
 	array.Elements = parseExpressionList(parser, lexing.ItemLeftBracket, lexing.ItemRightBracket)
 	return array
 }
 
-func parseExpressionList(parser *Parser, start lexing.ItemType, end lexing.ItemType) []nodes.Node {
+func parseExpressionList(parser *Parser, start lexing.ItemType, end lexing.ItemType) []ast.Node {
 	parser.require(start)
-	expressions := make([]nodes.Node, 0)
+	expressions := make([]ast.Node, 0)
 dec:
 	for {
 		token := parser.peek()

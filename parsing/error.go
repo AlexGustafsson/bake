@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/AlexGustafsson/bake/parsing/nodes"
+	"github.com/AlexGustafsson/bake/ast"
 )
 
 type ParseError struct {
 	Message string
 	lines   []string
-	Range   *nodes.Range
+	Range   *ast.Range
 }
 
-func CreateParseError(input string, r *nodes.Range, format string, args ...interface{}) *ParseError {
+func CreateParseError(input string, r *ast.Range, format string, args ...interface{}) *ParseError {
 	// TODO: make less memory intensive
 	allLines := strings.Split(input, "\n")
 	lines := make([]string, 0)

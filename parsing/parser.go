@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"runtime"
 
+	"github.com/AlexGustafsson/bake/ast"
 	"github.com/AlexGustafsson/bake/lexing"
-	"github.com/AlexGustafsson/bake/parsing/nodes"
 )
 
 type Parser struct {
@@ -22,13 +22,13 @@ func CreateParser() *Parser {
 	}
 }
 
-func Parse(input string) (*nodes.SourceFile, error) {
+func Parse(input string) (*ast.SourceFile, error) {
 	parser := CreateParser()
 	parser.input = input
 	return parser.Parse(input)
 }
 
-func (parser *Parser) Parse(input string) (_ *nodes.SourceFile, err error) {
+func (parser *Parser) Parse(input string) (_ *ast.SourceFile, err error) {
 	parser.lexer = lexing.Lex(input)
 
 	// Recover from panics caused when parsing
@@ -47,7 +47,7 @@ func (parser *Parser) errorf(format string, args ...interface{}) {
 }
 
 func (parser *Parser) tokenErrorf(item lexing.Item, format string, args ...interface{}) {
-	r := nodes.CreateRangeFromItem(item)
+	r := createRangeFromItem(item)
 	panic(CreateParseError(parser.input, &r, format, args...))
 }
 

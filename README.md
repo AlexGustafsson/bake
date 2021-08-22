@@ -93,7 +93,7 @@ export func clean {
 }
 ```
 
-Lastly, running `bake` will execute the build. To execute a function such as `clean` or build a file, simply run `bake clean` or `bake lib.so`
+Lastly, running `bake` will execute the build. To execute a function such as `clean` or build a file, simply run `bake clean` or `bake lib.so`.
 
 ## Table of contents
 

@@ -74,7 +74,7 @@ To build the project, we create a `Bakefile` like the one below.
 ```
 // Bakefile
 
-// Import the standard libray
+// Import the standard library
 import (
   "github.com/AlexGustafsson/bake/stdlib/c"
 )

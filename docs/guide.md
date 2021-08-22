@@ -126,7 +126,7 @@ Our final build script looks like this.
 ```bake
 // Bakefile
 
-// Import the standard libray
+// Import the standard library
 import (
   "github.com/AlexGustafsson/bake/stdlib/c"
 )

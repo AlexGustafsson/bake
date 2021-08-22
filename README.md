@@ -30,7 +30,70 @@ Bake also has a non-goal:
 ## Quickstart
 <a name="quickstart"></a>
 
-Upcoming.
+⚠️ Bake is currently being actively developed. Not all features may be implemented.
+
+_For a guide on how to get started, see the getting started in `docs/guide.md` or [here](https://alexgustafsson.github.io/bake/#/guide)._
+
+First, install bake via a package manager like brew, or by downloading the latest release from GitHub.
+
+```sh
+brew install alexgustafsson/tap/bake
+```
+
+In this example we have a small C application we wish to compile. It consists of a library and a main executable.
+
+```c
+// lib.h
+#ifndef LIB_H
+#define LIB_H
+void hello_world();
+#endif
+```
+
+```c
+// lib.c
+#include <stdio.h>
+#include "lib.h"
+void hello_world() {
+  printf("Hello, world!\n");
+}
+```
+
+The source for the main entrypoint of the application is shown below.
+
+```c
+// main.c
+#include "lib.h"
+void main() {
+  hello_world();
+}
+```
+
+To build the project, we create a `Bakefile` like the one below.
+
+```
+// Bakefile
+
+// Import the standard libray
+import (
+  "github.com/AlexGustafsson/bake/stdlib/c"
+)
+
+// Build a static library for lib.c using standard library functions
+"lib.so" ["lib.c", "lib.h"] : c::static_library
+
+// Build the main application
+"main" ["main.c", "lib.so"] {
+  shell gcc -o $@ $<
+}
+
+// Delete any output files
+export func clean {
+  shell rm lib.o lib.so main &>/dev/null || true
+}
+```
+
+Lastly, running `bake` will execute the build. To execute a function such as `clean` or build a file, simply run `bake clean` or `bake lib.so`
 
 ## Table of contents
 
@@ -54,42 +117,4 @@ To view them offline in your browser, first install docsify by executing `npm in
 
 Any help with the project is more than welcome. The project is still in its infancy and not recommended for production.
 
-### Development
-
-```sh
-# Clone the repository
-https://github.com/AlexGustafsson/bake.git && cd bake
-
-
-# Build the project for the native target
-# Yes, this will eventually be bootstrapped
-make build
-```
-
-The project is written in Go. Its source is scattered in the `cmd` and `internal` directories.
-
-```sh
-## Building
-
-# Build the project
-make build/bake
-
-# Build tools
-make tools
-
-## Code quality
-
-# Format code
-make format
-# Lint code
-make lint
-# Vet the code
-make vet
-
-## Testing
-
-# Run tests
-make test
-```
-
-_Note: due to a bug (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=93082, https://bugs.llvm.org/show_bug.cgi?id=44406, https://openradar.appspot.com/radar?id=4952611266494464), clang is required when building for macOS. GCC cannot be used._
+For information on how to contribute, build and develop the project, please see the documentation in `docs/contribution.md` or [the docs on GitHub pages](https://alexgustafsson.github.io/bake/#/contribution).

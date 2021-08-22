@@ -1,5 +1,0 @@
-```bake
-func hello() {
-
-}
-```

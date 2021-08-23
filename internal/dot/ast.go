@@ -190,8 +190,8 @@ func FormatTree(root ast.Node) string {
 		fmt.Fprintf(&builder, "\"%p\" [label=\"arguments\"];\n", node.Arguments)
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, node.Arguments)
 		for i, argument := range node.Arguments {
-			fmt.Fprintf(&builder, "\"%p\" -> \"%p%d\" [label=\"%d\"];\n", node.Arguments, node.Arguments, i, i)
-			fmt.Fprintf(&builder, "\"%p%d\" [label=\"%s\"];\n", node.Arguments, i, argument)
+			fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%d\"];\n", node.Arguments, argument, i)
+			fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", argument, argument.Value)
 		}
 	case *ast.ShellStatement:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"shell '%s'\"]", node, escape(node.ShellString))

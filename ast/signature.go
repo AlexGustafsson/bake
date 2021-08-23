@@ -7,10 +7,10 @@ import (
 type Signature struct {
 	NodeType
 	Range
-	Arguments []string
+	Arguments []*Identifier
 }
 
-func CreateSignature(r Range, arguments []string) *Signature {
+func CreateSignature(r Range, arguments []*Identifier) *Signature {
 	return &Signature{
 		NodeType:  NodeTypeSignature,
 		Range:     r,
@@ -29,7 +29,7 @@ func (node *Signature) String() string {
 			if i > 0 {
 				builder.WriteString(", ")
 			}
-			builder.WriteString(argument)
+			builder.WriteString(argument.Value)
 		}
 
 		builder.WriteRune(')')

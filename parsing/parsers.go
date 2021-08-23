@@ -156,7 +156,7 @@ func parseSignature(parser *Parser) (*ast.Signature, bool) {
 
 	startToken := parser.require(lexing.ItemLeftParentheses)
 
-	arguments := make([]string, 0)
+	arguments := make([]*ast.Identifier, 0)
 	for {
 		// If there's an argument already specified, require comma separation
 		if len(arguments) > 0 {
@@ -165,7 +165,7 @@ func parseSignature(parser *Parser) (*ast.Signature, bool) {
 				parser.nextItem()
 				token := parser.require(lexing.ItemIdentifier)
 				argument := ast.CreateIdentifier(createRangeFromItem(startToken), token.Value)
-				arguments = append(arguments, argument.Value)
+				arguments = append(arguments, argument)
 			} else {
 				break
 			}
@@ -174,7 +174,7 @@ func parseSignature(parser *Parser) (*ast.Signature, bool) {
 			if ok {
 				parser.nextItem()
 				argument := ast.CreateIdentifier(createRangeFromItem(startToken), token.Value)
-				arguments = append(arguments, argument.Value)
+				arguments = append(arguments, argument)
 			} else {
 				break
 			}

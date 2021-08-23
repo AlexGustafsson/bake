@@ -1,7 +1,6 @@
 package semantics
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/AlexGustafsson/bake/ast"
@@ -112,9 +111,16 @@ func (validator *Validator) Validate(root ast.Node) {
 	}
 }
 
+func (validator *Validator) errorf(node ast.Node, format string, arguments ...interface{}) {
+	r := ast.CreateRange(node.Start(), node.End())
+	validator.errors = append(validator.errors, ast.CreateTreeError(&r, format, arguments...))
+}
+
 func (validator *Validator) checkDefinedInScope(name string, node ast.Node) {
-	if _, _, ok := validator.CurrentScope.LookupByName(name); !ok {
-		validator.errors = append(validator.errors, fmt.Errorf("%s: '%s' is undefined", node.Start(), name))
+	if symbol, scope, ok := validator.CurrentScope.LookupByName(name); !ok {
+		validator.errorf(node, "'%s' is undefined", name)
+	} else if scope == validator.CurrentScope && symbol.Node.Start().Line >= node.Start().Line {
+		validator.errorf(node, "'%s' is used before it's declared", name)
 	}
 }
 
@@ -125,7 +131,7 @@ func (validator *Validator) checkString(node ast.Node) {
 	case *ast.RawString:
 		// Valid, do nothing
 	default:
-		validator.errors = append(validator.errors, fmt.Errorf("%s: '%s' is not a valid string", node.Start(), node.Type()))
+		validator.errorf(node, "'%s' is not a valid string")
 	}
 }
 
@@ -133,7 +139,7 @@ func (validator *Validator) checkForTrait(name string, node ast.Node, trait Trai
 	if symbol, _, ok := validator.CurrentScope.LookupByName(name); ok {
 		if !symbol.Trait.Has(trait) {
 			labels := strings.Join(trait.Strings(), " or ")
-			validator.errors = append(validator.errors, fmt.Errorf("%s: '%s' is not %s", node.Start(), name, labels))
+			validator.errorf(node, "'%s' is not of %s", name, labels)
 		}
 	}
 }

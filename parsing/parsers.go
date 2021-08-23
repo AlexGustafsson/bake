@@ -72,8 +72,6 @@ func parseTopLevelDeclaration(parser *Parser) ast.Node {
 	token := parser.peek()
 
 	switch token.Type {
-	case lexing.ItemKeywordFunc:
-		return parseFunctionDeclaration(parser, false)
 	case lexing.ItemKeywordRule:
 		return parseRuleFuncionDeclaration(parser, false)
 	case lexing.ItemKeywordAlias:
@@ -259,6 +257,8 @@ func parseRule(parser *Parser) *ast.RuleDeclaration {
 func parseStatement(parser *Parser) ast.Node {
 	token := parser.peek()
 	switch token.Type {
+	case lexing.ItemKeywordFunc:
+		return parseFunctionDeclaration(parser, false)
 	case lexing.ItemKeywordLet:
 		return parseVariableDeclaration(parser)
 	case lexing.ItemKeywordShell:

@@ -106,6 +106,11 @@ func (validator *Validator) Validate(root ast.Node) {
 		validator.Validate(node.Operand)
 	case *ast.Identifier:
 		validator.checkDefinedInScope(node.Value, node)
+	case *ast.Invocation:
+		validator.Validate(node.Operand)
+		for _, argument := range node.Arguments {
+			validator.Validate(argument)
+		}
 	case *ast.InterpretedString:
 		// TODO: parse and check expressions
 	}

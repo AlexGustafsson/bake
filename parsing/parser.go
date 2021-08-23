@@ -48,7 +48,7 @@ func (parser *Parser) errorf(format string, args ...interface{}) {
 
 func (parser *Parser) tokenErrorf(item lexing.Item, format string, args ...interface{}) {
 	r := createRangeFromItem(item)
-	panic(CreateParseError(parser.input, &r, format, args...))
+	panic(ast.CreateTreeError(&r, format, args...))
 }
 
 func (parser *Parser) recover(errp *error) {

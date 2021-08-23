@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/AlexGustafsson/bake/ast"
 	"github.com/AlexGustafsson/bake/internal/dot"
 	"github.com/AlexGustafsson/bake/parsing"
 	"github.com/urfave/cli/v2"
@@ -32,9 +33,12 @@ func parseCommand(context *cli.Context) error {
 	input := string(inputBytes)
 	sourceFile, err := parsing.Parse(input)
 	if err != nil {
-		// Print the formatted error
-		fmt.Fprint(os.Stderr, err)
-		return fmt.Errorf("parsing failed")
+		if treeError, ok := err.(*ast.TreeError); ok {
+			// Print the formatted error
+			fmt.Fprint(os.Stderr, treeError.ErrorWithLine(input))
+		} else {
+			return fmt.Errorf("parsing failed")
+		}
 	}
 
 	output := dot.FormatTree(sourceFile)

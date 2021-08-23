@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/AlexGustafsson/bake/ast"
 	"github.com/AlexGustafsson/bake/parsing"
 	"github.com/urfave/cli/v2"
 )
@@ -24,9 +25,12 @@ func formatCommand(context *cli.Context) error {
 	input := string(inputBytes)
 	sourceFile, err := parsing.Parse(input)
 	if err != nil {
-		// Print the formatted error
-		fmt.Fprint(os.Stderr, err)
-		return fmt.Errorf("parsing failed")
+		if treeError, ok := err.(*ast.TreeError); ok {
+			// Print the formatted error
+			fmt.Fprint(os.Stderr, treeError.ErrorWithLine(input))
+		} else {
+			return fmt.Errorf("parsing failed")
+		}
 	}
 
 	fmt.Print(sourceFile.String())

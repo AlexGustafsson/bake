@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/AlexGustafsson/bake/ast"
 	"github.com/AlexGustafsson/bake/internal/dot"
 	"github.com/AlexGustafsson/bake/parsing"
 	"github.com/AlexGustafsson/bake/semantics"
@@ -33,16 +34,22 @@ func validateCommand(context *cli.Context) error {
 	input := string(inputBytes)
 	sourceFile, err := parsing.Parse(input)
 	if err != nil {
-		// Print the formatted error
-		fmt.Fprint(os.Stderr, err)
-		return fmt.Errorf("parsing failed")
+		if treeError, ok := err.(*ast.TreeError); ok {
+			// Print the formatted error
+			fmt.Fprint(os.Stderr, treeError.ErrorWithLine(input))
+		} else {
+			return fmt.Errorf("parsing failed")
+		}
 	}
 
 	rootScope, errs := semantics.Build(sourceFile)
 	if len(errs) > 0 {
 		// Print the formatted errors
 		for _, err := range errs {
-			fmt.Fprintln(os.Stderr, err)
+			if treeError, ok := err.(*ast.TreeError); ok {
+				// Print the formatted error
+				fmt.Fprint(os.Stderr, treeError.ErrorWithLine(input))
+			}
 		}
 		return fmt.Errorf("validation failed")
 	}
@@ -51,7 +58,10 @@ func validateCommand(context *cli.Context) error {
 	if len(errs) > 0 {
 		// Print the formatted errors
 		for _, err := range errs {
-			fmt.Fprintln(os.Stderr, err)
+			if treeError, ok := err.(*ast.TreeError); ok {
+				// Print the formatted error
+				fmt.Fprint(os.Stderr, treeError.ErrorWithLine(input))
+			}
 		}
 		return fmt.Errorf("validation failed")
 	}

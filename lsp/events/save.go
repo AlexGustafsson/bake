@@ -1,6 +1,7 @@
 package events
 
 import (
+	"github.com/AlexGustafsson/bake/ast"
 	"github.com/AlexGustafsson/bake/lsp/state"
 	"github.com/AlexGustafsson/bake/parsing"
 	"github.com/sourcegraph/go-lsp"
@@ -11,8 +12,8 @@ func HandleSave(event *Event, document *state.Document) {
 
 	_, err := parsing.Parse(document.Content)
 	if err != nil {
-		if parseError, ok := err.(*parsing.ParseError); ok {
-			document.CreateDiagnostic(lsp.Error, *parseError.Range, parseError.Message)
+		if treeError, ok := err.(*ast.TreeError); ok {
+			document.CreateDiagnostic(lsp.Error, *treeError.Range, treeError.Message)
 		} else {
 			document.PublishError(event.Connection, event.Context, err)
 		}

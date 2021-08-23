@@ -17,6 +17,8 @@ const (
 	TraitCallable
 	// TraitAny indicates that the symbol behaves like any trait (likely determined at runtime for non-typed variables)
 	TraitAny
+	// TraitAlias indicates that the symbol is an alias for other rules, aliases or functions
+	TraitAlias
 )
 
 // Has checks whether or not a trait has the specified trait

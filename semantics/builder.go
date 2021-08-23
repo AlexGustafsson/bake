@@ -33,15 +33,7 @@ func (builder *Builder) Build(root ast.Node) {
 			builder.Build(child)
 		}
 	case *ast.VariableDeclaration:
-		// If the variable is declared without an expression, we cannot infer it's type
 		symbol := CreateSymbol(node.Identifier, TraitAny, node)
-		if node.Expression != nil {
-			// Use the trait of the expression
-			builder.Build(node.Expression)
-			if expressionSymbol, ok := builder.CurrentScope.SymbolTable.LookupNode(node.Expression); ok {
-				symbol.Trait = expressionSymbol.Trait
-			}
-		}
 		builder.CurrentScope.SymbolTable.Insert(symbol)
 	case *ast.FunctionDeclaration:
 		symbol := CreateSymbol(node.Identifier, TraitCallable, node)
@@ -57,10 +49,42 @@ func (builder *Builder) Build(root ast.Node) {
 
 		builder.Build(node.Block)
 		builder.popScope()
+	case *ast.IfStatement:
+		builder.pushScope()
+		builder.Build(node.PositiveBranch)
+		builder.popScope()
+
+		builder.pushScope()
+		if node.NegativeBranch != nil {
+			builder.Build(node.NegativeBranch)
+		}
+		builder.popScope()
+	case *ast.RuleFunctionDeclaration:
+		symbol := CreateSymbol(node.Identifier, TraitCallable, node)
+		if node.Signature != nil {
+			symbol.ArgumentCount = len(node.Signature.Arguments)
+		}
+		builder.CurrentScope.SymbolTable.Insert(symbol)
+
+		builder.pushScope()
+		if node.Signature != nil {
+			builder.Build(node.Signature)
+		}
+
+		builder.Build(node.Block)
+		builder.popScope()
+	case *ast.RuleDeclaration:
+		if node.Block != nil {
+			builder.pushScope()
+			builder.Build(node.Block)
+			builder.popScope()
+		}
+	case *ast.AliasDeclaration:
+		symbol := CreateSymbol(node.Identifier, TraitAlias, node)
+		builder.CurrentScope.SymbolTable.Insert(symbol)
 	case *ast.Signature:
 		for _, child := range node.Arguments {
-			// TODO: Do we need actual nodes for arguments (identifiers)?
-			symbol := CreateSymbol(child, TraitAny, node)
+			symbol := CreateSymbol(child.Value, TraitAny, child)
 			builder.CurrentScope.SymbolTable.Insert(symbol)
 		}
 	}

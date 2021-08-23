@@ -12,12 +12,7 @@ func FormatScope(scope *semantics.Scope) string {
 
 	builder.WriteString("digraph G {\n")
 	builder.WriteString("splines = false;\n")
-	// Global scope
 	builder.WriteString(formatScope(scope, "global scope"))
-	// Child scopes
-	for _, child := range scope.ChildScopes {
-		builder.WriteString(formatScope(child, "top-level scope"))
-	}
 	builder.WriteString("}\n")
 
 	return builder.String()

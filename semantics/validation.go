@@ -113,6 +113,32 @@ func (validator *Validator) Validate(root ast.Node) {
 		}
 	case *ast.InterpretedString:
 		// TODO: parse and check expressions
+	case *ast.ReturnStatement:
+		validator.Validate(node.Value)
+	case *ast.Assignment:
+		validator.Validate(node.Expression)
+		validator.Validate(node.Value)
+		// TODO: validate that expression is assignable
+	case *ast.AdditionAssignment:
+		validator.Validate(node.Expression)
+		validator.Validate(node.Value)
+		// TODO: validate that expression is assignable
+	case *ast.SubtractionAssignment:
+		validator.Validate(node.Expression)
+		validator.Validate(node.Value)
+		// TODO: validate that expression is assignable
+	case *ast.MultiplicationAssignment:
+		validator.Validate(node.Expression)
+		validator.Validate(node.Value)
+		// TODO: validate that expression is assignable
+	case *ast.DivisionAssignment:
+		validator.Validate(node.Expression)
+		validator.Validate(node.Value)
+		// TODO: validate that expression is assignable
+	case *ast.LooseAssignment:
+		validator.Validate(node.Expression)
+		validator.Validate(node.Value)
+		// TODO: validate that expression is assignable
 	}
 }
 

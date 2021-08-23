@@ -38,7 +38,23 @@ func validateCommand(context *cli.Context) error {
 		return fmt.Errorf("parsing failed")
 	}
 
-	rootScope := semantics.Build(sourceFile)
+	rootScope, errs := semantics.Build(sourceFile)
+	if len(errs) > 0 {
+		// Print the formatted errors
+		for _, err := range errs {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		return fmt.Errorf("validation failed")
+	}
+
+	errs = semantics.Validate(sourceFile, rootScope)
+	if len(errs) > 0 {
+		// Print the formatted errors
+		for _, err := range errs {
+			fmt.Fprintln(os.Stderr, err)
+		}
+		return fmt.Errorf("validation failed")
+	}
 
 	output := dot.FormatScope(rootScope)
 

@@ -1,25 +1,31 @@
 package semantics
 
-import "github.com/AlexGustafsson/bake/ast"
+import (
+	"fmt"
+
+	"github.com/AlexGustafsson/bake/ast"
+)
 
 type Builder struct {
 	RootScope    *Scope
 	CurrentScope *Scope
+	errors       []error
 }
 
 func CreateBuilder() *Builder {
 	builder := &Builder{
 		RootScope: CreateScope(nil),
+		errors:    make([]error, 0),
 	}
 	builder.CurrentScope = builder.RootScope
 	return builder
 }
 
 // Build builds a symbol table from a parse tree (or sub tree)
-func Build(root ast.Node) *Scope {
+func Build(root ast.Node) (*Scope, []error) {
 	builder := CreateBuilder()
 	builder.Build(root)
-	return builder.RootScope
+	return builder.RootScope, builder.errors
 }
 
 func (builder *Builder) Build(root ast.Node) {
@@ -34,15 +40,15 @@ func (builder *Builder) Build(root ast.Node) {
 		}
 	case *ast.VariableDeclaration:
 		symbol := CreateSymbol(node.Identifier, TraitAny, node)
-		builder.CurrentScope.SymbolTable.Insert(symbol)
+		builder.insertInScope(symbol)
 	case *ast.FunctionDeclaration:
 		symbol := CreateSymbol(node.Identifier, TraitCallable, node)
 		if node.Signature != nil {
 			symbol.ArgumentCount = len(node.Signature.Arguments)
 		}
-		builder.CurrentScope.SymbolTable.Insert(symbol)
+		builder.insertInScope(symbol)
 
-		builder.pushScope()
+		builder.pushScope(node)
 		if node.Signature != nil {
 			builder.Build(node.Signature)
 		}
@@ -50,11 +56,11 @@ func (builder *Builder) Build(root ast.Node) {
 		builder.Build(node.Block)
 		builder.popScope()
 	case *ast.IfStatement:
-		builder.pushScope()
+		builder.pushScope(node)
 		builder.Build(node.PositiveBranch)
 		builder.popScope()
 
-		builder.pushScope()
+		builder.pushScope(node)
 		if node.NegativeBranch != nil {
 			builder.Build(node.NegativeBranch)
 		}
@@ -64,9 +70,9 @@ func (builder *Builder) Build(root ast.Node) {
 		if node.Signature != nil {
 			symbol.ArgumentCount = len(node.Signature.Arguments)
 		}
-		builder.CurrentScope.SymbolTable.Insert(symbol)
+		builder.insertInScope(symbol)
 
-		builder.pushScope()
+		builder.pushScope(node)
 		if node.Signature != nil {
 			builder.Build(node.Signature)
 		}
@@ -75,23 +81,31 @@ func (builder *Builder) Build(root ast.Node) {
 		builder.popScope()
 	case *ast.RuleDeclaration:
 		if node.Block != nil {
-			builder.pushScope()
+			builder.pushScope(node)
 			builder.Build(node.Block)
 			builder.popScope()
 		}
 	case *ast.AliasDeclaration:
 		symbol := CreateSymbol(node.Identifier, TraitAlias, node)
-		builder.CurrentScope.SymbolTable.Insert(symbol)
+		builder.insertInScope(symbol)
 	case *ast.Signature:
 		for _, child := range node.Arguments {
 			symbol := CreateSymbol(child.Value, TraitAny, child)
-			builder.CurrentScope.SymbolTable.Insert(symbol)
+			builder.insertInScope(symbol)
 		}
 	}
 }
 
-func (builder *Builder) pushScope() {
-	builder.CurrentScope = builder.CurrentScope.CreateScope()
+func (builder *Builder) insertInScope(symbol *Symbol) {
+	if previous, ok := builder.CurrentScope.SymbolTable.LookupByName(symbol.Name); ok {
+		builder.errors = append(builder.errors, fmt.Errorf("%s: '%s' already declared here: %s", symbol.Node.Start(), symbol.Name, previous.Node.Start()))
+	} else {
+		builder.CurrentScope.SymbolTable.Insert(symbol)
+	}
+}
+
+func (builder *Builder) pushScope(node ast.Node) {
+	builder.CurrentScope = builder.CurrentScope.CreateScope(node)
 }
 
 func (builder *Builder) popScope() {

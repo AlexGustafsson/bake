@@ -37,7 +37,7 @@ func parseCommand(context *cli.Context) error {
 		return fmt.Errorf("parsing failed")
 	}
 
-	output := dot.Format(sourceFile)
+	output := dot.FormatTree(sourceFile)
 
 	if outputType == "dot" {
 		fmt.Print(output)

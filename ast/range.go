@@ -23,7 +23,11 @@ type Position struct {
 }
 
 func (r Range) String() string {
-	return fmt.Sprintf("from %d:%d to %d:%d", r.start.Line+1, r.start.Character+1, r.end.Line+1, r.end.Character+1)
+	return fmt.Sprintf("from %s to %s", r.start, r.end)
+}
+
+func (p Position) String() string {
+	return fmt.Sprintf("%d:%d", p.Line+1, p.Character+1)
 }
 
 func (r Range) Start() Position {

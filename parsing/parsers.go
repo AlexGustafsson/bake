@@ -146,7 +146,7 @@ func parseAliasDeclaration(parser *Parser, exported bool) ast.Node {
 
 	expression := parseExpression(parser)
 
-	return ast.CreateAliasDeclaration(createRangeFromItem(startToken), identifier.String(), expression)
+	return ast.CreateAliasDeclaration(createRangeFromItem(startToken), exported, identifier.String(), expression)
 }
 
 func parseSignature(parser *Parser) (*ast.Signature, bool) {

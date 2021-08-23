@@ -12,7 +12,11 @@ func FormatTree(root ast.Node) string {
 
 	switch node := root.(type) {
 	case *ast.AliasDeclaration:
-		fmt.Fprintf(&builder, "\"%p\" [label=\"alias %s\"];\n", node, node.Identifier)
+		fmt.Fprintf(&builder, "\"%p\" [label=\"", node)
+		if node.Exported {
+			builder.WriteString("export ")
+		}
+		fmt.Fprintf(&builder, "alias %s\"];\n", node.Identifier)
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"expression\"];\n", node, node.Expression)
 		builder.WriteString(FormatTree(node.Expression))
 	case *ast.Array:

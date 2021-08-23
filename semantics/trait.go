@@ -19,6 +19,8 @@ const (
 	TraitAny
 	// TraitAlias indicates that the symbol is an alias for other rules, aliases or functions
 	TraitAlias
+	// TraitImport indicates that the symbol is the root of an import package
+	TraitImport
 )
 
 // Has checks whether or not a trait has the specified trait

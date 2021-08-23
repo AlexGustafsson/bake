@@ -13,12 +13,14 @@ func _() {
 	_ = x[TraitCallable-2]
 	_ = x[TraitAny-4]
 	_ = x[TraitAlias-8]
+	_ = x[TraitImport-16]
 }
 
 const (
 	_Trait_name_0 = "TraitNoneTraitNumericTraitCallable"
 	_Trait_name_1 = "TraitAny"
 	_Trait_name_2 = "TraitAlias"
+	_Trait_name_3 = "TraitImport"
 )
 
 var (
@@ -33,6 +35,8 @@ func (i Trait) String() string {
 		return _Trait_name_1
 	case i == 8:
 		return _Trait_name_2
+	case i == 16:
+		return _Trait_name_3
 	default:
 		return "Trait(" + strconv.FormatInt(int64(i), 10) + ")"
 	}

@@ -115,6 +115,7 @@ func (validator *Validator) Validate(root ast.Node) {
 		// TODO: parse and check expressions
 	case *ast.ReturnStatement:
 		validator.Validate(node.Value)
+		// TODO: Validate that the return statement belongs in a function
 	case *ast.Assignment:
 		validator.Validate(node.Expression)
 		validator.Validate(node.Value)
@@ -139,6 +140,11 @@ func (validator *Validator) Validate(root ast.Node) {
 		validator.Validate(node.Expression)
 		validator.Validate(node.Value)
 		// TODO: validate that expression is assignable
+	case *ast.ImportSelector:
+		if _, _, ok := validator.CurrentScope.LookupByName(node.From); !ok {
+			validator.errorf(node, "'%s' is undefined. Did you forget to import it?", node.From)
+		}
+		validator.checkForTrait(node.From, node, TraitImport)
 	}
 }
 

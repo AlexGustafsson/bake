@@ -31,6 +31,25 @@ var commands = []*cli.Command{
 		},
 	},
 	{
+		Name:   "validate",
+		Usage:  "Validate a Bakefile",
+		Action: validateCommand,
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:     "input",
+				Aliases:  []string{"i"},
+				Usage:    "Path to input file",
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:        "type",
+				Aliases:     []string{"t"},
+				Usage:       "Output type",
+				DefaultText: "dot",
+			},
+		},
+	},
+	{
 		Name:   "format",
 		Usage:  "Format a Bakefile",
 		Action: formatCommand,

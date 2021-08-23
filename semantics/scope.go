@@ -4,12 +4,16 @@ package semantics
 type Scope struct {
 	// ParentScope is the scope above this, if any (may be nil)
 	ParentScope *Scope
+	// ChildScopes are the scopes contained within this, in the order they're declared
+	ChildScopes []*Scope
+	// SymbolTable is the table of symbols defined within the scope
 	SymbolTable *SymbolTable
 }
 
 func CreateScope(parent *Scope) *Scope {
 	return &Scope{
 		ParentScope: parent,
+		ChildScopes: make([]*Scope, 0),
 		SymbolTable: CreateSymbolTable(),
 	}
 }
@@ -22,4 +26,10 @@ func (scope *Scope) LookupByName(name string) (*Symbol, bool) {
 	}
 
 	return symbol, ok
+}
+
+func (scope *Scope) CreateScope() *Scope {
+	child := CreateScope(scope)
+	scope.ChildScopes = append(scope.ChildScopes, child)
+	return child
 }

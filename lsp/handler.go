@@ -37,9 +37,7 @@ func NewHandler() *Handler {
 }
 
 func (handler *Handler) handleInitialize(context *glsp.Context, parameters *protocol.InitializeParams) (interface{}, error) {
-	// TODO: Switch to incremental when there is support
-	// Send full text on each update
-	syncKind := protocol.TextDocumentSyncKindFull
+	syncKind := protocol.TextDocumentSyncKindIncremental
 	trueOption := true
 
 	return protocol.InitializeResult{
@@ -105,8 +103,7 @@ func (handler *Handler) handleChange(context *glsp.Context, parameters *protocol
 				continue
 			}
 
-			// TODO: For now, don't support incremental changes
-			return fmt.Errorf("incremental changes are not supported")
+			document.UpdateRange(cast.Range, cast.Text)
 		case protocol.TextDocumentContentChangeEventWhole:
 			document.Content = cast.Text
 		}

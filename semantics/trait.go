@@ -21,6 +21,8 @@ const (
 	TraitAlias
 	// TraitImport indicates that the symbol is the root of an import package
 	TraitImport
+	// TraitString indicates that the symbol may be treated as a string
+	TraitString
 )
 
 // Has checks whether or not a trait has the specified trait

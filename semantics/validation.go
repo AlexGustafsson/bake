@@ -50,19 +50,11 @@ func (validator *Validator) Validate(root ast.Node) {
 		}
 	case *ast.RuleDeclaration:
 		for _, output := range node.Outputs {
-			validator.checkString(output)
+			validator.Validate(output)
 		}
 
 		for _, dependency := range node.Dependencies {
-			switch dependencyNode := dependency.(type) {
-			case *ast.InterpretedString:
-				// TODO: validate
-			case *ast.RawString:
-				// Valid, do nothing
-			case *ast.Identifier:
-				validator.checkDefinedInScope(dependencyNode.Value, dependencyNode)
-				validator.checkForTrait(dependencyNode.Value, dependencyNode, TraitAlias|TraitCallable|TraitAny)
-			}
+			validator.Validate(dependency)
 		}
 
 		if node.Block != nil {

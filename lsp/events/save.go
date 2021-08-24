@@ -10,6 +10,7 @@ import (
 
 func HandleSave(event *Event, document *state.Document) {
 	document.ClearDiagnostics()
+	defer document.PublishDiagnostics(event.Connection, event.Context)
 
 	source, err := parsing.Parse(document.Content)
 	if err != nil {
@@ -18,6 +19,7 @@ func HandleSave(event *Event, document *state.Document) {
 		} else {
 			document.PublishError(event.Connection, event.Context, err)
 		}
+		return
 	}
 
 	sourceScope, errs := semantics.Build(source)
@@ -29,6 +31,7 @@ func HandleSave(event *Event, document *state.Document) {
 				document.PublishError(event.Connection, event.Context, err)
 			}
 		}
+		return
 	}
 
 	errs = semantics.Validate(source, sourceScope)
@@ -40,7 +43,6 @@ func HandleSave(event *Event, document *state.Document) {
 				document.PublishError(event.Connection, event.Context, err)
 			}
 		}
+		return
 	}
-
-	document.PublishDiagnostics(event.Connection, event.Context)
 }

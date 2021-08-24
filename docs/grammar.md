@@ -231,8 +231,9 @@ decimal_digits = decimal_digit { decimal_digit } .
 ```
 string_literal = raw_string_literal | interpreted_string_literal .
 raw_string_literal = "`" { unicode_char | newline } "`" .
-interpreted_string_literal = `"` { variable_substitution | unicode_char } `"` .
-variable_substitution = "$" "(" Expression ")" .
+interpreted_string_literal = `"` { substitution | string_part } `"` .
+substitution = "$" "(" Expression ")" .
+string_part = unicode_char { unicode_char } .
 ```
 
 Note that the interpreted string literal is a runtime feature, meaning the parser and lexer treats it as a single token / node.

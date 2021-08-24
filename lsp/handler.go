@@ -1,105 +1,167 @@
 package lsp
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 	"runtime"
 
-	"github.com/AlexGustafsson/bake/lsp/events"
+	"github.com/AlexGustafsson/bake/ast"
 	"github.com/AlexGustafsson/bake/lsp/state"
-	log "github.com/sirupsen/logrus"
-	"github.com/sourcegraph/go-lsp"
-	"github.com/sourcegraph/jsonrpc2"
+	"github.com/AlexGustafsson/bake/parsing"
+	"github.com/AlexGustafsson/bake/semantics"
+	"github.com/tliron/glsp"
+	protocol "github.com/tliron/glsp/protocol_3_16"
 )
 
 type Handler struct {
+	protocol.Handler
 	State *state.State
 }
 
 func NewHandler() *Handler {
-	return &Handler{
+	handler := &Handler{
 		State: state.CreateState(),
 	}
-}
 
-// Handle is the main entrypoint for events
-func (handler Handler) Handle(ctx context.Context, connection *jsonrpc2.Conn, request *jsonrpc2.Request) {
-	// Call the internal handle function and send any potential error or reply
-	response, err := handler.handle(ctx, connection, request)
-	if err != nil {
-		log.Error("error creating response", err)
-		return
+	handler.Handler = protocol.Handler{
+		Initialize:            handler.handleInitialize,
+		Initialized:           handler.handleInitialized,
+		TextDocumentDidChange: handler.handleChange,
+		TextDocumentDidOpen:   handler.handleOpen,
+		TextDocumentDidClose:  handler.handleClose,
+		TextDocumentHover:     handler.handleHover,
+		TextDocumentDidSave:   handler.handleSave,
+		CancelRequest:         handler.handleCancel,
 	}
 
-	err = connection.Reply(ctx, request.ID, response)
-	if err != nil {
-		log.Error("error sending response", err)
-	}
+	return handler
 }
 
-// handle is the internal handler for determining the correct action for an event
-func (handler Handler) handle(ctx context.Context, connection *jsonrpc2.Conn, request *jsonrpc2.Request) (reply interface{}, err error) {
+func (handler *Handler) handleInitialize(context *glsp.Context, parameters *protocol.InitializeParams) (interface{}, error) {
+	// TODO: Switch to incremental when there is support
+	// Send full text on each update
+	syncKind := protocol.TextDocumentSyncKindFull
+	trueOption := true
+
+	return protocol.InitializeResult{
+		Capabilities: protocol.ServerCapabilities{
+			TextDocumentSync: &protocol.TextDocumentSyncOptions{
+				OpenClose: &trueOption,
+				Save:      &trueOption,
+				Change:    &syncKind,
+			},
+			// CompletionProvider:     &protocol.CompletionOptions{ResolveProvider: &trueOption, TriggerCharacters: []string{"(", "."}},
+			// DefinitionProvider:     true,
+			// TypeDefinitionProvider: true,
+			// DocumentSymbolProvider: true,
+			HoverProvider: true,
+			// ReferencesProvider:     true,
+			// ImplementationProvider: true,
+			// SignatureHelpProvider:  &protocol.SignatureHelpOptions{TriggerCharacters: []string{"(", ","}},
+		},
+	}, nil
+}
+
+func (handler *Handler) handleInitialized(context *glsp.Context, parameters *protocol.InitializedParams) error {
+	return nil
+}
+
+func (handler *Handler) handleOpen(context *glsp.Context, parameters *protocol.DidOpenTextDocumentParams) error {
+	if parameters.TextDocument.LanguageID != "bake" {
+		return fmt.Errorf("unsupported language")
+	}
+
+	handler.State.CreateDocument(string(parameters.TextDocument.URI), parameters.TextDocument.Text, parameters.TextDocument.Version)
+	return nil
+}
+
+func (handler *Handler) handleClose(context *glsp.Context, parameters *protocol.DidCloseTextDocumentParams) error {
+	handler.State.RemoveDocument(string(parameters.TextDocument.URI))
+	return nil
+}
+
+func (handler *Handler) handleHover(context *glsp.Context, parameters *protocol.HoverParams) (*protocol.Hover, error) {
+	return nil, nil
+}
+
+func (handler *Handler) handleChange(context *glsp.Context, parameters *protocol.DidChangeTextDocumentParams) (err error) {
 	defer handler.recover(&err)
 
-	switch request.Method {
-	case "initialize":
-		var params lsp.InitializeParams
-		handler.requireParameters(request, &params)
+	document := handler.requireDocument(parameters.TextDocument.URI)
+	document.Lock()
+	defer document.Unlock()
 
-		event := events.CreateEvent(ctx, connection, params)
-		response := events.HandleInitialize(event)
-		return response, nil
-	case "initialized":
-		// A notification that the client is ready to receive requests. Ignore
-		return nil, nil
-	case "exit":
-		connection.Close()
-		return nil, nil
-	case "shutdown":
-		return nil, nil
-	case "textDocument/hover":
-		var params lsp.TextDocumentPositionParams
-		handler.requireParameters(request, &params)
-
-		event := events.CreateEvent(ctx, connection, params)
-		events.HandleHover(event)
-		return nil, nil
-	case "textDocument/didOpen":
-		var params lsp.DidOpenTextDocumentParams
-		handler.requireParameters(request, &params)
-
-		event := events.CreateEvent(ctx, connection, params)
-		err = events.HandleOpen(event, handler.State)
-		return nil, err
-	case "textDocument/didClose":
-		var parameters lsp.DidCloseTextDocumentParams
-		handler.requireParameters(request, &parameters)
-
-		event := events.CreateEvent(ctx, connection, parameters)
-		events.HandleClose(event, handler.State)
-		return nil, nil
-	case "textDocument/didChange":
-		var params lsp.DidChangeTextDocumentParams
-		handler.requireParameters(request, &params)
-
-		document := handler.requireDocument(string(params.TextDocument.URI))
-
-		event := events.CreateEvent(ctx, connection, params)
-		events.HandleChange(event, document)
-		return nil, nil
-	case "textDocument/didSave":
-		var params lsp.DidSaveTextDocumentParams
-		handler.requireParameters(request, &params)
-
-		document := handler.requireDocument(string(params.TextDocument.URI))
-
-		event := events.CreateEvent(ctx, connection, params)
-		events.HandleSave(event, document)
-		return nil, nil
+	// Ignore old updates
+	if parameters.TextDocument.Version < document.Version {
+		return nil
 	}
 
-	return nil, &jsonrpc2.Error{Code: jsonrpc2.CodeMethodNotFound, Message: fmt.Sprintf("method not supported: %s", request.Method)}
+	document.Version = parameters.TextDocument.Version
+	for _, change := range parameters.ContentChanges {
+		switch cast := change.(type) {
+		case protocol.TextDocumentContentChangeEvent:
+			// TODO: See https://github.com/tliron/glsp/issues/9
+			if cast.Range.Start.Line == 0 && cast.Range.Start.Character == 0 && cast.Range.End.Line == 0 && cast.Range.End.Character == 0 {
+				document.Content = cast.Text
+				continue
+			}
+
+			// TODO: For now, don't support incremental changes
+			return fmt.Errorf("incremental changes are not supported")
+		case protocol.TextDocumentContentChangeEventWhole:
+			document.Content = cast.Text
+		}
+	}
+
+	return nil
+}
+
+func (handler *Handler) handleSave(context *glsp.Context, parameters *protocol.DidSaveTextDocumentParams) (err error) {
+	defer handler.recover(&err)
+
+	document := handler.requireDocument(parameters.TextDocument.URI)
+
+	document.ClearDiagnostics()
+	defer document.PublishDiagnostics(context)
+
+	source, err := parsing.Parse(document.Content)
+	if err != nil {
+		if treeError, ok := err.(*ast.TreeError); ok {
+			document.CreateDiagnostic(protocol.DiagnosticSeverityError, *treeError.Range, treeError.Message)
+		} else {
+			document.PublishError(context, err)
+		}
+		return nil
+	}
+
+	sourceScope, errs := semantics.Build(source)
+	if len(errs) > 0 {
+		for _, err := range errs {
+			if treeError, ok := err.(*ast.TreeError); ok {
+				document.CreateDiagnostic(protocol.DiagnosticSeverityError, *treeError.Range, treeError.Message)
+			} else {
+				document.PublishError(context, err)
+			}
+		}
+		return nil
+	}
+
+	errs = semantics.Validate(source, sourceScope)
+	if len(errs) > 0 {
+		for _, err := range errs {
+			if treeError, ok := err.(*ast.TreeError); ok {
+				document.CreateDiagnostic(protocol.DiagnosticSeverityError, *treeError.Range, treeError.Message)
+			} else {
+				document.PublishError(context, err)
+			}
+		}
+		return nil
+	}
+
+	return nil
+}
+
+func (handler *Handler) handleCancel(context *glsp.Context, parameters *protocol.CancelParams) error {
+	return nil
 }
 
 func (handler *Handler) recover(errp *error) {
@@ -115,23 +177,11 @@ func (handler *Handler) recover(errp *error) {
 	}
 }
 
-// requireParameters handles unmarshalling of a request's parameter that must not be nil.
-// the parameters argument is expected to be a pointer to a value of the type to unmarshal
-func (handler *Handler) requireParameters(request *jsonrpc2.Request, parameters interface{}) {
-	if request.Params == nil {
-		panic(&jsonrpc2.Error{Code: jsonrpc2.CodeInvalidParams})
-	}
-
-	if err := json.Unmarshal(*request.Params, parameters); err != nil {
-		panic(err)
-	}
-}
-
 // requireDocument handles document retrieval. The document is required to exist
 func (handler *Handler) requireDocument(uri string) *state.Document {
 	if document, ok := handler.State.Documents[uri]; ok {
 		return document
 	} else {
-		panic(&jsonrpc2.Error{Code: jsonrpc2.CodeInvalidParams, Message: "no such document"})
+		panic(fmt.Errorf("no such document"))
 	}
 }

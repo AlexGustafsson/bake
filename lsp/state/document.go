@@ -1,47 +1,48 @@
 package state
 
 import (
-	"context"
 	"sync"
 
 	"github.com/AlexGustafsson/bake/ast"
-	"github.com/sourcegraph/go-lsp"
-	"github.com/sourcegraph/jsonrpc2"
+	"github.com/tliron/glsp"
+	protocol "github.com/tliron/glsp/protocol_3_16"
 )
 
 type Document struct {
 	sync.Mutex
 	URI         string
 	Content     string
-	Version     int
-	Diagnostics []lsp.Diagnostic
+	Version     int32
+	Diagnostics []protocol.Diagnostic
 }
 
-func CreateDocument(uri string, content string, version int) *Document {
+func CreateDocument(uri string, content string, version int32) *Document {
 	return &Document{
 		URI:         uri,
 		Content:     content,
 		Version:     version,
-		Diagnostics: make([]lsp.Diagnostic, 0),
+		Diagnostics: make([]protocol.Diagnostic, 0),
 	}
 }
 
-func (document *Document) CreateDiagnostic(severity lsp.DiagnosticSeverity, r ast.Range, message string) {
+func (document *Document) CreateDiagnostic(severity protocol.DiagnosticSeverity, r ast.Range, message string) {
 	document.Lock()
 	defer document.Unlock()
 
-	diagnostic := lsp.Diagnostic{
-		Severity: severity,
-		Source:   "bake",
+	source := "bake"
+
+	diagnostic := protocol.Diagnostic{
+		Severity: &severity,
+		Source:   &source,
 		Message:  message,
-		Range: lsp.Range{
-			Start: lsp.Position{
-				Line:      r.Start().Line,
-				Character: r.Start().Character,
+		Range: protocol.Range{
+			Start: protocol.Position{
+				Line:      uint32(r.Start().Line),
+				Character: uint32(r.Start().Character),
 			},
-			End: lsp.Position{
-				Line:      r.End().Line,
-				Character: r.End().Character,
+			End: protocol.Position{
+				Line:      uint32(r.End().Line),
+				Character: uint32(r.End().Character),
 			},
 		},
 	}
@@ -53,19 +54,19 @@ func (document *Document) ClearDiagnostics() {
 	document.Lock()
 	defer document.Unlock()
 
-	document.Diagnostics = make([]lsp.Diagnostic, 0)
+	document.Diagnostics = make([]protocol.Diagnostic, 0)
 }
 
-func (document *Document) PublishDiagnostics(connection *jsonrpc2.Conn, ctx context.Context) {
-	connection.Notify(ctx, "textDocument/publishDiagnostics", lsp.PublishDiagnosticsParams{
-		URI:         lsp.DocumentURI(document.URI),
+func (document *Document) PublishDiagnostics(context *glsp.Context) {
+	context.Notify("textDocument/publishDiagnostics", protocol.PublishDiagnosticsParams{
+		URI:         protocol.DocumentUri(document.URI),
 		Diagnostics: document.Diagnostics,
 	})
 }
 
-func (document *Document) PublishError(connection *jsonrpc2.Conn, ctx context.Context, err error) {
-	connection.Notify(ctx, "window/showMessage", lsp.ShowMessageParams{
-		Type:    lsp.MTError,
+func (document *Document) PublishError(context *glsp.Context, err error) {
+	context.Notify("window/showMessage", protocol.ShowMessageParams{
+		Type:    protocol.MessageTypeError,
 		Message: err.Error(),
 	})
 }

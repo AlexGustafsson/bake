@@ -3,11 +3,13 @@ module github.com/AlexGustafsson/bake
 go 1.16
 
 require (
+	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/sirupsen/logrus v1.8.1
-	github.com/sourcegraph/go-lsp v0.0.0-20200429204803-219e11d77f5d
-	github.com/sourcegraph/jsonrpc2 v0.1.0
-	github.com/stretchr/testify v1.3.0 // indirect
+	github.com/tliron/glsp v0.0.0-20210820163900-f4d3befef740
+	github.com/tliron/kutil v0.1.48
 	github.com/urfave/cli/v2 v2.3.0
-	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
+	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
+	golang.org/x/sys v0.0.0-20210823070655-63515b42dcdf // indirect
+	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b // indirect
 	golang.org/x/tools v0.1.5
 )

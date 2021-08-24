@@ -13,7 +13,7 @@ func CreateState() *State {
 	}
 }
 
-func (state *State) CreateDocument(uri string, content string, version int) {
+func (state *State) CreateDocument(uri string, content string, version int32) {
 	document := CreateDocument(uri, content, version)
 	state.Lock()
 	defer state.Unlock()

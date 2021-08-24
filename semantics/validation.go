@@ -149,7 +149,14 @@ func (validator *Validator) checkDefinedInScope(name string, node ast.Node) {
 	if symbol, scope, ok := validator.CurrentScope.LookupByName(name); !ok {
 		validator.errorf(node, "'%s' is undefined", name)
 	} else if scope == validator.CurrentScope && symbol.Node.Start().Line >= node.Start().Line {
-		validator.errorf(node, "'%s' is used before it's declared", name)
+		if validator.CurrentScope.ParentScope != nil {
+			// Check the parent scope (in order to support shadowing)
+			if _, _, ok := validator.CurrentScope.ParentScope.LookupByName(name); !ok {
+				validator.errorf(node, "'%s' is used before it's declared", name)
+			}
+		} else {
+			validator.errorf(node, "'%s' is used before it's declared", name)
+		}
 	}
 }
 

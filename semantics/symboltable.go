@@ -32,8 +32,14 @@ func (table *SymbolTable) LookupNode(node ast.Node) (*Symbol, bool) {
 
 // Insert directly inserts a symbol
 func (table *SymbolTable) Insert(symbol *Symbol) {
-	table.symbolsByName[symbol.Name] = symbol
-	table.symbolsByNode[symbol.Node] = symbol
+	if symbol.Name != "" {
+		table.symbolsByName[symbol.Name] = symbol
+	}
+
+	if symbol.Node != nil {
+		table.symbolsByNode[symbol.Node] = symbol
+	}
+
 	table.symbolsByInsertionOrder[table.symbolCount] = symbol
 	table.symbolCount++
 }

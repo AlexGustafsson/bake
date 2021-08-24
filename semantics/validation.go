@@ -100,8 +100,26 @@ func (validator *Validator) Validate(root ast.Node) {
 		validator.checkDefinedInScope(node.Value, node)
 	case *ast.Invocation:
 		validator.Validate(node.Operand)
+
 		for _, argument := range node.Arguments {
 			validator.Validate(argument)
+		}
+
+		// TODO: Implement recursion
+		if identifier, ok := node.Operand.(*ast.Identifier); ok {
+			if symbol, _, ok := validator.CurrentScope.LookupByName(identifier.Value); ok {
+				if symbol.Trait.Has(TraitCallable) {
+					if len(node.Arguments) < symbol.ArgumentCount {
+						validator.errorf(identifier, "too few arguments. Expected %d, got %d", symbol.ArgumentCount, len(node.Arguments))
+					} else if len(node.Arguments) > symbol.ArgumentCount {
+						validator.errorf(identifier, "too many arguments. Expected %d, got %d", symbol.ArgumentCount, len(node.Arguments))
+					}
+				} else if symbol.Trait.Has(TraitAny) {
+					// Nothing to check, unknown amount of arguments
+				} else {
+					validator.errorf(identifier, "not a function")
+				}
+			}
 		}
 	case *ast.InterpretedString:
 		// TODO: parse and check expressions

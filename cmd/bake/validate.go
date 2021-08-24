@@ -37,8 +37,9 @@ func validateCommand(context *cli.Context) error {
 		if treeError, ok := err.(*ast.TreeError); ok {
 			// Print the formatted error
 			fmt.Fprint(os.Stderr, treeError.ErrorWithLine(input))
-		} else {
 			return fmt.Errorf("parsing failed")
+		} else {
+			return err
 		}
 	}
 
@@ -49,6 +50,8 @@ func validateCommand(context *cli.Context) error {
 			if treeError, ok := err.(*ast.TreeError); ok {
 				// Print the formatted error
 				fmt.Fprint(os.Stderr, treeError.ErrorWithLine(input))
+			} else {
+				fmt.Fprint(os.Stderr, err)
 			}
 		}
 		return fmt.Errorf("validation failed")
@@ -61,6 +64,8 @@ func validateCommand(context *cli.Context) error {
 			if treeError, ok := err.(*ast.TreeError); ok {
 				// Print the formatted error
 				fmt.Fprint(os.Stderr, treeError.ErrorWithLine(input))
+			} else {
+				fmt.Fprint(os.Stderr, err)
 			}
 		}
 		return fmt.Errorf("validation failed")

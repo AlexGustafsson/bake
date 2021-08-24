@@ -28,8 +28,9 @@ func formatCommand(context *cli.Context) error {
 		if treeError, ok := err.(*ast.TreeError); ok {
 			// Print the formatted error
 			fmt.Fprint(os.Stderr, treeError.ErrorWithLine(input))
-		} else {
 			return fmt.Errorf("parsing failed")
+		} else {
+			return err
 		}
 	}
 

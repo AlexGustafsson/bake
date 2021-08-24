@@ -7,6 +7,13 @@ import (
 
 type stateModifier func(lexer *Lexer) stateModifier
 
+type LexMode int
+
+const (
+	ModeRoot LexMode = iota
+	ModeEvaluatedString
+)
+
 type Lexer struct {
 	input    string
 	position int
@@ -16,11 +23,15 @@ type Lexer struct {
 	character int
 	startLine int
 	// lineLengths are the lengths of past lines in runes
-	lineLengths []int
-	line        int
-	start       int
-	runeWidth   int
-	items       chan Item
+	lineLengths       []int
+	line              int
+	start             int
+	runeWidth         int
+	items             chan Item
+	parenthesesDepth  int
+	substitutionDepth int
+
+	Mode LexMode
 }
 
 func Lex(input string) *Lexer {
@@ -28,6 +39,7 @@ func Lex(input string) *Lexer {
 		input:       input,
 		lineLengths: make([]int, 0),
 		items:       make(chan Item),
+		Mode:        ModeRoot,
 	}
 	go lexer.run()
 	return lexer

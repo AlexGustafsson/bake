@@ -44,6 +44,9 @@ const (
 	ItemColonColon
 	ItemComma
 	ItemDot
+	ItemSubstitutionStart
+	ItemSubstitutionEnd
+	ItemDoubleQuote
 
 	// Keywords
 	ItemKeywordPackage
@@ -67,8 +70,8 @@ const (
 
 	// Strings etc.
 	ItemRawString
-	ItemInterpretedString
 	ItemShellString
+	ItemStringPart
 
 	// Numbers
 	ItemInteger

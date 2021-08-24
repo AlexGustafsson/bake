@@ -1,6 +1,8 @@
 package lexing
 
-import "unicode"
+import (
+	"unicode"
+)
 
 func lexRoot(lexer *Lexer) stateModifier {
 	switch rune := lexer.Peek(); rune {
@@ -162,10 +164,27 @@ func lexRoot(lexer *Lexer) stateModifier {
 	case '(':
 		lexer.Next()
 		lexer.Emit(ItemLeftParentheses)
+		lexer.parenthesesDepth++
 		return lexRoot
 	case ')':
 		lexer.Next()
-		lexer.Emit(ItemRightParentheses)
+		lexer.parenthesesDepth--
+		if lexer.parenthesesDepth < 0 {
+			lexer.parenthesesDepth = 0
+		}
+		if lexer.parenthesesDepth == 0 && lexer.Mode == ModeEvaluatedString {
+			lexer.Emit(ItemSubstitutionEnd)
+			lexer.substitutionDepth--
+			if lexer.substitutionDepth < 0 {
+				lexer.substitutionDepth = 0
+			}
+			if lexer.substitutionDepth == 0 {
+				lexer.Mode = ModeRoot
+			}
+			return lexEvaluatedString
+		} else {
+			lexer.Emit(ItemRightParentheses)
+		}
 		return lexRoot
 	case '[':
 		lexer.Next()
@@ -212,29 +231,8 @@ func lexRoot(lexer *Lexer) stateModifier {
 		return lexRoot
 	case '"':
 		lexer.Next()
-		for {
-			rune := lexer.Next()
-			if rune == '\\' {
-				escaped := lexer.Next()
-				switch escaped {
-				case '"', '\\':
-					// Do nothing
-				default:
-					lexer.errorf("unexpected escape sequence '%c'", rune)
-					return nil
-				}
-			} else if rune == '"' {
-				break
-			} else if rune == '\n' {
-				lexer.errorf("unexpected newline")
-				return nil
-			} else if rune == eof {
-				lexer.errorf("unexpected end of file")
-				return nil
-			}
-		}
-		lexer.Emit(ItemInterpretedString)
-		return lexRoot
+		lexer.Emit(ItemDoubleQuote)
+		return lexEvaluatedString
 	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 		lexer.Next()
 		for {
@@ -371,4 +369,44 @@ func lexShell(lexer *Lexer) stateModifier {
 	}
 
 	return lexRoot
+}
+
+// assumes one quote has been consumed as the start of the evaluated string
+func lexEvaluatedString(lexer *Lexer) stateModifier {
+	rune := lexer.Peek()
+	switch rune {
+	case '"':
+		lexer.Emit(ItemStringPart)
+		lexer.Next()
+		lexer.Emit(ItemDoubleQuote)
+		return lexRoot
+	case '\\':
+		lexer.Next()
+		escaped := lexer.Next()
+		switch escaped {
+		case '"', '\\', '$':
+			// Do nothing
+		default:
+			lexer.errorf("unexpected escape sequence '%c'", rune)
+			return nil
+		}
+	case '$':
+		lexer.Next()
+		if rune := lexer.Peek(); rune == '(' {
+			lexer.Backtrack()
+			lexer.Emit(ItemStringPart)
+			lexer.Next()
+			lexer.Next()
+			lexer.Emit(ItemSubstitutionStart)
+			lexer.Mode = ModeEvaluatedString
+			lexer.substitutionDepth++
+			return lexRoot
+		} else {
+			lexer.Next()
+		}
+	default:
+		lexer.Next()
+	}
+
+	return lexEvaluatedString
 }

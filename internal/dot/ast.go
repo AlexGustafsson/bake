@@ -171,8 +171,14 @@ func FormatTree(root ast.Node) string {
 			fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%s\"];\n", node, node.Expression, "expression")
 			builder.WriteString(FormatTree(node.Expression))
 		}
-	case *ast.InterpretedString:
-		fmt.Fprintf(&builder, "\"%p\" [label=\"interpreted string '%s'\"];\n", node, escape(node.Content))
+	case *ast.EvaluatedString:
+		fmt.Fprintf(&builder, "\"%p\" [label=\"evaluated string\"];\n", node)
+		for i, part := range node.Parts {
+			fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%d\"];\n", node, part, i)
+			builder.WriteString(FormatTree(part))
+		}
+	case *ast.StringPart:
+		fmt.Fprintf(&builder, "\"%p\" [label=\"string part '%s'\"];\n", node, escape(node.Content))
 	case *ast.RawString:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"raw string '%s'\"];\n", node, escape(node.Content))
 	case *ast.Boolean:

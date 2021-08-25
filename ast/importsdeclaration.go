@@ -7,10 +7,10 @@ import (
 type ImportsDeclaration struct {
 	NodeType
 	Range
-	Imports []*InterpretedString
+	Imports []*EvaluatedString
 }
 
-func CreateImportsDeclaration(r Range, imports []*InterpretedString) *ImportsDeclaration {
+func CreateImportsDeclaration(r Range, imports []*EvaluatedString) *ImportsDeclaration {
 	return &ImportsDeclaration{
 		NodeType: NodeTypeImportsDeclaration,
 		Range:    r,

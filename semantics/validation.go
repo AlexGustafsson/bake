@@ -121,7 +121,7 @@ func (validator *Validator) Validate(root ast.Node) {
 				}
 			}
 		}
-	case *ast.InterpretedString:
+	case *ast.EvaluatedString:
 		// TODO: parse and check expressions
 	case *ast.ReturnStatement:
 		validator.Validate(node.Value)
@@ -180,7 +180,7 @@ func (validator *Validator) checkDefinedInScope(name string, node ast.Node) {
 
 func (validator *Validator) checkString(node ast.Node) {
 	switch node.(type) {
-	case *ast.InterpretedString:
+	case *ast.EvaluatedString:
 		// TODO: validate
 	case *ast.RawString:
 		// Valid, do nothing

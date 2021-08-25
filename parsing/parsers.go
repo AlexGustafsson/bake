@@ -51,11 +51,10 @@ func parseImportsDeclaration(parser *Parser) *ast.ImportsDeclaration {
 	parser.require(lexing.ItemLeftParentheses)
 	parser.require(lexing.ItemNewline)
 
-	imports := make([]*ast.InterpretedString, 0)
+	imports := make([]*ast.EvaluatedString, 0)
 	for {
-		if token, ok := parser.expectPeek(lexing.ItemInterpretedString); ok {
-			parser.nextItem()
-			node := ast.CreateInterpretedString(createRangeFromItem(startToken), token.Value)
+		if _, ok := parser.expectPeek(lexing.ItemDoubleQuote); ok {
+			node := parseEvaluatedString(parser)
 			imports = append(imports, node)
 			parser.require(lexing.ItemNewline)
 		} else {
@@ -89,7 +88,7 @@ func parseTopLevelDeclaration(parser *Parser) ast.Node {
 		default:
 			parser.tokenErrorf(token, "unexpected %s", token.Type.String())
 		}
-	case lexing.ItemInterpretedString, lexing.ItemRawString, lexing.ItemLeftBracket:
+	case lexing.ItemDoubleQuote, lexing.ItemRawString, lexing.ItemLeftBracket:
 		return parseRule(parser)
 	default:
 		return parseStatement(parser)
@@ -221,9 +220,9 @@ func parseRule(parser *Parser) *ast.RuleDeclaration {
 	// Parse a string literal or an array as the outputs
 	startToken := parser.peek()
 	switch startToken.Type {
-	case lexing.ItemInterpretedString:
-		parser.nextItem()
-		outputs = append(outputs, ast.CreateInterpretedString(createRangeFromItem(startToken), startToken.Value))
+	case lexing.ItemDoubleQuote:
+		node := parseEvaluatedString(parser)
+		outputs = append(outputs, node)
 	case lexing.ItemRawString:
 		parser.nextItem()
 		outputs = append(outputs, ast.CreateRawString(createRangeFromItem(startToken), startToken.Value))
@@ -530,9 +529,8 @@ func parseOperand(parser *Parser) ast.Node {
 	case lexing.ItemInteger:
 		parser.nextItem()
 		return ast.CreateInteger(createRangeFromItem(token), token.Value)
-	case lexing.ItemInterpretedString:
-		parser.nextItem()
-		return ast.CreateInterpretedString(createRangeFromItem(token), token.Value)
+	case lexing.ItemDoubleQuote:
+		return parseEvaluatedString(parser)
 	case lexing.ItemRawString:
 		parser.nextItem()
 		return ast.CreateRawString(createRangeFromItem(token), token.Value)
@@ -603,4 +601,28 @@ dec:
 	}
 
 	return expressions
+}
+
+func parseEvaluatedString(parser *Parser) *ast.EvaluatedString {
+	startToken := parser.require(lexing.ItemDoubleQuote)
+
+	children := make([]ast.Node, 0)
+
+	for {
+		item := parser.nextItem()
+		switch item.Type {
+		case lexing.ItemStringPart:
+			children = append(children, ast.CreateStringPart(createRangeFromItem(item), item.Value))
+		case lexing.ItemSubstitutionStart:
+			expression := parseExpression(parser)
+			parser.require(lexing.ItemSubstitutionEnd)
+			children = append(children, expression)
+		case lexing.ItemDoubleQuote:
+			endToken := item
+			start := createRangeFromItem(startToken)
+			end := createRangeFromItem(endToken)
+			r := ast.CreateRange(start.Start(), end.End())
+			return ast.CreateEvaluatedString(r, children)
+		}
+	}
 }

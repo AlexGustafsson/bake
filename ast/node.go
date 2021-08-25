@@ -51,4 +51,6 @@ const (
 	NodeTypeRuleDeclaration
 	NodeTypeReturnStatement
 	NodeTypeIfStatement
+	NodeTypeEvaluatedString
+	NodeTypeStringPart
 )

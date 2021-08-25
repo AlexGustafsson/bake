@@ -75,6 +75,7 @@ Statement = Declaration
           | IfStatement
           | ForStatement
           | ReturnStatement
+          | ShellStatement
           .
 
 Declaration = FunctionDeclaration | VarDeclaration .
@@ -93,7 +94,6 @@ ExpressionStatement = Expression .
 IncreaseDecreaseStatement = Expression ( "++" | "--" ) .
 ShellStatement = ShellLine | ShellBlock .
 ShellLine = "shell" { unicode_char } .
-ShellBlock = "shell" "{" { unicode_char } "}" . /* may contain matching pairs of "{" and "}" */
 Assignment = Expression assignment_operand Expression .
 
 assignment_operand = [ additive_operator | multiplicative_operator | "?" ] "=" .
@@ -237,4 +237,3 @@ string_part = unicode_char { unicode_char } .
 ```
 
 Note that the interpreted string literal is a runtime feature, meaning the parser and lexer treats it as a single token / node.
-

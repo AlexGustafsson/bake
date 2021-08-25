@@ -168,6 +168,10 @@ func (validator *Validator) Validate(root ast.Node) {
 				}
 			}
 		}
+	case *ast.ShellStatement:
+		for _, part := range node.Parts {
+			validator.Validate(part)
+		}
 	}
 }
 

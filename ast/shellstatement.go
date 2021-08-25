@@ -1,29 +1,39 @@
 package ast
 
 import (
-	"fmt"
+	"strings"
 )
 
 type ShellStatement struct {
 	NodeType
 	Range
-	Multiline   bool
-	ShellString string
+	Multiline bool
+	Parts     []Node
 }
 
-func CreateShellStatement(r Range, multiline bool, shellString string) *ShellStatement {
+func CreateShellStatement(r Range, multiline bool, parts []Node) *ShellStatement {
 	return &ShellStatement{
-		NodeType:    NodeTypeShellStatement,
-		Range:       r,
-		Multiline:   multiline,
-		ShellString: shellString,
+		NodeType:  NodeTypeShellStatement,
+		Range:     r,
+		Multiline: multiline,
+		Parts:     parts,
 	}
 }
 
 func (node *ShellStatement) String() string {
+	var builder strings.Builder
+	builder.WriteString("shell ")
 	if node.Multiline {
-		return fmt.Sprintf("shell {%s}", node.ShellString)
-	} else {
-		return fmt.Sprintf("shell %s", node.ShellString)
+		builder.WriteRune('{')
 	}
+
+	for _, part := range node.Parts {
+		builder.WriteString(part.String())
+	}
+
+	if node.Multiline {
+		builder.WriteRune('}')
+	}
+	builder.WriteRune('\n')
+	return builder.String()
 }

@@ -204,7 +204,11 @@ func FormatTree(root ast.Node) string {
 			fmt.Fprintf(&builder, "\"%p\" [label=\"%s\"];\n", argument, argument.Value)
 		}
 	case *ast.ShellStatement:
-		fmt.Fprintf(&builder, "\"%p\" [label=\"shell '%s'\"]", node, escape(node.ShellString))
+		fmt.Fprintf(&builder, "\"%p\" [label=\"shell\"];\n", node)
+		for i, part := range node.Parts {
+			fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"%d\"];\n", node, part, i)
+			builder.WriteString(FormatTree(part))
+		}
 	case *ast.PackageDeclaration:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"package declaration '%s'\"];\n", node, node.Identifier)
 	case *ast.ImportsDeclaration:

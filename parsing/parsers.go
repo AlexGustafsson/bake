@@ -333,29 +333,33 @@ func parseSimpleStatement(parser *Parser) ast.Node {
 
 func parseShellStatement(parser *Parser) *ast.ShellStatement {
 	startToken := parser.require(lexing.ItemKeywordShell)
-
-	var shellString string
 	multiline := false
+	parts := make([]ast.Node, 0)
 
-	token := parser.peek()
-	switch token.Type {
-	case lexing.ItemLeftCurly:
-		parser.nextItem()
-
-		shellString = parser.require(lexing.ItemShellString).Value
+	if _, ok := parser.expectPeek(lexing.ItemLeftCurly); ok {
 		multiline = true
-
-		parser.require(lexing.ItemRightCurly)
-	case lexing.ItemNewline:
-		// Ignore - empty shell statement
 		parser.nextItem()
-	case lexing.ItemShellString:
-		shellString = parser.nextItem().Value
-	default:
-		parser.tokenErrorf(token, "expected '{', newline or shell string, got '%s'", token.Type)
 	}
 
-	return ast.CreateShellStatement(createRangeFromItem(startToken), multiline, shellString)
+	for {
+		item := parser.nextItem()
+		switch item.Type {
+		case lexing.ItemStringPart:
+			parts = append(parts, ast.CreateStringPart(createRangeFromItem(item), item.Value))
+		case lexing.ItemSubstitutionStart:
+			expression := parseExpression(parser)
+			parser.require(lexing.ItemSubstitutionEnd)
+			parts = append(parts, expression)
+		case lexing.ItemNewline:
+			return ast.CreateShellStatement(createRangeFromItem(startToken), multiline, parts)
+		case lexing.ItemRightCurly:
+			endToken := item
+			start := createRangeFromItem(startToken)
+			end := createRangeFromItem(endToken)
+			r := ast.CreateRange(start.Start(), end.End())
+			return ast.CreateShellStatement(r, multiline, parts)
+		}
+	}
 }
 
 func parseExpression(parser *Parser) ast.Node {

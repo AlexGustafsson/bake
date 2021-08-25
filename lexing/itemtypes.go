@@ -70,7 +70,6 @@ const (
 
 	// Strings etc.
 	ItemRawString
-	ItemShellString
 	ItemStringPart
 
 	// Numbers

@@ -29,24 +29,7 @@
       },
       "patterns": [
         {
-          "match": "((?!\\s+\")[^\\s]*)?\\s+((\")([^\"]*)(\"))",
-          "captures": {
-            "1": {
-              "name": "entity.alias.import.bake"
-            },
-            "2": {
-              "name": "string.quoted.double.bake"
-            },
-            "3": {
-              "name": "punctuation.definition.string.begin.bake"
-            },
-            "4": {
-              "name": "entity.name.import.bake"
-            },
-            "5": {
-              "name": "punctuation.definition.string.end.bake"
-            }
-          }
+          "include": "#interpreted_string"
         }
       ],
       "end": "\\)",

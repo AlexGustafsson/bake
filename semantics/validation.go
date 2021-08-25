@@ -122,7 +122,12 @@ func (validator *Validator) Validate(root ast.Node) {
 			}
 		}
 	case *ast.EvaluatedString:
-		// TODO: parse and check expressions
+		for _, part := range node.Parts {
+			// If it's not a string part, it's an expression
+			if _, ok := part.(*ast.StringPart); !ok {
+				validator.Validate(part)
+			}
+		}
 	case *ast.ReturnStatement:
 		validator.Validate(node.Value)
 		// TODO: Validate that the return statement belongs in a function
@@ -181,7 +186,7 @@ func (validator *Validator) checkDefinedInScope(name string, node ast.Node) {
 func (validator *Validator) checkString(node ast.Node) {
 	switch node.(type) {
 	case *ast.EvaluatedString:
-		// TODO: validate
+		validator.Validate(node)
 	case *ast.RawString:
 		// Valid, do nothing
 	default:

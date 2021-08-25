@@ -12,6 +12,8 @@ type LexMode int
 const (
 	ModeRoot LexMode = iota
 	ModeEvaluatedString
+	ModeShellString
+	ModeMultilineShellString
 )
 
 type Lexer struct {

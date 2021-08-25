@@ -172,7 +172,7 @@ func lexRoot(lexer *Lexer) stateModifier {
 		if lexer.parenthesesDepth < 0 {
 			lexer.parenthesesDepth = 0
 		}
-		if lexer.parenthesesDepth == 0 && lexer.Mode == ModeEvaluatedString {
+		if lexer.parenthesesDepth == 0 && (lexer.Mode == ModeEvaluatedString || lexer.Mode == ModeShellString || lexer.Mode == ModeMultilineShellString) {
 			lexer.Emit(ItemSubstitutionEnd)
 			lexer.substitutionDepth--
 			if lexer.substitutionDepth < 0 {
@@ -181,7 +181,15 @@ func lexRoot(lexer *Lexer) stateModifier {
 			if lexer.substitutionDepth == 0 {
 				lexer.Mode = ModeRoot
 			}
-			return lexEvaluatedString
+
+			if lexer.Mode == ModeEvaluatedString {
+				return lexEvaluatedString
+			} else if lexer.Mode == ModeShellString {
+				return lexShellString
+			} else if lexer.Mode == ModeMultilineShellString {
+				// TODO: Multiline
+				return lexShell
+			}
 		} else {
 			lexer.Emit(ItemRightParentheses)
 		}
@@ -320,55 +328,77 @@ func lexShell(lexer *Lexer) stateModifier {
 
 	if rune := lexer.Peek(); rune == '{' {
 		// Handle shell block
-		lexer.Next()
-		lexer.Emit(ItemLeftCurly)
+		// lexer.Next()
+		// lexer.Emit(ItemLeftCurly)
 
-		curlyDepth := 1
-		for {
-			rune := lexer.Peek()
-			if rune == '{' {
-				lexer.Next()
-				curlyDepth++
-			} else if rune == '}' {
-				curlyDepth--
-				if curlyDepth == 0 {
-					break
-				} else {
-					lexer.Next()
-				}
-			} else if rune == eof {
-				lexer.errorf("unexpected end of file")
-				return nil
-			} else {
-				lexer.Next()
-			}
-		}
-		lexer.Emit(ItemShellString)
+		// curlyDepth := 1
+		// for {
+		// 	rune := lexer.Peek()
+		// 	if rune == '{' {
+		// 		lexer.Next()
+		// 		curlyDepth++
+		// 	} else if rune == '}' {
+		// 		curlyDepth--
+		// 		if curlyDepth == 0 {
+		// 			break
+		// 		} else {
+		// 			lexer.Next()
+		// 		}
+		// 	} else if rune == eof {
+		// 		lexer.errorf("unexpected end of file")
+		// 		return nil
+		// 	} else {
+		// 		lexer.Next()
+		// 	}
+		// }
+		// lexer.Emit(ItemShellString)
 
-		// Terminating right curly bracket
-		rune = lexer.Next()
-		if rune == '}' {
-			lexer.Emit(ItemRightCurly)
-		} else {
-			lexer.errorf("unexpected token '%c'", rune)
-			return nil
-		}
+		// // Terminating right curly bracket
+		// rune = lexer.Next()
+		// if rune == '}' {
+		// 	lexer.Emit(ItemRightCurly)
+		// } else {
+		// 	lexer.errorf("unexpected token '%c'", rune)
+		// 	return nil
+		// }
 
 		return lexRoot
 	} else {
 		// Handle shell line
-		for {
-			rune := lexer.Peek()
-			if rune == '\n' || rune == eof {
-				break
-			} else {
-				lexer.Next()
-			}
-		}
-		lexer.Emit(ItemShellString)
+		return lexShellString
 	}
 
 	return lexRoot
+}
+
+func lexShellString(lexer *Lexer) stateModifier {
+	rune := lexer.Peek()
+	switch rune {
+	case '\n':
+		lexer.Emit(ItemStringPart)
+		lexer.Mode = ModeRoot
+		return lexRoot
+	case '\\':
+		lexer.Next()
+		lexer.Next()
+	case '$':
+		lexer.Next()
+		if rune := lexer.Peek(); rune == '(' {
+			lexer.Backtrack()
+			lexer.Emit(ItemStringPart)
+			lexer.Next()
+			lexer.Next()
+			lexer.Emit(ItemSubstitutionStart)
+			lexer.Mode = ModeShellString
+			return lexRoot
+		} else {
+			lexer.Next()
+		}
+	default:
+		lexer.Next()
+	}
+
+	return lexShellString
 }
 
 // assumes one quote has been consumed as the start of the evaluated string

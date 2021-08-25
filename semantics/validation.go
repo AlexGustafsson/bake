@@ -160,6 +160,14 @@ func (validator *Validator) Validate(root ast.Node) {
 			validator.errorf(node, "'%s' is undefined. Did you forget to import it?", node.From)
 		}
 		validator.checkForTrait(node.From, node, TraitImport)
+	case *ast.ImportsDeclaration:
+		for _, path := range node.Imports {
+			for _, part := range path.Parts {
+				if _, ok := part.(*ast.StringPart); !ok {
+					validator.errorf(part, "imports may not have evaluations")
+				}
+			}
+		}
 	}
 }
 

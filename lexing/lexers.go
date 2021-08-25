@@ -178,18 +178,20 @@ func lexRoot(lexer *Lexer) stateModifier {
 			if lexer.substitutionDepth < 0 {
 				lexer.substitutionDepth = 0
 			}
+
+			next := lexRoot
+			if lexer.Mode == ModeEvaluatedString {
+				next = lexEvaluatedString
+			} else if lexer.Mode == ModeShellString {
+				next = lexShellString
+			} else if lexer.Mode == ModeMultilineShellString {
+				next = lexMultilineShellString
+			}
+
 			if lexer.substitutionDepth == 0 {
 				lexer.Mode = ModeRoot
 			}
-
-			if lexer.Mode == ModeEvaluatedString {
-				return lexEvaluatedString
-			} else if lexer.Mode == ModeShellString {
-				return lexShellString
-			} else if lexer.Mode == ModeMultilineShellString {
-				// TODO: Multiline
-				return lexShell
-			}
+			return next
 		} else {
 			lexer.Emit(ItemRightParentheses)
 		}
@@ -327,48 +329,13 @@ func lexShell(lexer *Lexer) stateModifier {
 	}
 
 	if rune := lexer.Peek(); rune == '{' {
-		// Handle shell block
-		// lexer.Next()
-		// lexer.Emit(ItemLeftCurly)
-
-		// curlyDepth := 1
-		// for {
-		// 	rune := lexer.Peek()
-		// 	if rune == '{' {
-		// 		lexer.Next()
-		// 		curlyDepth++
-		// 	} else if rune == '}' {
-		// 		curlyDepth--
-		// 		if curlyDepth == 0 {
-		// 			break
-		// 		} else {
-		// 			lexer.Next()
-		// 		}
-		// 	} else if rune == eof {
-		// 		lexer.errorf("unexpected end of file")
-		// 		return nil
-		// 	} else {
-		// 		lexer.Next()
-		// 	}
-		// }
-		// lexer.Emit(ItemShellString)
-
-		// // Terminating right curly bracket
-		// rune = lexer.Next()
-		// if rune == '}' {
-		// 	lexer.Emit(ItemRightCurly)
-		// } else {
-		// 	lexer.errorf("unexpected token '%c'", rune)
-		// 	return nil
-		// }
-
-		return lexRoot
+		lexer.Next()
+		lexer.Emit(ItemLeftCurly)
+		return lexMultilineShellString
 	} else {
 		// Handle shell line
 		return lexShellString
 	}
-
-	return lexRoot
 }
 
 func lexShellString(lexer *Lexer) stateModifier {
@@ -399,6 +366,37 @@ func lexShellString(lexer *Lexer) stateModifier {
 	}
 
 	return lexShellString
+}
+
+// assumes the left curly brace has been consumed as the start of the evaluated string
+func lexMultilineShellString(lexer *Lexer) stateModifier {
+	rune := lexer.Peek()
+	switch rune {
+	case '\\':
+		lexer.Next()
+		lexer.Next()
+	case '$':
+		lexer.Next()
+		if rune := lexer.Peek(); rune == '(' {
+			lexer.Backtrack()
+			lexer.Emit(ItemStringPart)
+			lexer.Next()
+			lexer.Next()
+			lexer.Emit(ItemSubstitutionStart)
+			lexer.Mode = ModeMultilineShellString
+			return lexRoot
+		} else {
+			lexer.Next()
+		}
+	case '}':
+		lexer.Emit(ItemStringPart)
+		lexer.Mode = ModeRoot
+		return lexRoot
+	default:
+		lexer.Next()
+	}
+
+	return lexMultilineShellString
 }
 
 // assumes one quote has been consumed as the start of the evaluated string

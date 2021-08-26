@@ -82,7 +82,6 @@ func (validator *Validator) Validate(root ast.Node) {
 	case *ast.AliasDeclaration:
 		validator.Validate(node.Expression)
 	case *ast.RuleFunctionDeclaration:
-
 		if scope, ok := validator.CurrentScope.ChildScopes[node]; ok {
 			validator.CurrentScope = scope
 			previous := validator.mayReturn
@@ -211,6 +210,22 @@ func (validator *Validator) Validate(root ast.Node) {
 	case *ast.ShellStatement:
 		for _, part := range node.Parts {
 			validator.Validate(part)
+		}
+	case *ast.IfStatement:
+		validator.Validate(node.Expression)
+
+		if scope, ok := validator.CurrentScope.ChildScopes[node.PositiveBranch]; ok {
+			validator.CurrentScope = scope
+			validator.Validate(node.PositiveBranch)
+			validator.CurrentScope = scope.ParentScope
+		}
+
+		if node.NegativeBranch != nil {
+			if scope, ok := validator.CurrentScope.ChildScopes[node.NegativeBranch]; ok {
+				validator.CurrentScope = scope
+				validator.Validate(node.NegativeBranch)
+				validator.CurrentScope = scope.ParentScope
+			}
 		}
 	}
 

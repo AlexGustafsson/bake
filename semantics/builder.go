@@ -50,11 +50,11 @@ func (builder *Builder) Build(root ast.Node) {
 		builder.Build(node.Block)
 		builder.popScope()
 	case *ast.IfStatement:
-		builder.pushScope(node)
+		builder.pushScope(node.PositiveBranch)
 		builder.Build(node.PositiveBranch)
 		builder.popScope()
 
-		builder.pushScope(node)
+		builder.pushScope(node.NegativeBranch)
 		if node.NegativeBranch != nil {
 			builder.Build(node.NegativeBranch)
 		}

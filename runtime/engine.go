@@ -21,10 +21,7 @@ func CreateEngine(delegate Delegate) *Engine {
 func (engine *Engine) Evaluate(program *Program) (err error) {
 	defer engine.recover(&err)
 
-	for _, node := range program.Source.Nodes {
-		value := engine.evaluate(node)
-		fmt.Println(value)
-	}
+	engine.evaluate(program.Source)
 
 	return nil
 }
@@ -170,6 +167,79 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			engine.Delegate.Define(identifier.Value, value)
 		} else {
 			panic(fmt.Errorf("cannot assign to type %s", node.Type()))
+		}
+		return nil
+	case *ast.Invocation:
+		// TODO: Implement objects
+		if identifier, ok := node.Operand.(*ast.Identifier); ok {
+			value := engine.Delegate.Resolve(identifier.Value)
+
+			if function, ok := value.Value.(*Function); ok && !function.IsRuleFunction {
+				if len(node.Arguments) != len(function.Arguments) {
+					panic(fmt.Errorf("invocation argument mismatch"))
+				}
+
+				// Create a function scope
+				engine.Delegate.PushScope()
+
+				// Define parameters
+				for i, parameter := range function.Arguments {
+					value := engine.evaluate(node.Arguments[i])
+					engine.Delegate.Define(parameter, value)
+				}
+
+				// Evaluate block
+				engine.evaluate(function.Block)
+
+				// Leave function scope
+				engine.Delegate.PopScope()
+				return nil
+			} else {
+				panic(fmt.Errorf("not a function"))
+			}
+		} else {
+			panic(fmt.Errorf("cannot call type %s", node.Type()))
+		}
+	case *ast.Block:
+		// Define all functions, rule functions and rules first
+		for _, node := range node.Statements {
+			switch declaration := node.(type) {
+			case *ast.FunctionDeclaration:
+				function := &Function{Arguments: make([]string, 0), Block: declaration.Block}
+				if declaration.Signature != nil {
+					for _, identifier := range declaration.Signature.Arguments {
+						function.Arguments = append(function.Arguments, identifier.Value)
+					}
+				}
+
+				value := &Value{Type: ValueTypeFunction, Value: function}
+				engine.Delegate.Define(declaration.Identifier, value)
+			case *ast.RuleFunctionDeclaration:
+				function := &Function{Arguments: make([]string, 0), IsRuleFunction: true, Block: declaration.Block}
+				if declaration.Signature != nil {
+					for _, identifier := range declaration.Signature.Arguments {
+						function.Arguments = append(function.Arguments, identifier.Value)
+					}
+				}
+
+				value := &Value{Type: ValueTypeRuleFunction, Value: function}
+				engine.Delegate.Define(declaration.Identifier, value)
+			case *ast.RuleDeclaration:
+				// rule := &Rule{}
+				// value := &Value{Type: ValueTypeRule, Value: rule}
+				// engine.Delegate.Define(declaration.Identifier, value)
+			}
+		}
+
+		// Evaluate all statements
+		for _, node := range node.Statements {
+			switch node.Type() {
+			case ast.NodeTypeFunctionDeclaration, ast.NodeTypeRuleFunctionDeclaration, ast.NodeTypeRuleDeclaration:
+				// Do nothing
+			default:
+				value := engine.evaluate(node)
+				fmt.Println(value)
+			}
 		}
 		return nil
 	}

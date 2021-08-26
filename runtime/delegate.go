@@ -23,4 +23,7 @@ type Delegate interface {
 	Define(identifier string, value *Value)
 	Resolve(identifier string) *Value
 	SetScope(scope *Scope)
+	Scope() *Scope
+	PushScope()
+	PopScope()
 }

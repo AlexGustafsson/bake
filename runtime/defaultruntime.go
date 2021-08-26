@@ -3,12 +3,12 @@ package runtime
 import "fmt"
 
 type DefaultRuntime struct {
-	Scope *Scope
+	scope *Scope
 }
 
 func CreateDefaultRuntime() *DefaultRuntime {
 	return &DefaultRuntime{
-		Scope: CreateScope(nil),
+		scope: CreateScope(nil),
 	}
 }
 
@@ -232,11 +232,11 @@ func (runtime *DefaultRuntime) Negative(operand *Value) *Value {
 }
 
 func (runtime *DefaultRuntime) Define(identifier string, value *Value) {
-	runtime.Scope.Define(identifier, value)
+	runtime.scope.Define(identifier, value)
 }
 
 func (runtime *DefaultRuntime) Resolve(identifier string) *Value {
-	value := runtime.Scope.Lookup(identifier)
+	value := runtime.scope.Lookup(identifier)
 	if value == nil {
 		panic(fmt.Errorf("'%s' is undefined", identifier))
 	}
@@ -245,7 +245,23 @@ func (runtime *DefaultRuntime) Resolve(identifier string) *Value {
 }
 
 func (runtime *DefaultRuntime) SetScope(scope *Scope) {
-	runtime.Scope = scope
+	runtime.scope = scope
+}
+
+func (runtime *DefaultRuntime) Scope() *Scope {
+	return runtime.scope
+}
+
+func (runtime *DefaultRuntime) PushScope() {
+	runtime.scope = runtime.scope.CreateScope()
+}
+
+func (runtime *DefaultRuntime) PopScope() {
+	if runtime.scope.ParentScope == nil {
+		panic(fmt.Errorf("cannot pop outside global scope"))
+	}
+
+	runtime.scope = runtime.scope.ParentScope
 }
 
 func (runtime *DefaultRuntime) assertSameType(left *Value, right *Value) {

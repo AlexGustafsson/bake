@@ -1,6 +1,10 @@
 package runtime
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/AlexGustafsson/bake/ast"
+)
 
 //go:generate stringer -type=ValueType
 type ValueType int
@@ -9,6 +13,9 @@ const (
 	ValueTypeNumber ValueType = iota
 	ValueTypeString
 	ValueTypeBool
+	ValueTypeFunction
+	ValueTypeRuleFunction
+	ValueTypeRule
 )
 
 type Value struct {
@@ -27,4 +34,15 @@ func (value *Value) String() string {
 	}
 
 	return "?"
+}
+
+type Rule struct {
+	Outputs      []string
+	Dependencies []*Value
+}
+
+type Function struct {
+	Arguments      []string
+	Block          *ast.Block
+	IsRuleFunction bool
 }

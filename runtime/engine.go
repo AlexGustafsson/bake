@@ -189,11 +189,11 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 				}
 
 				// Evaluate block
-				engine.evaluate(function.Block)
+				returnValue := engine.evaluate(function.Block)
 
 				// Leave function scope
 				engine.Delegate.PopScope()
-				return nil
+				return returnValue
 			} else {
 				panic(fmt.Errorf("not a function"))
 			}
@@ -236,6 +236,11 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			switch node.Type() {
 			case ast.NodeTypeFunctionDeclaration, ast.NodeTypeRuleFunctionDeclaration, ast.NodeTypeRuleDeclaration:
 				// Do nothing
+			case ast.NodeTypeReturnStatement:
+				// Prematurely stop evaluating the block
+				returnStatement := node.(*ast.ReturnStatement)
+				value := engine.evaluate(returnStatement.Value)
+				return value
 			default:
 				value := engine.evaluate(node)
 				fmt.Println(value)

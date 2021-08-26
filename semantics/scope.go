@@ -9,7 +9,8 @@ type Scope struct {
 	// ChildScopes are the scopes contained within this, in the order they're declared
 	ChildScopes map[ast.Node]*Scope
 	// SymbolTable is the table of symbols defined within the scope
-	SymbolTable *SymbolTable
+	SymbolTable   *SymbolTable
+	HasSeenReturn bool
 }
 
 func CreateScope(parent *Scope) *Scope {

@@ -14,6 +14,7 @@ type Validator struct {
 	visited      int
 	seenImports  bool
 	seenPackage  bool
+	mayReturn    bool
 }
 
 func CreateValidator(rootNode ast.Node, rootScope *Scope) *Validator {
@@ -54,7 +55,10 @@ func (validator *Validator) Validate(root ast.Node) {
 
 		if scope, ok := validator.CurrentScope.ChildScopes[node]; ok {
 			validator.CurrentScope = scope
+			previous := validator.mayReturn
+			validator.mayReturn = true
 			validator.Validate(node.Block)
+			validator.mayReturn = previous
 			validator.CurrentScope = scope.ParentScope
 		}
 	case *ast.RuleDeclaration:
@@ -81,7 +85,10 @@ func (validator *Validator) Validate(root ast.Node) {
 
 		if scope, ok := validator.CurrentScope.ChildScopes[node]; ok {
 			validator.CurrentScope = scope
+			previous := validator.mayReturn
+			validator.mayReturn = true
 			validator.Validate(node.Block)
+			validator.mayReturn = previous
 			validator.CurrentScope = scope.ParentScope
 		}
 	case *ast.Equality:
@@ -138,8 +145,16 @@ func (validator *Validator) Validate(root ast.Node) {
 			}
 		}
 	case *ast.ReturnStatement:
+		if !validator.mayReturn {
+			validator.errorf(node, "cannot return here")
+		}
+
 		validator.Validate(node.Value)
-		// TODO: Validate that the return statement belongs in a function
+
+		if validator.CurrentScope.HasSeenReturn {
+			validator.errorf(node, "dead return")
+		}
+		validator.CurrentScope.HasSeenReturn = true
 	case *ast.Assignment:
 		validator.Validate(node.Expression)
 		validator.Validate(node.Value)

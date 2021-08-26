@@ -228,8 +228,12 @@ func (runtime *DefaultRuntime) Negative(operand *Value) *Value {
 	}
 }
 
-func (runtime *DefaultRuntime) DeclareVariable(identifier string, value *Value) {
-	panic(fmt.Errorf("variable declarations are not implemented"))
+func (runtime *DefaultRuntime) Define(identifier string, value *Value) {
+	panic(fmt.Errorf("declarations are not implemented"))
+}
+
+func (runtime *DefaultRuntime) Resolve(identifier string) *Value {
+	panic(fmt.Errorf("'%s' is undefined", identifier))
 }
 
 func (runtime *DefaultRuntime) assertSameType(left *Value, right *Value) {

@@ -33,7 +33,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 	switch node := rootNode.(type) {
 	case *ast.VariableDeclaration:
 		value := engine.evaluate(node.Expression)
-		engine.Delegate.DeclareVariable(node.Identifier, value)
+		engine.Delegate.Define(node.Identifier, value)
 		return nil
 	case *ast.Term:
 		left := engine.evaluate(node.Left)
@@ -97,6 +97,8 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		case ast.UnaryOperatorSubtraction:
 			return engine.Delegate.Negative(operand)
 		}
+	case *ast.Identifier:
+		return engine.Delegate.Resolve(node.Value)
 	}
 
 	panic(fmt.Errorf("unimplemented type %s", rootNode.Type()))

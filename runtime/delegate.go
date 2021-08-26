@@ -20,5 +20,6 @@ type Delegate interface {
 	Not(operand *Value) *Value
 	Negative(operand *Value) *Value
 
-	DeclareVariable(identifier string, value *Value)
+	Define(identifier string, value *Value)
+	Resolve(identifier string) *Value
 }

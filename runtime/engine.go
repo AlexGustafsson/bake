@@ -80,6 +80,15 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		case ast.ComparisonOperatorLessThanOrEqual:
 			return engine.Delegate.LessThanOrEqual(left, right)
 		}
+	case *ast.Equality:
+		left := engine.evaluate(node.Left)
+		right := engine.evaluate(node.Right)
+		switch node.Operator {
+		case ast.EqualityOperatorAnd:
+			return engine.Delegate.And(left, right)
+		case ast.EqualityOperatorOr:
+			return engine.Delegate.Or(left, right)
+		}
 	}
 
 	return nil

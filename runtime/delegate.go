@@ -13,5 +13,8 @@ type Delegate interface {
 	LessThan(left *Value, right *Value) *Value
 	LessThanOrEqual(left *Value, right *Value) *Value
 
+	And(left *Value, right *Value) *Value
+	Or(left *Value, right *Value) *Value
+
 	DeclareVariable(identifier string, value *Value)
 }

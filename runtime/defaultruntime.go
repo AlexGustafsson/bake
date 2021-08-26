@@ -151,6 +151,34 @@ func (runtime *DefaultRuntime) LessThanOrEqual(left *Value, right *Value) *Value
 	}
 }
 
+func (runtime *DefaultRuntime) And(left *Value, right *Value) *Value {
+	runtime.assertSameType(left, right)
+
+	switch left.Type {
+	case ValueTypeBool:
+		return &Value{
+			Type:  ValueTypeBool,
+			Value: left.Value.(bool) && right.Value.(bool),
+		}
+	default:
+		panic(fmt.Errorf("invalid operation for type %s", left.Type))
+	}
+}
+
+func (runtime *DefaultRuntime) Or(left *Value, right *Value) *Value {
+	runtime.assertSameType(left, right)
+
+	switch left.Type {
+	case ValueTypeBool:
+		return &Value{
+			Type:  ValueTypeBool,
+			Value: left.Value.(bool) || right.Value.(bool),
+		}
+	default:
+		panic(fmt.Errorf("invalid operation for type %s", left.Type))
+	}
+}
+
 func (runtime *DefaultRuntime) DeclareVariable(identifier string, value *Value) {
 	panic(fmt.Errorf("variable declarations are not implemented"))
 }

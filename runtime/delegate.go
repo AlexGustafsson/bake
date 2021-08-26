@@ -8,6 +8,7 @@ type Delegate interface {
 	Divide(left *Value, right *Value) *Value
 
 	Equals(left *Value, right *Value) *Value
+	NotEquals(left *Value, right *Value) *Value
 	GreaterThan(left *Value, right *Value) *Value
 	GreaterThanOrEqual(left *Value, right *Value) *Value
 	LessThan(left *Value, right *Value) *Value
@@ -15,6 +16,9 @@ type Delegate interface {
 
 	And(left *Value, right *Value) *Value
 	Or(left *Value, right *Value) *Value
+
+	Not(operand *Value) *Value
+	Negative(operand *Value) *Value
 
 	DeclareVariable(identifier string, value *Value)
 }

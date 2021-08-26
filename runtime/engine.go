@@ -89,9 +89,17 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		case ast.EqualityOperatorOr:
 			return engine.Delegate.Or(left, right)
 		}
+	case *ast.Unary:
+		operand := engine.evaluate(node.Primary)
+		switch node.Operator {
+		case ast.UnaryOperatorNot:
+			return engine.Delegate.Not(operand)
+		case ast.UnaryOperatorSubtraction:
+			return engine.Delegate.Negative(operand)
+		}
 	}
 
-	return nil
+	panic(fmt.Errorf("unimplemented type %s", rootNode.Type()))
 }
 
 func (engine *Engine) recover(errp *error) {

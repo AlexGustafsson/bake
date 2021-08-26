@@ -200,6 +200,22 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		} else {
 			panic(fmt.Errorf("cannot call type %s", node.Type()))
 		}
+	case *ast.IfStatement:
+		condition := engine.evaluate(node.Expression)
+		if condition.Type != ValueTypeBool {
+			panic(fmt.Errorf("invalid condition"))
+		}
+
+		if condition.Value.(bool) {
+			engine.Delegate.PushScope()
+			engine.evaluate(node.PositiveBranch)
+			engine.Delegate.PopScope()
+		} else if node.NegativeBranch != nil {
+			engine.Delegate.PushScope()
+			engine.evaluate(node.NegativeBranch)
+			engine.Delegate.PopScope()
+		}
+		return nil
 	case *ast.Block:
 		// Define all functions, rule functions and rules first
 		for _, node := range node.Statements {

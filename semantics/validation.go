@@ -34,10 +34,6 @@ func Validate(rootNode ast.Node, rootScope *Scope) []error {
 
 func (validator *Validator) Validate(root ast.Node) {
 	switch node := root.(type) {
-	case *ast.SourceFile:
-		for _, child := range node.Nodes {
-			validator.Validate(child)
-		}
 	case *ast.PackageDeclaration:
 		if validator.seenPackage {
 			validator.errorf(node, "only one package may be declared in a file")

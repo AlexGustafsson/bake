@@ -22,24 +22,19 @@ func CreateParser() *Parser {
 	}
 }
 
-func Parse(input string) (*ast.SourceFile, error) {
+func Parse(input string) (*ast.Block, error) {
 	parser := CreateParser()
 	parser.input = input
 	return parser.Parse(input)
 }
 
-func (parser *Parser) Parse(input string) (_ *ast.SourceFile, err error) {
+func (parser *Parser) Parse(input string) (_ *ast.Block, err error) {
 	parser.lexer = lexing.Lex(input)
 
 	// Recover from panics caused when parsing
 	defer parser.recover(&err)
 
-	sourceFile, err := parseSourceFile(parser)
-	if err != nil {
-		return nil, err
-	}
-
-	return sourceFile, nil
+	return parseSourceFile(parser), nil
 }
 
 func (parser *Parser) errorf(format string, args ...interface{}) {

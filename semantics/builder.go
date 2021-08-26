@@ -28,10 +28,6 @@ func Build(root ast.Node) (*Scope, []error) {
 
 func (builder *Builder) Build(root ast.Node) {
 	switch node := root.(type) {
-	case *ast.SourceFile:
-		for _, child := range node.Nodes {
-			builder.Build(child)
-		}
 	case *ast.Block:
 		for _, child := range node.Statements {
 			builder.Build(child)

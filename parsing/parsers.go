@@ -5,10 +5,8 @@ import (
 	"github.com/AlexGustafsson/bake/lexing"
 )
 
-func parseSourceFile(parser *Parser) (*ast.SourceFile, error) {
+func parseSourceFile(parser *Parser) *ast.Block {
 	parser.require(lexing.ItemStartOfInput)
-
-	sourceFile := ast.CreateSourceFile(ast.CreateRange(ast.Position{0, 0, 0}, ast.Position{0, 0, 0}))
 
 	declarations := make([]ast.Node, 0)
 dec:
@@ -33,9 +31,7 @@ dec:
 		}
 	}
 
-	sourceFile.Nodes = append(sourceFile.Nodes, declarations...)
-
-	return sourceFile, nil
+	return ast.CreateBlock(ast.CreateRange(ast.Position{0, 0, 0}, ast.Position{0, 0, 0}), declarations)
 }
 
 func parsePackageDeclaration(parser *Parser) *ast.PackageDeclaration {

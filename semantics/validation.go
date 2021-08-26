@@ -237,17 +237,20 @@ func (validator *Validator) errorf(node ast.Node, format string, arguments ...in
 }
 
 func (validator *Validator) checkDefinedInScope(name string, node ast.Node) {
-	if symbol, scope, ok := validator.CurrentScope.LookupByName(name); !ok {
-		validator.errorf(node, "'%s' is undefined", name)
-	} else if scope == validator.CurrentScope && symbol.Node.Range().Start.Line >= node.Range().Start.Line {
-		if validator.CurrentScope.ParentScope != nil {
-			// Check the parent scope (in order to support shadowing)
-			if _, _, ok := validator.CurrentScope.ParentScope.LookupByName(name); !ok {
+	// Lookup the identifier to make sure it's declared
+	if symbol, scope, ok := validator.CurrentScope.LookupByName(name); ok {
+		if scope == validator.CurrentScope && symbol.Node != nil && symbol.Node.Range().Start.Line >= node.Range().Start.Line {
+			if validator.CurrentScope.ParentScope == nil {
 				validator.errorf(node, "'%s' is used before it's declared", name)
+			} else {
+				// Check the parent scope (in order to support shadowing)
+				if _, _, ok := validator.CurrentScope.ParentScope.LookupByName(name); !ok {
+					validator.errorf(node, "'%s' is used before it's declared", name)
+				}
 			}
-		} else {
-			validator.errorf(node, "'%s' is used before it's declared", name)
 		}
+	} else {
+		validator.errorf(node, "'%s' is undefined", name)
 	}
 }
 

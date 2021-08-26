@@ -1,19 +1,16 @@
 package ast
 
 type Identifier struct {
-	NodeType
-	Range
+	baseNode
 	Value string
 }
 
-func CreateIdentifier(r Range, value string) *Identifier {
+func CreateIdentifier(r *Range, value string) *Identifier {
 	return &Identifier{
-		NodeType: NodeTypeIdentifier,
-		Range:    r,
-		Value:    value,
+		baseNode: baseNode{
+			nodeType:  NodeTypeIdentifier,
+			nodeRange: r,
+		},
+		Value: value,
 	}
-}
-
-func (node *Identifier) String() string {
-	return node.Value
 }

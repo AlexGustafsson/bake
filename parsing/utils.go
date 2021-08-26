@@ -5,7 +5,7 @@ import (
 	"github.com/AlexGustafsson/bake/lexing"
 )
 
-func createRangeFromItem(item lexing.Item) ast.Range {
+func createRangeFromItem(item lexing.Item) *ast.Range {
 	start := ast.Position{
 		Offset:    item.Range.Start.Offset,
 		Line:      item.Range.Start.Line,

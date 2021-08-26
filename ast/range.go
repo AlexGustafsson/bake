@@ -6,10 +6,10 @@ import (
 
 // Range describes a range of a text
 type Range struct {
-	// start is the inclusive start of the range
-	start Position
-	// snd is the inclusive end of the range
-	end Position
+	// Start is the inclusive start of the range
+	Start Position
+	// End is the inclusive end of the range
+	End Position
 }
 
 // Position describes a position in a text
@@ -23,24 +23,16 @@ type Position struct {
 }
 
 func (r Range) String() string {
-	return fmt.Sprintf("from %s to %s", r.start, r.end)
+	return fmt.Sprintf("from %s to %s", r.Start, r.End)
 }
 
 func (p Position) String() string {
 	return fmt.Sprintf("%d:%d", p.Line+1, p.Character+1)
 }
 
-func (r Range) Start() Position {
-	return r.start
-}
-
-func (r Range) End() Position {
-	return r.end
-}
-
-func CreateRange(start Position, end Position) Range {
-	return Range{
-		start: start,
-		end:   end,
+func CreateRange(start Position, end Position) *Range {
+	return &Range{
+		Start: start,
+		End:   end,
 	}
 }

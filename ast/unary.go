@@ -1,12 +1,7 @@
 package ast
 
-import (
-	"strings"
-)
-
 type Unary struct {
-	NodeType
-	Range
+	baseNode
 	Operator UnaryOperator
 	Primary  Node
 }
@@ -20,28 +15,13 @@ const (
 	UnaryOperatorSpread
 )
 
-func CreateUnary(r Range, operator UnaryOperator, primary Node) *Unary {
+func CreateUnary(r *Range, operator UnaryOperator, primary Node) *Unary {
 	return &Unary{
-		NodeType: NodeTypeUnary,
-		Range:    r,
+		baseNode: baseNode{
+			nodeType:  NodeTypeUnary,
+			nodeRange: r,
+		},
 		Operator: operator,
 		Primary:  primary,
 	}
-}
-
-func (node *Unary) String() string {
-	var builder strings.Builder
-
-	switch node.Operator {
-	case UnaryOperatorSubtraction:
-		builder.WriteRune('-')
-	case UnaryOperatorNot:
-		builder.WriteRune('!')
-	case UnaryOperatorSpread:
-		builder.WriteString("...")
-	}
-
-	builder.WriteString(node.Primary.String())
-
-	return builder.String()
 }

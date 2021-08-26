@@ -1,25 +1,18 @@
 package ast
 
-import (
-	"fmt"
-)
-
 type Index struct {
-	NodeType
-	Range
+	baseNode
 	Operand    Node
 	Expression Node
 }
 
-func CreateIndex(r Range, operand Node, expression Node) *Index {
+func CreateIndex(r *Range, operand Node, expression Node) *Index {
 	return &Index{
-		NodeType:   NodeTypeIndex,
-		Range:      r,
+		baseNode: baseNode{
+			nodeType:  NodeTypeIndex,
+			nodeRange: r,
+		},
 		Operand:    operand,
 		Expression: expression,
 	}
-}
-
-func (node *Index) String() string {
-	return fmt.Sprintf("%s[%s]", node.Operand.String(), node.Expression)
 }

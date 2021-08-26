@@ -1,19 +1,16 @@
 package ast
 
 type Boolean struct {
-	NodeType
-	Range
+	baseNode
 	Value string
 }
 
-func CreateBoolean(r Range, value string) *Boolean {
+func CreateBoolean(r *Range, value string) *Boolean {
 	return &Boolean{
-		NodeType: NodeTypeInteger,
-		Range:    r,
-		Value:    value,
+		baseNode: baseNode{
+			nodeType:  NodeTypeInteger,
+			nodeRange: r,
+		},
+		Value: value,
 	}
-}
-
-func (node *Boolean) String() string {
-	return node.Value
 }

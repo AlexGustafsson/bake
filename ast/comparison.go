@@ -1,12 +1,7 @@
 package ast
 
-import (
-	"strings"
-)
-
 type Comparison struct {
-	NodeType
-	Range
+	baseNode
 	Operator ComparisonOperator
 	Left     Node
 	Right    Node
@@ -24,41 +19,14 @@ const (
 	ComparisonOperatorGreaterThanOrEqual
 )
 
-func CreateComparison(r Range, operator ComparisonOperator, left Node, right Node) *Comparison {
+func CreateComparison(r *Range, operator ComparisonOperator, left Node, right Node) *Comparison {
 	return &Comparison{
-		NodeType: NodeTypeComparison,
-		Range:    r,
+		baseNode: baseNode{
+			nodeType:  NodeTypeComparison,
+			nodeRange: r,
+		},
 		Operator: operator,
 		Left:     left,
 		Right:    right,
 	}
-}
-
-func (node *Comparison) String() string {
-	var builder strings.Builder
-
-	builder.WriteString(node.Left.String())
-
-	builder.WriteByte(' ')
-
-	switch node.Operator {
-	case ComparisonOperatorEquals:
-		builder.WriteString("==")
-	case ComparisonOperatorNotEquals:
-		builder.WriteString("!=")
-	case ComparisonOperatorLessThan:
-		builder.WriteRune('<')
-	case ComparisonOperatorLessThanOrEqual:
-		builder.WriteString("<=")
-	case ComparisonOperatorGreaterThan:
-		builder.WriteRune('>')
-	case ComparisonOperatorGreaterThanOrEqual:
-		builder.WriteString(">=")
-	}
-
-	builder.WriteByte(' ')
-
-	builder.WriteString(node.Right.String())
-
-	return builder.String()
 }

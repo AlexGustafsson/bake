@@ -1,12 +1,7 @@
 package ast
 
-import (
-	"strings"
-)
-
 type RuleFunctionDeclaration struct {
-	NodeType
-	Range
+	baseNode
 	Exported   bool
 	Identifier string
 	// Signature may be nil
@@ -14,35 +9,15 @@ type RuleFunctionDeclaration struct {
 	Block     *Block
 }
 
-func CreateRuleFunctionDeclaration(r Range, exported bool, identifier string, signature *Signature, block *Block) *RuleFunctionDeclaration {
+func CreateRuleFunctionDeclaration(r *Range, exported bool, identifier string, signature *Signature, block *Block) *RuleFunctionDeclaration {
 	return &RuleFunctionDeclaration{
-		NodeType:   NodeTypeRuleFunctionDeclaration,
-		Range:      r,
+		baseNode: baseNode{
+			nodeType:  NodeTypeRuleFunctionDeclaration,
+			nodeRange: r,
+		},
 		Exported:   exported,
 		Identifier: identifier,
 		Signature:  signature,
 		Block:      block,
 	}
-}
-
-func (node *RuleFunctionDeclaration) String() string {
-	var builder strings.Builder
-
-	if node.Exported {
-		builder.WriteString("export ")
-	}
-
-	builder.WriteString("rule ")
-	builder.WriteString(node.Identifier)
-	builder.WriteRune(' ')
-
-	if node.Signature != nil {
-		builder.WriteString(node.Signature.String())
-		builder.WriteRune(' ')
-	}
-
-	builder.WriteString(node.Block.String())
-	builder.WriteRune('\n')
-
-	return builder.String()
 }

@@ -37,12 +37,12 @@ func (document *Document) CreateDiagnostic(severity protocol.DiagnosticSeverity,
 		Message:  message,
 		Range: protocol.Range{
 			Start: protocol.Position{
-				Line:      uint32(r.Start().Line),
-				Character: uint32(r.Start().Character),
+				Line:      uint32(r.Start.Line),
+				Character: uint32(r.Start.Character),
 			},
 			End: protocol.Position{
-				Line:      uint32(r.End().Line),
-				Character: uint32(r.End().Character),
+				Line:      uint32(r.End.Line),
+				Character: uint32(r.End.Character),
 			},
 		},
 	}

@@ -1,18 +1,25 @@
 package ast
 
+type baseNode struct {
+	nodeType  NodeType
+	nodeRange *Range
+}
+
 type Node interface {
 	Type() NodeType
-	String() string
-	Start() Position
-	End() Position
+	Range() *Range
+}
+
+func (node *baseNode) Type() NodeType {
+	return node.nodeType
+}
+
+func (node *baseNode) Range() *Range {
+	return node.nodeRange
 }
 
 //go:generate stringer -type=NodeType
 type NodeType int
-
-func (nodeType NodeType) Type() NodeType {
-	return nodeType
-}
 
 const (
 	NodeTypeSourceFile NodeType = iota

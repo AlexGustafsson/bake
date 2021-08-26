@@ -8,7 +8,7 @@ import (
 func parseSourceFile(parser *Parser) (*ast.SourceFile, error) {
 	parser.require(lexing.ItemStartOfInput)
 
-	sourceFile := ast.CreateSourceFile(ast.Range{})
+	sourceFile := ast.CreateSourceFile(ast.CreateRange(ast.Position{0, 0, 0}, ast.Position{0, 0, 0}))
 
 	declarations := make([]ast.Node, 0)
 dec:
@@ -298,34 +298,34 @@ func parseSimpleStatement(parser *Parser) ast.Node {
 	switch token.Type {
 	case lexing.ItemIncrement:
 		parser.nextItem()
-		return ast.CreateIncrement(ast.CreateRange(expression.Start(), expression.End()), expression)
+		return ast.CreateIncrement(expression.Range(), expression)
 	case lexing.ItemDecrement:
 		parser.nextItem()
-		return ast.CreateDecrement(ast.CreateRange(expression.Start(), expression.End()), expression)
+		return ast.CreateDecrement(expression.Range(), expression)
 	case lexing.ItemLooseAssignment:
 		parser.nextItem()
 		value := parseExpression(parser)
-		return ast.CreateLooseAssignment(ast.CreateRange(expression.Start(), expression.End()), expression, value)
+		return ast.CreateLooseAssignment(expression.Range(), expression, value)
 	case lexing.ItemAdditionAssign:
 		parser.nextItem()
 		value := parseExpression(parser)
-		return ast.CreateAdditionAssignment(ast.CreateRange(expression.Start(), expression.End()), expression, value)
+		return ast.CreateAdditionAssignment(expression.Range(), expression, value)
 	case lexing.ItemSubtractionAssign:
 		parser.nextItem()
 		value := parseExpression(parser)
-		return ast.CreateSubtractionAssignment(ast.CreateRange(expression.Start(), expression.End()), expression, value)
+		return ast.CreateSubtractionAssignment(expression.Range(), expression, value)
 	case lexing.ItemMultiplicationAssign:
 		parser.nextItem()
 		value := parseExpression(parser)
-		return ast.CreateMultiplicationAssignment(ast.CreateRange(expression.Start(), expression.End()), expression, value)
+		return ast.CreateMultiplicationAssignment(expression.Range(), expression, value)
 	case lexing.ItemDivisionAssign:
 		parser.nextItem()
 		value := parseExpression(parser)
-		return ast.CreateDivisionAssignment(ast.CreateRange(expression.Start(), expression.End()), expression, value)
+		return ast.CreateDivisionAssignment(expression.Range(), expression, value)
 	case lexing.ItemAssignment:
 		parser.nextItem()
 		value := parseExpression(parser)
-		return ast.CreateAssignment(ast.CreateRange(expression.Start(), expression.End()), expression, value)
+		return ast.CreateAssignment(expression.Range(), expression, value)
 	}
 
 	return expression
@@ -356,7 +356,7 @@ func parseShellStatement(parser *Parser) *ast.ShellStatement {
 			endToken := item
 			start := createRangeFromItem(startToken)
 			end := createRangeFromItem(endToken)
-			r := ast.CreateRange(start.Start(), end.End())
+			r := ast.CreateRange(start.Start, end.End)
 			return ast.CreateShellStatement(r, multiline, parts)
 		}
 	}
@@ -384,7 +384,7 @@ func parseEquality(parser *Parser) ast.Node {
 		} else {
 			parser.nextItem()
 			right := parseComparison(parser)
-			left = ast.CreateEquality(ast.CreateRange(left.Start(), left.End()), operator, left, right)
+			left = ast.CreateEquality(left.Range(), operator, left, right)
 		}
 	}
 
@@ -417,7 +417,7 @@ func parseComparison(parser *Parser) ast.Node {
 		} else {
 			parser.nextItem()
 			right := parseTerm(parser)
-			left = ast.CreateComparison(ast.CreateRange(left.Start(), left.End()), operator, left, right)
+			left = ast.CreateComparison(left.Range(), operator, left, right)
 		}
 
 	}
@@ -443,7 +443,7 @@ func parseTerm(parser *Parser) ast.Node {
 		} else {
 			parser.nextItem()
 			right := parseFactor(parser)
-			left = ast.CreateTerm(ast.CreateRange(left.Start(), left.End()), operator, left, right)
+			left = ast.CreateTerm(left.Range(), operator, left, right)
 		}
 	}
 
@@ -468,7 +468,7 @@ func parseFactor(parser *Parser) ast.Node {
 		} else {
 			parser.nextItem()
 			right := parseUnary(parser)
-			left = ast.CreateFactor(ast.CreateRange(left.Start(), left.End()), operator, left, right)
+			left = ast.CreateFactor(left.Range(), operator, left, right)
 		}
 	}
 
@@ -625,7 +625,7 @@ func parseEvaluatedString(parser *Parser) *ast.EvaluatedString {
 			endToken := item
 			start := createRangeFromItem(startToken)
 			end := createRangeFromItem(endToken)
-			r := ast.CreateRange(start.Start(), end.End())
+			r := ast.CreateRange(start.Start, end.End)
 			return ast.CreateEvaluatedString(r, children)
 		}
 	}

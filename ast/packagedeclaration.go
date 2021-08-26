@@ -1,23 +1,16 @@
 package ast
 
-import (
-	"fmt"
-)
-
 type PackageDeclaration struct {
-	NodeType
-	Range
+	baseNode
 	Identifier string
 }
 
-func CreatePackageDeclaration(r Range, identifier string) *PackageDeclaration {
+func CreatePackageDeclaration(r *Range, identifier string) *PackageDeclaration {
 	return &PackageDeclaration{
-		NodeType:   NodeTypePackageDeclaration,
-		Range:      r,
+		baseNode: baseNode{
+			nodeType:  NodeTypePackageDeclaration,
+			nodeRange: r,
+		},
 		Identifier: identifier,
 	}
-}
-
-func (node *PackageDeclaration) String() string {
-	return fmt.Sprintf("package %s\n", node.Identifier)
 }

@@ -1,25 +1,18 @@
 package ast
 
-import (
-	"fmt"
-)
-
 type ImportSelector struct {
-	NodeType
-	Range
+	baseNode
 	From       string
 	Identifier string
 }
 
-func CreateImportSelector(r Range, from string, identifier string) *ImportSelector {
+func CreateImportSelector(r *Range, from string, identifier string) *ImportSelector {
 	return &ImportSelector{
-		NodeType:   NodeTypeImportSelector,
-		Range:      r,
+		baseNode: baseNode{
+			nodeType:  NodeTypeImportSelector,
+			nodeRange: r,
+		},
 		From:       from,
 		Identifier: identifier,
 	}
-}
-
-func (node *ImportSelector) String() string {
-	return fmt.Sprintf("%s::%s", node.From, node.Identifier)
 }

@@ -1,16 +1,17 @@
 package ast
 
 type RawString struct {
-	NodeType
-	Range
+	baseNode
 	Content string
 }
 
-func CreateRawString(r Range, content string) *RawString {
+func CreateRawString(r *Range, content string) *RawString {
 	return &RawString{
-		NodeType: NodeTypeRawString,
-		Range:    r,
-		Content:  content,
+		baseNode: baseNode{
+			nodeType:  NodeTypeRawString,
+			nodeRange: r,
+		},
+		Content: content,
 	}
 }
 

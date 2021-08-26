@@ -1,12 +1,7 @@
 package ast
 
-import (
-	"strings"
-)
-
 type Term struct {
-	NodeType
-	Range
+	baseNode
 	Operator AdditiveOperator
 	Left     Node
 	Right    Node
@@ -20,33 +15,14 @@ const (
 	AdditiveOperatorSubtraction
 )
 
-func CreateTerm(r Range, operator AdditiveOperator, left Node, right Node) *Term {
+func CreateTerm(r *Range, operator AdditiveOperator, left Node, right Node) *Term {
 	return &Term{
-		NodeType: NodeTypeTerm,
-		Range:    r,
+		baseNode: baseNode{
+			nodeType:  NodeTypeTerm,
+			nodeRange: r,
+		},
 		Operator: operator,
 		Left:     left,
 		Right:    right,
 	}
-}
-
-func (node *Term) String() string {
-	var builder strings.Builder
-
-	builder.WriteString(node.Left.String())
-
-	builder.WriteByte(' ')
-
-	switch node.Operator {
-	case AdditiveOperatorAddition:
-		builder.WriteString("+")
-	case AdditiveOperatorSubtraction:
-		builder.WriteString("-")
-	}
-
-	builder.WriteByte(' ')
-
-	builder.WriteString(node.Right.String())
-
-	return builder.String()
 }

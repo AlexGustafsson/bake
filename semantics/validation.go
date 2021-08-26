@@ -176,14 +176,13 @@ func (validator *Validator) Validate(root ast.Node) {
 }
 
 func (validator *Validator) errorf(node ast.Node, format string, arguments ...interface{}) {
-	r := ast.CreateRange(node.Start(), node.End())
-	validator.errors = append(validator.errors, ast.CreateTreeError(&r, format, arguments...))
+	validator.errors = append(validator.errors, ast.CreateTreeError(node.Range(), format, arguments...))
 }
 
 func (validator *Validator) checkDefinedInScope(name string, node ast.Node) {
 	if symbol, scope, ok := validator.CurrentScope.LookupByName(name); !ok {
 		validator.errorf(node, "'%s' is undefined", name)
-	} else if scope == validator.CurrentScope && symbol.Node.Start().Line >= node.Start().Line {
+	} else if scope == validator.CurrentScope && symbol.Node.Range().Start.Line >= node.Range().Start.Line {
 		if validator.CurrentScope.ParentScope != nil {
 			// Check the parent scope (in order to support shadowing)
 			if _, _, ok := validator.CurrentScope.ParentScope.LookupByName(name); !ok {

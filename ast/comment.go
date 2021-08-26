@@ -6,16 +6,17 @@ import (
 )
 
 type Comment struct {
-	NodeType
-	Range
+	baseNode
 	Content string
 }
 
-func CreateComment(r Range, content string) *Comment {
+func CreateComment(r *Range, content string) *Comment {
 	return &Comment{
-		NodeType: NodeTypeComment,
-		Range:    r,
-		Content:  content,
+		baseNode: baseNode{
+			nodeType:  NodeTypeComment,
+			nodeRange: r,
+		},
+		Content: content,
 	}
 }
 

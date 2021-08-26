@@ -95,13 +95,12 @@ func (builder *Builder) Build(root ast.Node) {
 }
 
 func (builder *Builder) errorf(node ast.Node, format string, arguments ...interface{}) {
-	r := ast.CreateRange(node.Start(), node.End())
-	builder.errors = append(builder.errors, ast.CreateTreeError(&r, format, arguments...))
+	builder.errors = append(builder.errors, ast.CreateTreeError(node.Range(), format, arguments...))
 }
 
 func (builder *Builder) insertInScope(symbol *Symbol) {
 	if previous, ok := builder.CurrentScope.SymbolTable.LookupByName(symbol.Name); ok {
-		builder.errorf(symbol.Node, "'%s' already declared on line %d", symbol.Name, previous.Node.Start().Line+1)
+		builder.errorf(symbol.Node, "'%s' already declared on line %d", symbol.Name, previous.Node.Range().Start.Line+1)
 	} else {
 		builder.CurrentScope.SymbolTable.Insert(symbol)
 	}

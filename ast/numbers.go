@@ -1,19 +1,16 @@
 package ast
 
 type Integer struct {
-	NodeType
-	Range
+	baseNode
 	Value string
 }
 
-func CreateInteger(r Range, value string) *Integer {
+func CreateInteger(r *Range, value string) *Integer {
 	return &Integer{
-		NodeType: NodeTypeInteger,
-		Range:    r,
-		Value:    value,
+		baseNode: baseNode{
+			nodeType:  NodeTypeInteger,
+			nodeRange: r,
+		},
+		Value: value,
 	}
-}
-
-func (node *Integer) String() string {
-	return node.Value
 }

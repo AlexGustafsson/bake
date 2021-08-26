@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/AlexGustafsson/bake/ast"
+	"github.com/AlexGustafsson/bake/formatting"
 	"github.com/AlexGustafsson/bake/parsing"
 	"github.com/urfave/cli/v2"
 )
@@ -34,7 +35,8 @@ func formatCommand(context *cli.Context) error {
 		}
 	}
 
-	fmt.Print(sourceFile.String())
+	formatted := formatting.Format(sourceFile)
+	fmt.Print(formatted)
 
 	return nil
 }

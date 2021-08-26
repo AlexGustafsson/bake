@@ -65,6 +65,21 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			Type:  ValueTypeBool,
 			Value: value,
 		}
+	case *ast.Comparison:
+		left := engine.evaluate(node.Left)
+		right := engine.evaluate(node.Right)
+		switch node.Operator {
+		case ast.ComparisonOperatorEquals:
+			return engine.Delegate.Equals(left, right)
+		case ast.ComparisonOperatorGreaterThan:
+			return engine.Delegate.GreaterThan(left, right)
+		case ast.ComparisonOperatorGreaterThanOrEqual:
+			return engine.Delegate.GreaterThanOrEqual(left, right)
+		case ast.ComparisonOperatorLessThan:
+			return engine.Delegate.LessThan(left, right)
+		case ast.ComparisonOperatorLessThanOrEqual:
+			return engine.Delegate.LessThanOrEqual(left, right)
+		}
 	}
 
 	return nil

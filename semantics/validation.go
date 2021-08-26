@@ -11,6 +11,9 @@ type Validator struct {
 	RootScope    *Scope
 	CurrentScope *Scope
 	errors       []error
+	visited      int
+	seenImports  bool
+	seenPackage  bool
 }
 
 func CreateValidator(rootNode ast.Node, rootScope *Scope) *Validator {
@@ -35,6 +38,16 @@ func (validator *Validator) Validate(root ast.Node) {
 		for _, child := range node.Nodes {
 			validator.Validate(child)
 		}
+	case *ast.PackageDeclaration:
+		if validator.seenPackage {
+			validator.errorf(node, "only one package may be declared in a file")
+		} else {
+			if validator.visited > 0 {
+				validator.errorf(node, "package declaration must be declared at the top")
+			}
+		}
+
+		validator.seenPackage = true
 	case *ast.Block:
 		for _, child := range node.Statements {
 			validator.Validate(child)
@@ -161,6 +174,20 @@ func (validator *Validator) Validate(root ast.Node) {
 		}
 		validator.checkForTrait(node.From, node, TraitImport)
 	case *ast.ImportsDeclaration:
+		if validator.seenPackage {
+			if validator.visited > 1 {
+				validator.errorf(node, "imports must be declared after the package")
+			}
+		} else {
+			if validator.visited > 0 {
+				validator.errorf(node, "imports must be declared at the top")
+			}
+		}
+
+		if validator.seenImports {
+			validator.errorf(node, "only one imports declaration may be used in a file")
+		}
+
 		for _, path := range node.Imports {
 			for _, part := range path.Parts {
 				if _, ok := part.(*ast.StringPart); !ok {
@@ -168,11 +195,15 @@ func (validator *Validator) Validate(root ast.Node) {
 				}
 			}
 		}
+
+		validator.seenImports = true
 	case *ast.ShellStatement:
 		for _, part := range node.Parts {
 			validator.Validate(part)
 		}
 	}
+
+	validator.visited++
 }
 
 func (validator *Validator) errorf(node ast.Node, format string, arguments ...interface{}) {

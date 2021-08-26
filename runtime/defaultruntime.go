@@ -3,10 +3,13 @@ package runtime
 import "fmt"
 
 type DefaultRuntime struct {
+	Scope *Scope
 }
 
 func CreateDefaultRuntime() *DefaultRuntime {
-	return &DefaultRuntime{}
+	return &DefaultRuntime{
+		Scope: CreateScope(nil),
+	}
 }
 
 func (runtime *DefaultRuntime) Add(left *Value, right *Value) *Value {
@@ -229,11 +232,20 @@ func (runtime *DefaultRuntime) Negative(operand *Value) *Value {
 }
 
 func (runtime *DefaultRuntime) Define(identifier string, value *Value) {
-	panic(fmt.Errorf("declarations are not implemented"))
+	runtime.Scope.Define(identifier, value)
 }
 
 func (runtime *DefaultRuntime) Resolve(identifier string) *Value {
-	panic(fmt.Errorf("'%s' is undefined", identifier))
+	value := runtime.Scope.Lookup(identifier)
+	if value == nil {
+		panic(fmt.Errorf("'%s' is undefined", identifier))
+	}
+
+	return value
+}
+
+func (runtime *DefaultRuntime) SetScope(scope *Scope) {
+	runtime.Scope = scope
 }
 
 func (runtime *DefaultRuntime) assertSameType(left *Value, right *Value) {

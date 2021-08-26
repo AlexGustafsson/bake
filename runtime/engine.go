@@ -9,7 +9,8 @@ import (
 )
 
 type Engine struct {
-	Delegate Delegate
+	Delegate    Delegate
+	returnValue *Value
 }
 
 func CreateEngine(delegate Delegate) *Engine {
@@ -172,30 +173,47 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 	case *ast.Invocation:
 		// TODO: Implement objects
 		if identifier, ok := node.Operand.(*ast.Identifier); ok {
-			value := engine.Delegate.Resolve(identifier.Value)
-
-			if function, ok := value.Value.(*Function); ok && !function.IsRuleFunction {
-				if len(node.Arguments) != len(function.Arguments) {
-					panic(fmt.Errorf("invocation argument mismatch"))
+			if identifier.Value == "print" {
+				for i, argument := range node.Arguments {
+					value := engine.evaluate(argument)
+					if i > 0 {
+						fmt.Print(" ")
+					}
+					fmt.Print(value)
 				}
-
-				// Create a function scope
-				engine.Delegate.PushScope()
-
-				// Define parameters
-				for i, parameter := range function.Arguments {
-					value := engine.evaluate(node.Arguments[i])
-					engine.Delegate.Define(parameter, value)
-				}
-
-				// Evaluate block
-				returnValue := engine.evaluate(function.Block)
-
-				// Leave function scope
-				engine.Delegate.PopScope()
-				return returnValue
+				fmt.Println()
+				return &Value{Type: ValueTypeNone}
 			} else {
-				panic(fmt.Errorf("not a function"))
+				value := engine.Delegate.Resolve(identifier.Value)
+
+				if function, ok := value.Value.(*Function); ok && !function.IsRuleFunction {
+					if len(node.Arguments) != len(function.Arguments) {
+						panic(fmt.Errorf("invocation argument mismatch"))
+					}
+
+					// Create a function scope
+					engine.Delegate.PushScope()
+
+					// Define parameters
+					for i, parameter := range function.Arguments {
+						value := engine.evaluate(node.Arguments[i])
+						engine.Delegate.Define(parameter, value)
+					}
+
+					// Evaluate block
+					engine.evaluate(function.Block)
+					returnValue := engine.returnValue
+					if returnValue == nil {
+						returnValue = &Value{Type: ValueTypeNone}
+					}
+
+					// Leave function scope
+					engine.Delegate.PopScope()
+					engine.returnValue = nil
+					return returnValue
+				} else {
+					panic(fmt.Errorf("not a function"))
+				}
 			}
 		} else {
 			panic(fmt.Errorf("cannot call type %s", node.Type()))
@@ -218,8 +236,8 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		return nil
 	case *ast.Block:
 		// Define all functions, rule functions and rules first
-		for _, node := range node.Statements {
-			switch declaration := node.(type) {
+		for _, statement := range node.Statements {
+			switch declaration := statement.(type) {
 			case *ast.FunctionDeclaration:
 				function := &Function{Arguments: make([]string, 0), Block: declaration.Block}
 				if declaration.Signature != nil {
@@ -248,18 +266,17 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		}
 
 		// Evaluate all statements
-		for _, node := range node.Statements {
-			switch node.Type() {
+		for _, statement := range node.Statements {
+			switch statement.Type() {
 			case ast.NodeTypeFunctionDeclaration, ast.NodeTypeRuleFunctionDeclaration, ast.NodeTypeRuleDeclaration:
 				// Do nothing
 			case ast.NodeTypeReturnStatement:
 				// Prematurely stop evaluating the block
-				returnStatement := node.(*ast.ReturnStatement)
+				returnStatement := statement.(*ast.ReturnStatement)
 				value := engine.evaluate(returnStatement.Value)
-				return value
+				engine.returnValue = value
 			default:
-				value := engine.evaluate(node)
-				fmt.Println(value)
+				engine.evaluate(statement)
 			}
 		}
 		return nil

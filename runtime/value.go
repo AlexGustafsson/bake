@@ -16,6 +16,7 @@ const (
 	ValueTypeFunction
 	ValueTypeRuleFunction
 	ValueTypeRule
+	ValueTypeNone
 )
 
 type Value struct {
@@ -24,6 +25,10 @@ type Value struct {
 }
 
 func (value *Value) String() string {
+	if value.Type == ValueTypeNone {
+		return "none"
+	}
+
 	switch cast := value.Value.(type) {
 	case int:
 		return fmt.Sprintf("%d", cast)

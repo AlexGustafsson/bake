@@ -27,7 +27,7 @@ func (runtime *DefaultRuntime) Add(left *Value, right *Value) *Value {
 			Value: left.Value.(string) + right.Value.(string),
 		}
 	default:
-		panic(fmt.Errorf("cannot add values of type %s", left.Type))
+		panic(fmt.Errorf("invalid operation for type %s", left.Type))
 	}
 }
 
@@ -41,7 +41,7 @@ func (runtime *DefaultRuntime) Subtract(left *Value, right *Value) *Value {
 			Value: left.Value.(int) - right.Value.(int),
 		}
 	default:
-		panic(fmt.Errorf("cannot subtract values of type %s", left.Type))
+		panic(fmt.Errorf("invalid operation for type %s", left.Type))
 	}
 }
 
@@ -55,7 +55,7 @@ func (runtime *DefaultRuntime) Multiply(left *Value, right *Value) *Value {
 			Value: left.Value.(int) * right.Value.(int),
 		}
 	default:
-		panic(fmt.Errorf("cannot multiply values of type %s", left.Type))
+		panic(fmt.Errorf("invalid operation for type %s", left.Type))
 	}
 }
 

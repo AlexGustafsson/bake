@@ -14,11 +14,12 @@ func _() {
 	_ = x[ValueTypeFunction-3]
 	_ = x[ValueTypeRuleFunction-4]
 	_ = x[ValueTypeRule-5]
+	_ = x[ValueTypeNone-6]
 }
 
-const _ValueType_name = "ValueTypeNumberValueTypeStringValueTypeBoolValueTypeFunctionValueTypeRuleFunctionValueTypeRule"
+const _ValueType_name = "ValueTypeNumberValueTypeStringValueTypeBoolValueTypeFunctionValueTypeRuleFunctionValueTypeRuleValueTypeNone"
 
-var _ValueType_index = [...]uint8{0, 15, 30, 43, 60, 81, 94}
+var _ValueType_index = [...]uint8{0, 15, 30, 43, 60, 81, 94, 107}
 
 func (i ValueType) String() string {
 	if i < 0 || i >= ValueType(len(_ValueType_index)-1) {

@@ -22,6 +22,11 @@ func CreateProgram(input string) (*Program, []error) {
 		return nil, errs
 	}
 
+	// Add a global print method
+	printSymbol := semantics.CreateSymbol("print", semantics.TraitCallable, nil)
+	printSymbol.ArgumentCount = 1
+	rootScope.SymbolTable.Insert(printSymbol)
+
 	// TODO: Create a new global scope which includes imports
 
 	errs = semantics.Validate(source, rootScope)

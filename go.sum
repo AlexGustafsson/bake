@@ -736,6 +736,8 @@ github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635/go.mod h1:hkRG
 github.com/tchap/go-patricia v2.2.6+incompatible/go.mod h1:bmLyhP68RS6kStMGxByiQ23RP/odRBOTVjwp2cDyi6I=
 github.com/tliron/glsp v0.0.0-20210820163900-f4d3befef740 h1:SzL0J8AmBf/mHNSAGCyZRR850pNexs2/rJGao0VCnqI=
 github.com/tliron/glsp v0.0.0-20210820163900-f4d3befef740/go.mod h1:JkdOZOy+1znsGY8oa1zwT00kBsiNgL5QbcrW5JiPrIM=
+github.com/tliron/glsp v0.0.0-20210824162824-d103e5701036 h1:mydMHEQPtC4DlMtDTT4WG/jhkSB3+NX4X3uJtdZ3Gk4=
+github.com/tliron/glsp v0.0.0-20210824162824-d103e5701036/go.mod h1:JkdOZOy+1znsGY8oa1zwT00kBsiNgL5QbcrW5JiPrIM=
 github.com/tliron/kutil v0.1.48 h1:9pQvSklcmjIcWPCdpRiCrlHHFWUb8GvoNEzJEc7Xvlk=
 github.com/tliron/kutil v0.1.48/go.mod h1:JNExME6WabMoU/TMzjffPPXxQjSdRQuIVdUM8aBxNuw=
 github.com/tliron/yamlkeys v1.3.5/go.mod h1:8kJ1A/1s3p/I3MQUAbtv72dPEyQGoh0ZkQp0UAkABBo=

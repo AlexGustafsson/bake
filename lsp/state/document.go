@@ -72,7 +72,7 @@ func (document *Document) PublishError(context *glsp.Context, err error) {
 }
 
 // UpdateRange updates a part of the document. Requires manual locking
-func (document *Document) UpdateRange(r protocol.Range, content string) {
+func (document *Document) UpdateRange(r *protocol.Range, content string) {
 	start, end := r.IndexesIn(document.Content)
 	document.Content = document.Content[0:start] + content + document.Content[end:]
 }

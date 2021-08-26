@@ -97,12 +97,6 @@ func (handler *Handler) handleChange(context *glsp.Context, parameters *protocol
 	for _, change := range parameters.ContentChanges {
 		switch cast := change.(type) {
 		case protocol.TextDocumentContentChangeEvent:
-			// TODO: See https://github.com/tliron/glsp/issues/9
-			if cast.Range.Start.Line == 0 && cast.Range.Start.Character == 0 && cast.Range.End.Line == 0 && cast.Range.End.Character == 0 {
-				document.Content = cast.Text
-				continue
-			}
-
 			document.UpdateRange(cast.Range, cast.Text)
 		case protocol.TextDocumentContentChangeEventWhole:
 			document.Content = cast.Text

@@ -99,6 +99,79 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		}
 	case *ast.Identifier:
 		return engine.Delegate.Resolve(node.Value)
+	case *ast.Assignment:
+		value := engine.evaluate(node.Value)
+		// TODO: Implement objects
+		if identifier, ok := node.Expression.(*ast.Identifier); ok {
+			engine.Delegate.Define(identifier.Value, value)
+		} else {
+			panic(fmt.Errorf("cannot assign to type %s", node.Type()))
+		}
+		return nil
+	case *ast.Increment:
+		// TODO: Implement objects
+		if identifier, ok := node.Expression.(*ast.Identifier); ok {
+			value := engine.Delegate.Resolve(identifier.Value)
+			value = engine.Delegate.Add(value, &Value{Type: ValueTypeNumber, Value: 1})
+			engine.Delegate.Define(identifier.Value, value)
+			return value
+		} else {
+			panic(fmt.Errorf("cannot assign to type %s", node.Type()))
+		}
+	case *ast.Decrement:
+		// TODO: Implement objects
+		if identifier, ok := node.Expression.(*ast.Identifier); ok {
+			value := engine.Delegate.Resolve(identifier.Value)
+			value = engine.Delegate.Subtract(value, &Value{Type: ValueTypeNumber, Value: 1})
+			engine.Delegate.Define(identifier.Value, value)
+			return value
+		} else {
+			panic(fmt.Errorf("cannot assign to type %s", node.Type()))
+		}
+	case *ast.AdditionAssignment:
+		// TODO: Implement objects
+		if identifier, ok := node.Expression.(*ast.Identifier); ok {
+			value := engine.Delegate.Resolve(identifier.Value)
+			expression := engine.evaluate(node.Value)
+			value = engine.Delegate.Add(value, expression)
+			engine.Delegate.Define(identifier.Value, value)
+		} else {
+			panic(fmt.Errorf("cannot assign to type %s", node.Type()))
+		}
+		return nil
+	case *ast.SubtractionAssignment:
+		// TODO: Implement objects
+		if identifier, ok := node.Expression.(*ast.Identifier); ok {
+			value := engine.Delegate.Resolve(identifier.Value)
+			expression := engine.evaluate(node.Value)
+			value = engine.Delegate.Subtract(value, expression)
+			engine.Delegate.Define(identifier.Value, value)
+		} else {
+			panic(fmt.Errorf("cannot assign to type %s", node.Type()))
+		}
+		return nil
+	case *ast.MultiplicationAssignment:
+		// TODO: Implement objects
+		if identifier, ok := node.Expression.(*ast.Identifier); ok {
+			value := engine.Delegate.Resolve(identifier.Value)
+			expression := engine.evaluate(node.Value)
+			value = engine.Delegate.Multiply(value, expression)
+			engine.Delegate.Define(identifier.Value, value)
+		} else {
+			panic(fmt.Errorf("cannot assign to type %s", node.Type()))
+		}
+		return nil
+	case *ast.DivisionAssignment:
+		// TODO: Implement objects
+		if identifier, ok := node.Expression.(*ast.Identifier); ok {
+			value := engine.Delegate.Resolve(identifier.Value)
+			expression := engine.evaluate(node.Value)
+			value = engine.Delegate.Divide(value, expression)
+			engine.Delegate.Define(identifier.Value, value)
+		} else {
+			panic(fmt.Errorf("cannot assign to type %s", node.Type()))
+		}
+		return nil
 	}
 
 	panic(fmt.Errorf("unimplemented type %s", rootNode.Type()))

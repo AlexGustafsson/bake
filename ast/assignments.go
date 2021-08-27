@@ -131,3 +131,20 @@ func CreateDivisionAssignment(r *Range, expression Node, value Node) *DivisionAs
 		Value:      value,
 	}
 }
+
+type ModuloAssignment struct {
+	baseNode
+	Expression Node
+	Value      Node
+}
+
+func CreateModuloAssignment(r *Range, expression Node, value Node) *ModuloAssignment {
+	return &ModuloAssignment{
+		baseNode: baseNode{
+			nodeType:  NodeTypeModuloAssignment,
+			nodeRange: r,
+		},
+		Expression: expression,
+		Value:      value,
+	}
+}

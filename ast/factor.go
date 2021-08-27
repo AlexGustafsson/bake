@@ -13,6 +13,7 @@ type MultiplicativeOperator int
 const (
 	MultiplicativeOperatorMultiplication MultiplicativeOperator = iota
 	MultiplicativeOperatorDivision
+	MultiplicativeOperatorModulo
 )
 
 func CreateFactor(r *Range, operator MultiplicativeOperator, left Node, right Node) *Factor {

@@ -10,11 +10,12 @@ func _() {
 	var x [1]struct{}
 	_ = x[MultiplicativeOperatorMultiplication-0]
 	_ = x[MultiplicativeOperatorDivision-1]
+	_ = x[MultiplicativeOperatorModulo-2]
 }
 
-const _MultiplicativeOperator_name = "MultiplicativeOperatorMultiplicationMultiplicativeOperatorDivision"
+const _MultiplicativeOperator_name = "MultiplicativeOperatorMultiplicationMultiplicativeOperatorDivisionMultiplicativeOperatorModulo"
 
-var _MultiplicativeOperator_index = [...]uint8{0, 36, 66}
+var _MultiplicativeOperator_index = [...]uint8{0, 36, 66, 94}
 
 func (i MultiplicativeOperator) String() string {
 	if i < 0 || i >= MultiplicativeOperator(len(_MultiplicativeOperator_index)-1) {

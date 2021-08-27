@@ -61,4 +61,5 @@ const (
 	NodeTypeEvaluatedString
 	NodeTypeStringPart
 	NodeTypeForStatement
+	NodeTypeModuloAssignment
 )

@@ -330,6 +330,10 @@ func parseSimpleStatement(parser *Parser) ast.Node {
 		parser.nextItem()
 		value := parseExpression(parser)
 		return ast.CreateDivisionAssignment(expression.Range(), expression, value)
+	case lexing.ItemModuloAssign:
+		parser.nextItem()
+		value := parseExpression(parser)
+		return ast.CreateModuloAssignment(expression.Range(), expression, value)
 	case lexing.ItemAssignment:
 		parser.nextItem()
 		value := parseExpression(parser)
@@ -469,6 +473,8 @@ func parseFactor(parser *Parser) ast.Node {
 			operator = ast.MultiplicativeOperatorMultiplication
 		case lexing.ItemDivision:
 			operator = ast.MultiplicativeOperatorDivision
+		case lexing.ItemModulo:
+			operator = ast.MultiplicativeOperatorModulo
 		}
 
 		if operator == -1 {

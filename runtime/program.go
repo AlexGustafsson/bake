@@ -1,14 +1,16 @@
 package runtime
 
 import (
+	"github.com/AlexGustafsson/bake/ast"
 	"github.com/AlexGustafsson/bake/parsing"
 	"github.com/AlexGustafsson/bake/semantics"
 )
 
 type Program struct {
-	Input    string
-	Delegate Delegate
-	Builtins map[string]*Builtin
+	Input     string
+	Source    *ast.Block
+	RootScope *semantics.Scope
+	Builtins  map[string]*Builtin
 }
 
 // Builtin is a globally available value
@@ -18,40 +20,55 @@ type Builtin struct {
 	Value      *Value
 }
 
-func CreateProgram(input string, delegate Delegate) *Program {
+func CreateProgram(input string) *Program {
 	return &Program{
 		Input:    input,
-		Delegate: delegate,
 		Builtins: make(map[string]*Builtin),
 	}
 }
 
-// Run executes a program
-func (program *Program) Run() []error {
+func (program *Program) Parse() error {
 	source, err := parsing.Parse(program.Input)
 	if err != nil {
-		return []error{err}
+		return err
 	}
 
-	rootScope, errs := semantics.Build(source)
+	program.Source = source
+	return nil
+}
+
+func (program *Program) BuildSymbols() []error {
+	rootScope, errs := semantics.Build(program.Source)
 	if len(errs) > 0 {
 		return errs
 	}
 
-	program.mountBuiltins(rootScope)
-
-	errs = semantics.Validate(source, rootScope)
-	if len(errs) > 0 {
-		return errs
-	}
-
-	engine := CreateEngine(program.Delegate)
-	err = engine.Evaluate(source)
-	if err != nil {
-		return []error{err}
-	}
-
+	program.RootScope = rootScope
 	return []error{}
+}
+
+// DefineBuiltinSymbols declares symbols in the global scope
+func (program *Program) DefineBuiltinSymbols() {
+	for _, builtin := range program.Builtins {
+		program.RootScope.SymbolTable.Insert(builtin.Symbol)
+	}
+}
+
+// DefineBuiltinSymbols defines the values in the delegate's scope
+func (program *Program) DefineBuiltinValues(delegate Delegate) {
+	for _, builtin := range program.Builtins {
+		delegate.Define(builtin.Identifier, builtin.Value)
+	}
+}
+
+func (program *Program) Validate() []error {
+	return semantics.Validate(program.Source, program.RootScope)
+}
+
+// Run executes a program
+func (program *Program) Run(delegate Delegate) error {
+	engine := CreateEngine(delegate)
+	return engine.Evaluate(program.Source)
 }
 
 // DefineBuiltinFunction defines as new, globally available function
@@ -69,12 +86,4 @@ func (program *Program) DefineBuiltinFunction(identifier string, arguments int, 
 	}
 
 	program.Builtins[identifier] = &Builtin{identifier, symbol, value}
-}
-
-// mountBuiltins declares symbols in the global scope and defines the values in the delegate's scope
-func (program *Program) mountBuiltins(rootScope *semantics.Scope) {
-	for _, builtin := range program.Builtins {
-		rootScope.SymbolTable.Insert(builtin.Symbol)
-		program.Delegate.Define(builtin.Identifier, builtin.Value)
-	}
 }

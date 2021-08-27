@@ -40,7 +40,11 @@ func formatSymbolTable(table *semantics.SymbolTable) string {
 	builder.WriteString("\n<tr><td>Name</td><td>Trait</td><td>Line</td><td>Argument Count</td></tr>\n")
 	for _, symbol := range table.Symbols() {
 		traits := strings.Join(symbol.Trait.Strings(), ",")
-		fmt.Fprintf(&builder, "<tr><td>%s</td><td>%s</td><td>%d</td><td>%d</td></tr>\n", symbol.Name, traits, symbol.Node.Range().Start.Line+1, symbol.ArgumentCount)
+		if symbol.Node == nil {
+			fmt.Fprintf(&builder, "<tr><td>%s</td><td>%s</td><td>-</td><td>%d</td></tr>\n", symbol.Name, traits, symbol.ArgumentCount)
+		} else {
+			fmt.Fprintf(&builder, "<tr><td>%s</td><td>%s</td><td>%d</td><td>%d</td></tr>\n", symbol.Name, traits, symbol.Node.Range().Start.Line+1, symbol.ArgumentCount)
+		}
 	}
 	builder.WriteString("</table>")
 	return builder.String()

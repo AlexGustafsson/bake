@@ -84,6 +84,8 @@ ReturnStatement = "return" Expression .
 
 IfStatement = "if" Expression Block [ "else" ( IfStatement | Block ) ] .
 
+ForStatement = "for" identifier "in" Expression Block .
+
 SimpleStatement = ExpressionStatement
                 | IncreaseDecreaseStatement
                 | ShellStatement
@@ -160,6 +162,8 @@ func
 rule
 export
 if
+for
+in
 else
 return
 let

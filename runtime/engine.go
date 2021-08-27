@@ -302,12 +302,16 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			case ast.NodeTypeFunctionDeclaration, ast.NodeTypeRuleFunctionDeclaration, ast.NodeTypeRuleDeclaration:
 				// Do nothing
 			case ast.NodeTypeReturnStatement:
-				// Prematurely stop evaluating the block
 				returnStatement := statement.(*ast.ReturnStatement)
 				value := engine.evaluate(returnStatement.Value)
 				engine.returnValue = value
 			default:
 				engine.evaluate(statement)
+			}
+
+			// Prematurely stop evaluating the block if returned
+			if engine.returnValue != nil {
+				return nil
 			}
 		}
 		return nil

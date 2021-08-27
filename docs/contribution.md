@@ -20,15 +20,18 @@ The tool and grammar is inspired from several projects, mostly Go (grammar, lexe
 | `parsing` | The bake parser. Uses `lexing` and forms a parse tree from `ast`. |
 | `semantics` | The bake semantic analysis. Traverses a parse tree from `parsing` and provides a semantically correct program. |
 | `lsp` | The core of bagels - the bake language server. Uses `lexing`, `parsing` and `semantics` to provide all facets of a language server. |
+| `runtime` | The runtime and engine for bake. Uses practically all of the other packages. |
+| `formatting` | The official bake formatter package. |
+| `builtins` | Core builtins (runtime-specific functions) available in bake. |
 
-Any code that is of shared interest for the community is kept public and supported as such. Private code kept in the `internal` package is not supported for third-party. The binaries that this prje
+Any code that is of shared interest for the community is kept public and supported as such. Private code kept in the `internal` package is not supported for third-party.
 
 ### Binaries
 
 | Name | Description |
 | :--: | :---------: |
-| `bake` | The core bake parser, lexer, runtime and tool. Uses `lexing`, `parsing`, `semantics` and internal packages. |
-| `bagels` | The language server for bake. Uses `lexing`, `parsing`, `semantics`, `lsp` and internal packages. |
+| `bake` | The core bake parser, lexer, runtime and tool. Uses `lexing`, `parsing`, `semantics`, `runtime` etc. and internal packages. |
+| `bagels` | The language server for bake. Uses `lexing`, `parsing`, `semantics`, `lsp`, etc. and internal packages. |
 
 ### Bake resources
 

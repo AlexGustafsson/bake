@@ -16,10 +16,11 @@
   * [Editor plugins](tools/editors.md)
   * [Terminal tools](tools/terminals.md)
 
-* Syntax
-  * [Grammar](grammar.md)
-
 * Usage
   * [CLI](cli.md)
+  * [Builtins](builtins.md)
+
+* Syntax
+  * [Grammar](grammar.md)
 
 * [Contribution](contribution.md)

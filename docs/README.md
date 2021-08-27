@@ -4,6 +4,8 @@
 
 ⚠️ Bake is currently being actively developed. Until it reaches v1.0.0 breaking changes may occur in minor versions.
 
+## Introduction
+
 Bake is a new language and toolset for building things. Think of it like Make, with more tools to empower you to easily configure pragmatic builds of smaller projects. Make is a great tool which works wonders for smaller projects. It has a great, (mostly) readable syntax which is largely natural to work with. It does, however, suffer from some shortages. For example, it does not provide more advanced scripting features for more complex builds or configurations. Furthermore, it's not easily split into reusable models. Other common and arguably more complete tools such as Gradle, Mason etc. are not as simple and playful as a simple Makefile. The ambition of Bake is to become a better Make, building on the ideas, syntax and features provided by Make.
 
 Bake has a couple of goals:
@@ -16,3 +18,7 @@ Bake has a couple of goals:
 Bake also has a non-goal:
 
 1. Be compatible with Make
+
+## Getting started
+
+To get started with bake, follow the [quick start guide](guide.md).

@@ -238,6 +238,20 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			engine.Delegate.PopScope()
 		}
 		return nil
+	case *ast.ForStatement:
+		value := engine.evaluate(node.Expression)
+		if value.Type != ValueTypeArray {
+			panic(fmt.Errorf("invalid collection"))
+		}
+
+		collection := value.Value.([]*Value)
+		for _, currentValue := range collection {
+			engine.Delegate.PushScope()
+			engine.Delegate.Define(node.Identifier.Value, currentValue)
+			engine.evaluate(node.Block)
+			engine.Delegate.PopScope()
+		}
+		return nil
 	case *ast.Block:
 		// Define all functions, rule functions and rules first
 		for _, statement := range node.Statements {
@@ -305,6 +319,13 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			Type:  ValueTypeString,
 			Value: builder.String(),
 		}
+	case *ast.Array:
+		elements := make([]*Value, len(node.Elements))
+		for i, element := range node.Elements {
+			value := engine.evaluate(element)
+			elements[i] = value
+		}
+		return &Value{ValueTypeArray, elements}
 	}
 
 	panic(fmt.Errorf("unimplemented type %s", rootNode.Type()))

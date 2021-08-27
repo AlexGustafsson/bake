@@ -17,6 +17,7 @@ const (
 	ValueTypeRuleFunction
 	ValueTypeRule
 	ValueTypeNone
+	ValueTypeArray
 )
 
 type Value struct {

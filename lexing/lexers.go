@@ -284,6 +284,10 @@ func lexRoot(lexer *Lexer) stateModifier {
 					lexer.Emit(ItemKeywordExport)
 				case "if":
 					lexer.Emit(ItemKeywordIf)
+				case "for":
+					lexer.Emit(ItemKeywordFor)
+				case "in":
+					lexer.Emit(ItemKeywordIn)
 				case "else":
 					lexer.Emit(ItemKeywordElse)
 				case "return":

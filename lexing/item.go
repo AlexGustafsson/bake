@@ -32,7 +32,7 @@ func (item Item) DebugString() string {
 
 func (item Item) IsKeyword() bool {
 	switch item.Type {
-	case ItemKeywordPackage, ItemKeywordImport, ItemKeywordFunc, ItemKeywordRule, ItemKeywordExport, ItemKeywordIf, ItemKeywordElse, ItemKeywordReturn, ItemKeywordLet, ItemKeywordShell, ItemKeywordAlias:
+	case ItemKeywordPackage, ItemKeywordImport, ItemKeywordFunc, ItemKeywordRule, ItemKeywordExport, ItemKeywordIf, ItemKeywordFor, ItemKeywordIn, ItemKeywordElse, ItemKeywordReturn, ItemKeywordLet, ItemKeywordShell, ItemKeywordAlias:
 		return true
 	default:
 		return false

@@ -55,6 +55,8 @@ const (
 	ItemKeywordRule
 	ItemKeywordExport
 	ItemKeywordIf
+	ItemKeywordFor
+	ItemKeywordIn
 	ItemKeywordElse
 	ItemKeywordReturn
 	ItemKeywordLet

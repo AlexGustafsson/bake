@@ -117,7 +117,7 @@ Term = Factor { additive_operator Factor } .
 additive_operator = "+" | "-" .
 
 Factor = Unary { multiplicative_operator Unary } .
-multiplicative_operator = "*" | "/" .
+multiplicative_operator = "*" | "/" | "%".
 
 Unary = [ unary_operator ] Primary .
 unary_operator = "-" | "!" | "..." .

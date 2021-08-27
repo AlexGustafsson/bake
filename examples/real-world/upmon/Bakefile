@@ -71,6 +71,10 @@ export func test {
   }
 }
 
+"build/upmon" [...server_source, "Makefile"] {
+
+}
+
 export alias install_tools : go::install_tools
 
 export alias build : "build/upmon"

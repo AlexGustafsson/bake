@@ -75,6 +75,15 @@ func lexRoot(lexer *Lexer) stateModifier {
 			lexer.Emit(ItemMultiplication)
 		}
 		return lexRoot
+	case '%':
+		lexer.Next()
+		if rune := lexer.Peek(); rune == '=' {
+			lexer.Next()
+			lexer.Emit(ItemModuloAssign)
+		} else {
+			lexer.Emit(ItemModulo)
+		}
+		return lexRoot
 	case '=':
 		lexer.Next()
 		if rune := lexer.Peek(); rune == '=' {

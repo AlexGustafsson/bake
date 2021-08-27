@@ -32,6 +32,8 @@ const (
 	ItemSpread
 	ItemIncrement
 	ItemDecrement
+	ItemModulo
+	ItemModuloAssign
 
 	// Punctuation
 	ItemLeftParentheses

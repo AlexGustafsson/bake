@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"runtime"
 	"strconv"
+	"strings"
 
 	"github.com/AlexGustafsson/bake/ast"
 )
@@ -283,6 +284,27 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			}
 		}
 		return nil
+	case *ast.RawString:
+		return &Value{
+			Type:  ValueTypeString,
+			Value: node.Content,
+		}
+	case *ast.EvaluatedString:
+		var builder strings.Builder
+		for _, part := range node.Parts {
+			switch partNode := part.(type) {
+			case *ast.StringPart:
+				// TODO: Expand escape codes like \n, \t etc.?
+				builder.WriteString(partNode.Content)
+			default:
+				value := engine.evaluate(partNode)
+				builder.WriteString(value.String())
+			}
+		}
+		return &Value{
+			Type:  ValueTypeString,
+			Value: builder.String(),
+		}
 	}
 
 	panic(fmt.Errorf("unimplemented type %s", rootNode.Type()))

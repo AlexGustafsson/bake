@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/AlexGustafsson/bake/ast"
 )
@@ -37,6 +38,17 @@ func (value *Value) String() string {
 		return cast
 	case bool:
 		return fmt.Sprintf("%t", cast)
+	case []*Value:
+		var builder strings.Builder
+		builder.WriteRune('[')
+		for i, x := range cast {
+			if i > 0 {
+				builder.WriteString(", ")
+			}
+			builder.WriteString(x.String())
+		}
+		builder.WriteRune(']')
+		return builder.String()
 	}
 
 	return "?"

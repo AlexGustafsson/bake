@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/AlexGustafsson/bake/ast"
 	"github.com/AlexGustafsson/bake/builtins"
 	"github.com/AlexGustafsson/bake/runtime"
 	"github.com/urfave/cli/v2"
@@ -24,21 +23,32 @@ func runCommand(context *cli.Context) error {
 	}
 
 	input := string(inputBytes)
-	program := runtime.CreateProgram(input, runtime.CreateDefaultRuntime())
+	program := runtime.CreateProgram(input)
 	builtins.Register(program)
 
-	errs := program.Run()
-	if len(errs) > 0 {
-		for _, err := range errs {
-			if treeError, ok := err.(*ast.TreeError); ok {
-				// Print the formatted error
-				fmt.Fprint(os.Stderr, treeError.ErrorWithLine(input))
-			} else {
-				fmt.Fprintln(os.Stderr, err)
-			}
-		}
-		return fmt.Errorf("invalid program")
+	err = program.Parse()
+	if err != nil {
+		PrintPrettyError(err, input)
+		return fmt.Errorf("parsing failed")
 	}
 
-	return nil
+	errs := program.BuildSymbols()
+	if len(errs) > 0 {
+		PrintPrettyErrors(errs, input)
+		return fmt.Errorf("validation failed")
+	}
+
+	program.DefineBuiltinSymbols()
+
+	errs = program.Validate()
+	if len(errs) > 0 {
+		PrintPrettyErrors(errs, input)
+		return fmt.Errorf("validation failed")
+	}
+
+	runtime := runtime.CreateDefaultRuntime()
+
+	program.DefineBuiltinValues(runtime)
+
+	return program.Run(runtime)
 }

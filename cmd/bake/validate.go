@@ -7,10 +7,9 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/AlexGustafsson/bake/ast"
+	"github.com/AlexGustafsson/bake/builtins"
 	"github.com/AlexGustafsson/bake/internal/dot"
-	"github.com/AlexGustafsson/bake/parsing"
-	"github.com/AlexGustafsson/bake/semantics"
+	"github.com/AlexGustafsson/bake/runtime"
 	"github.com/urfave/cli/v2"
 )
 
@@ -32,46 +31,30 @@ func validateCommand(context *cli.Context) error {
 	}
 
 	input := string(inputBytes)
-	sourceFile, err := parsing.Parse(input)
+	program := runtime.CreateProgram(input)
+	builtins.Register(program)
+
+	err = program.Parse()
 	if err != nil {
-		if treeError, ok := err.(*ast.TreeError); ok {
-			// Print the formatted error
-			fmt.Fprint(os.Stderr, treeError.ErrorWithLine(input))
-			return fmt.Errorf("parsing failed")
-		} else {
-			return err
-		}
+		PrintPrettyError(err, input)
+		return fmt.Errorf("parsing failed")
 	}
 
-	rootScope, errs := semantics.Build(sourceFile)
+	errs := program.BuildSymbols()
 	if len(errs) > 0 {
-		// Print the formatted errors
-		for _, err := range errs {
-			if treeError, ok := err.(*ast.TreeError); ok {
-				// Print the formatted error
-				fmt.Fprint(os.Stderr, treeError.ErrorWithLine(input))
-			} else {
-				fmt.Fprint(os.Stderr, err)
-			}
-		}
+		PrintPrettyErrors(errs, input)
 		return fmt.Errorf("validation failed")
 	}
 
-	errs = semantics.Validate(sourceFile, rootScope)
+	program.DefineBuiltinSymbols()
+
+	errs = program.Validate()
 	if len(errs) > 0 {
-		// Print the formatted errors
-		for _, err := range errs {
-			if treeError, ok := err.(*ast.TreeError); ok {
-				// Print the formatted error
-				fmt.Fprint(os.Stderr, treeError.ErrorWithLine(input))
-			} else {
-				fmt.Fprint(os.Stderr, err)
-			}
-		}
+		PrintPrettyErrors(errs, input)
 		return fmt.Errorf("validation failed")
 	}
 
-	output := dot.FormatScope(rootScope)
+	output := dot.FormatScope(program.RootScope)
 
 	if outputType == "dot" {
 		fmt.Print(output)

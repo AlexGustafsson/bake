@@ -2,12 +2,12 @@ package lsp
 
 import (
 	"fmt"
-	"runtime"
+	goRuntime "runtime"
 
 	"github.com/AlexGustafsson/bake/ast"
+	"github.com/AlexGustafsson/bake/builtins"
 	"github.com/AlexGustafsson/bake/lsp/state"
-	"github.com/AlexGustafsson/bake/parsing"
-	"github.com/AlexGustafsson/bake/semantics"
+	"github.com/AlexGustafsson/bake/runtime"
 	"github.com/tliron/glsp"
 	protocol "github.com/tliron/glsp/protocol_3_16"
 )
@@ -114,38 +114,27 @@ func (handler *Handler) handleSave(context *glsp.Context, parameters *protocol.D
 	document.ClearDiagnostics()
 	defer document.PublishDiagnostics(context)
 
-	source, err := parsing.Parse(document.Content)
+	program := runtime.CreateProgram(document.Content)
+	builtins.Register(program)
+
+	err = program.Parse()
 	if err != nil {
-		if treeError, ok := err.(*ast.TreeError); ok {
-			document.CreateDiagnostic(protocol.DiagnosticSeverityError, *treeError.Range, treeError.Message)
-		} else {
-			document.PublishError(context, err)
-		}
-		return nil
+		handler.handleDocumentError(err, document, context)
+		return fmt.Errorf("parsing failed")
 	}
 
-	sourceScope, errs := semantics.Build(source)
+	errs := program.BuildSymbols()
 	if len(errs) > 0 {
-		for _, err := range errs {
-			if treeError, ok := err.(*ast.TreeError); ok {
-				document.CreateDiagnostic(protocol.DiagnosticSeverityError, *treeError.Range, treeError.Message)
-			} else {
-				document.PublishError(context, err)
-			}
-		}
-		return nil
+		handler.handleDocumentErrors(errs, document, context)
+		return fmt.Errorf("validation failed")
 	}
 
-	errs = semantics.Validate(source, sourceScope)
+	program.DefineBuiltinSymbols()
+
+	errs = program.Validate()
 	if len(errs) > 0 {
-		for _, err := range errs {
-			if treeError, ok := err.(*ast.TreeError); ok {
-				document.CreateDiagnostic(protocol.DiagnosticSeverityError, *treeError.Range, treeError.Message)
-			} else {
-				document.PublishError(context, err)
-			}
-		}
-		return nil
+		handler.handleDocumentErrors(errs, document, context)
+		return fmt.Errorf("validation failed")
 	}
 
 	return nil
@@ -155,10 +144,24 @@ func (handler *Handler) handleCancel(context *glsp.Context, parameters *protocol
 	return nil
 }
 
+func (handler *Handler) handleDocumentError(err error, document *state.Document, context *glsp.Context) {
+	if treeError, ok := err.(*ast.TreeError); ok {
+		document.CreateDiagnostic(protocol.DiagnosticSeverityError, *treeError.Range, treeError.Message)
+	} else {
+		document.PublishError(context, err)
+	}
+}
+
+func (handler *Handler) handleDocumentErrors(errs []error, document *state.Document, context *glsp.Context) {
+	for _, err := range errs {
+		handler.handleDocumentError(err, document, context)
+	}
+}
+
 func (handler *Handler) recover(errp *error) {
 	err := recover()
 	if err != nil {
-		if _, ok := err.(runtime.Error); ok {
+		if _, ok := err.(goRuntime.Error); ok {
 			panic(err)
 		}
 

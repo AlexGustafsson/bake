@@ -6,6 +6,7 @@ type Delegate interface {
 	Subtract(left *Value, right *Value) *Value
 	Multiply(left *Value, right *Value) *Value
 	Divide(left *Value, right *Value) *Value
+	Modulo(left *Value, right *Value) *Value
 
 	Equals(left *Value, right *Value) *Value
 	NotEquals(left *Value, right *Value) *Value

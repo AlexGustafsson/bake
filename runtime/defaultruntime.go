@@ -73,6 +73,20 @@ func (runtime *DefaultRuntime) Divide(left *Value, right *Value) *Value {
 	}
 }
 
+func (runtime *DefaultRuntime) Modulo(left *Value, right *Value) *Value {
+	runtime.assertSameType(left, right)
+
+	switch left.Type {
+	case ValueTypeNumber:
+		return &Value{
+			Type:  ValueTypeNumber,
+			Value: left.Value.(int) % right.Value.(int),
+		}
+	default:
+		panic(fmt.Errorf("invalid operation for type %s", left.Type))
+	}
+}
+
 func (runtime *DefaultRuntime) Equals(left *Value, right *Value) *Value {
 	if left.Type != right.Type {
 		return &Value{

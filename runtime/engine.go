@@ -51,6 +51,8 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			return engine.Delegate.Multiply(left, right)
 		case ast.MultiplicativeOperatorDivision:
 			return engine.Delegate.Divide(left, right)
+		case ast.MultiplicativeOperatorModulo:
+			return engine.Delegate.Modulo(left, right)
 		}
 	case *ast.Integer:
 		value := engine.parseInteger(node.Value)
@@ -166,6 +168,17 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			value := engine.Delegate.Resolve(identifier.Value)
 			expression := engine.evaluate(node.Value)
 			value = engine.Delegate.Divide(value, expression)
+			engine.Delegate.Define(identifier.Value, value)
+		} else {
+			panic(fmt.Errorf("cannot assign to type %s", node.Type()))
+		}
+		return nil
+	case *ast.ModuloAssignment:
+		// TODO: Implement objects
+		if identifier, ok := node.Expression.(*ast.Identifier); ok {
+			value := engine.Delegate.Resolve(identifier.Value)
+			expression := engine.evaluate(node.Value)
+			value = engine.Delegate.Modulo(value, expression)
 			engine.Delegate.Define(identifier.Value, value)
 		} else {
 			panic(fmt.Errorf("cannot assign to type %s", node.Type()))

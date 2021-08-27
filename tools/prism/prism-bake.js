@@ -6,7 +6,7 @@
 			greedy: true,
 			alias: "string",
 		},
-		"keyword": /\b(package|import|func|rule|export|if|else|return|shell|let)\b/,
+		"keyword": /\b(package|import|func|rule|export|if|else|for|in|return|shell|let)\b/,
 		"boolean": /\b(?:true|false)\b/,
 		"number": /\b((0x[0-9a-fA-F]+)|(0[0-7]+i?)|(\d+([Ee]\d+)?i?)|(\d+[Ee][-+]\d+i?))\b/i,
 		"function": /[a-zA-Z_]\w*(?=\()/,
@@ -40,6 +40,7 @@
 			pattern: /"(?:\\[\s\S]|\$\((?:[^()]|\((?:[^()]|\([^)]*\))*\))+\)|(?!\$\()[^\\"])*"/,
 			inside: evaluation,
 		},
+		// TODO: Doesn't work for context.shell.stdout.string etc. as shell* will be marked as a string. Add an assert for only whitespace before the shell expression
 		"shell-block": {
 			pattern: /(shell\s*\{)[^}]*\}/,
 			lookbehind: true,
@@ -52,6 +53,7 @@
 				...evaluation,
 			},
 		},
+		// TODO: Doesn't work for context.shell.stdout.string etc. as shell* will be marked as a string. Add an assert for only whitespace before the shell expression
 		"shell": {
 			pattern: /(shell)(?!\s*\{).*/,
 			greedy: true,

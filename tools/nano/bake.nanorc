@@ -16,7 +16,7 @@ color blue "\<([a-zA-Z_]\w*::[a-zA-Z_]\w*)\>"
 color red "\<([a-zA-Z_]\w*\.[a-zA-Z_]\w*)\>"
 
 # Control structures
-color brightyellow "\<(else|for|go|if|range|select|switch)\>"
+color brightyellow "\<(if|else|for|in)\>"
 
 # Control flow
 color magenta "\<(return)\>"

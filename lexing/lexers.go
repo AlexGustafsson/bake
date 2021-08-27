@@ -173,14 +173,12 @@ func lexRoot(lexer *Lexer) stateModifier {
 	case '(':
 		lexer.Next()
 		lexer.Emit(ItemLeftParentheses)
-		lexer.parenthesesDepth++
+		if lexer.Mode == ModeEvaluatedString || lexer.Mode == ModeShellString || lexer.Mode == ModeMultilineShellString {
+			lexer.parenthesesDepth++
+		}
 		return lexRoot
 	case ')':
 		lexer.Next()
-		lexer.parenthesesDepth--
-		if lexer.parenthesesDepth < 0 {
-			lexer.parenthesesDepth = 0
-		}
 		if lexer.parenthesesDepth == 0 && (lexer.Mode == ModeEvaluatedString || lexer.Mode == ModeShellString || lexer.Mode == ModeMultilineShellString) {
 			lexer.Emit(ItemSubstitutionEnd)
 			lexer.substitutionDepth--
@@ -203,6 +201,10 @@ func lexRoot(lexer *Lexer) stateModifier {
 			return next
 		} else {
 			lexer.Emit(ItemRightParentheses)
+		}
+		lexer.parenthesesDepth--
+		if lexer.parenthesesDepth < 0 {
+			lexer.parenthesesDepth = 0
 		}
 		return lexRoot
 	case '[':
@@ -356,7 +358,6 @@ func lexShellString(lexer *Lexer) stateModifier {
 	switch rune {
 	case '\n':
 		lexer.Emit(ItemStringPart)
-		lexer.Mode = ModeRoot
 		return lexRoot
 	case '\\':
 		lexer.Next()
@@ -370,6 +371,7 @@ func lexShellString(lexer *Lexer) stateModifier {
 			lexer.Next()
 			lexer.Emit(ItemSubstitutionStart)
 			lexer.Mode = ModeShellString
+			lexer.substitutionDepth++
 			return lexRoot
 		} else {
 			lexer.Next()
@@ -397,13 +399,13 @@ func lexMultilineShellString(lexer *Lexer) stateModifier {
 			lexer.Next()
 			lexer.Emit(ItemSubstitutionStart)
 			lexer.Mode = ModeMultilineShellString
+			lexer.substitutionDepth++
 			return lexRoot
 		} else {
 			lexer.Next()
 		}
 	case '}':
 		lexer.Emit(ItemStringPart)
-		lexer.Mode = ModeRoot
 		return lexRoot
 	default:
 		lexer.Next()

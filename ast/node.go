@@ -60,4 +60,5 @@ const (
 	NodeTypeIfStatement
 	NodeTypeEvaluatedString
 	NodeTypeStringPart
+	NodeTypeForStatement
 )

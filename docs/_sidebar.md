@@ -6,6 +6,7 @@
   * [Functions](examples/functions.md)
   * [Strings](examples/strings.md)
   * [Variables](examples/variables.md)
+  * [Loops](examples/loops.md)
   * [Packages](examples/packages.md)
   * [Hooks](examples/hooks.md)
   * [Phony](examples/phony.md)

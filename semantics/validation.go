@@ -177,6 +177,10 @@ func (validator *Validator) Validate(root ast.Node) {
 		validator.Validate(node.Expression)
 		validator.Validate(node.Value)
 		// TODO: validate that expression is assignable
+	case *ast.ModuloAssignment:
+		validator.Validate(node.Expression)
+		validator.Validate(node.Value)
+		// TODO: validate that expression is assignable
 	case *ast.LooseAssignment:
 		validator.Validate(node.Expression)
 		validator.Validate(node.Value)

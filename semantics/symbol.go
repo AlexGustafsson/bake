@@ -8,7 +8,7 @@ type Symbol struct {
 	Name string
 	// Trait is the behavior of a symbol
 	Trait Trait
-	// ArgumentCount is the number of arguments the symbol may take if called
+	// ArgumentCount is the number of arguments the symbol may take if called. If < 0, assume infinite (or runtime specified) arguments
 	ArgumentCount int
 	// references is the set of lines on which the symbol is referenced
 	references map[int]bool

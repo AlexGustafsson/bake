@@ -124,10 +124,13 @@ func (validator *Validator) Validate(root ast.Node) {
 		if identifier, ok := node.Operand.(*ast.Identifier); ok {
 			if symbol, _, ok := validator.CurrentScope.LookupByName(identifier.Value); ok {
 				if symbol.Trait.Has(TraitCallable) {
-					if len(node.Arguments) < symbol.ArgumentCount {
-						validator.errorf(identifier, "too few arguments. Expected %d, got %d", symbol.ArgumentCount, len(node.Arguments))
-					} else if len(node.Arguments) > symbol.ArgumentCount {
-						validator.errorf(identifier, "too many arguments. Expected %d, got %d", symbol.ArgumentCount, len(node.Arguments))
+					// A negative argument count indicates infinite (or runtime-specified) argument count
+					if symbol.ArgumentCount >= 0 {
+						if len(node.Arguments) < symbol.ArgumentCount {
+							validator.errorf(identifier, "too few arguments. Expected %d, got %d", symbol.ArgumentCount, len(node.Arguments))
+						} else if len(node.Arguments) > symbol.ArgumentCount {
+							validator.errorf(identifier, "too many arguments. Expected %d, got %d", symbol.ArgumentCount, len(node.Arguments))
+						}
 					}
 				} else if symbol.Trait.Has(TraitAny) {
 					// Nothing to check, unknown amount of arguments

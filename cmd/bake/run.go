@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/AlexGustafsson/bake/ast"
+	"github.com/AlexGustafsson/bake/builtins"
 	"github.com/AlexGustafsson/bake/runtime"
 	"github.com/urfave/cli/v2"
 )
@@ -24,37 +25,7 @@ func runCommand(context *cli.Context) error {
 
 	input := string(inputBytes)
 	program := runtime.CreateProgram(input, runtime.CreateDefaultRuntime())
-
-	program.DefineBuiltinFunction("print", -1, func(engine *runtime.Engine, arguments []*runtime.Value) *runtime.Value {
-		for i, argument := range arguments {
-			if i > 0 {
-				fmt.Print(" ")
-			}
-			fmt.Print(argument)
-		}
-		fmt.Println()
-		return nil
-	})
-
-	program.DefineBuiltinFunction("range", 2, func(engine *runtime.Engine, arguments []*runtime.Value) *runtime.Value {
-		if arguments[0].Type != runtime.ValueTypeNumber || arguments[1].Type != runtime.ValueTypeNumber {
-			panic(fmt.Errorf("bad arguments - expected numbers"))
-		}
-
-		start := arguments[0].Value.(int)
-		stop := arguments[1].Value.(int)
-
-		if stop < start {
-			panic(fmt.Errorf("stop cannot be less than start"))
-		}
-
-		elements := make([]*runtime.Value, stop-start)
-		for i := 0; i < stop-start; i++ {
-			elements[i] = &runtime.Value{Type: runtime.ValueTypeNumber, Value: start + i}
-		}
-
-		return &runtime.Value{Type: runtime.ValueTypeArray, Value: elements}
-	})
+	builtins.Register(program)
 
 	errs := program.Run()
 	if len(errs) > 0 {

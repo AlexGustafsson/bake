@@ -46,8 +46,14 @@ type Rule struct {
 	Dependencies []*Value
 }
 
+type FunctionHandler func(engine *Engine, arguments []*Value) *Value
+
 type Function struct {
-	Arguments      []string
-	Block          *ast.Block
+	// Arguments to define before executing the block. Only used when evaluating the Block
+	Arguments []string
+	// Block is the AST block that will be executed on invocation. Block and Handler are mutually exclusive.
+	Block *ast.Block
+	// Handler is the callback that should handle the invocation. Block and Handler are mutually exclusive.
+	Handler        FunctionHandler
 	IsRuleFunction bool
 }

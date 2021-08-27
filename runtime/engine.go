@@ -19,10 +19,10 @@ func CreateEngine(delegate Delegate) *Engine {
 	}
 }
 
-func (engine *Engine) Evaluate(program *Program) (err error) {
+func (engine *Engine) Evaluate(source *ast.Block) (err error) {
 	defer engine.recover(&err)
 
-	engine.evaluate(program.Source)
+	engine.evaluate(source)
 
 	return nil
 }
@@ -173,20 +173,23 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 	case *ast.Invocation:
 		// TODO: Implement objects
 		if identifier, ok := node.Operand.(*ast.Identifier); ok {
-			if identifier.Value == "print" {
-				for i, argument := range node.Arguments {
-					value := engine.evaluate(argument)
-					if i > 0 {
-						fmt.Print(" ")
-					}
-					fmt.Print(value)
-				}
-				fmt.Println()
-				return &Value{Type: ValueTypeNone}
-			} else {
-				value := engine.Delegate.Resolve(identifier.Value)
+			value := engine.Delegate.Resolve(identifier.Value)
 
-				if function, ok := value.Value.(*Function); ok && !function.IsRuleFunction {
+			if function, ok := value.Value.(*Function); ok && !function.IsRuleFunction {
+				if function.Handler != nil {
+					// Evaluate arguments
+					arguments := make([]*Value, len(node.Arguments))
+					for i, argument := range node.Arguments {
+						value := engine.evaluate(argument)
+						arguments[i] = value
+					}
+
+					returnValue := function.Handler(engine, arguments)
+					if returnValue == nil {
+						returnValue = &Value{Type: ValueTypeNone}
+					}
+					return returnValue
+				} else {
 					if len(node.Arguments) != len(function.Arguments) {
 						panic(fmt.Errorf("invocation argument mismatch"))
 					}
@@ -194,7 +197,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 					// Create a function scope
 					engine.Delegate.PushScope()
 
-					// Define parameters
+					// Define arguments
 					for i, parameter := range function.Arguments {
 						value := engine.evaluate(node.Arguments[i])
 						engine.Delegate.Define(parameter, value)
@@ -211,9 +214,9 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 					engine.Delegate.PopScope()
 					engine.returnValue = nil
 					return returnValue
-				} else {
-					panic(fmt.Errorf("not a function"))
 				}
+			} else {
+				panic(fmt.Errorf("%s is not a function", node.Type()))
 			}
 		} else {
 			panic(fmt.Errorf("cannot call type %s", node.Type()))

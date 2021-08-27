@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/AlexGustafsson/bake/ast"
 	"github.com/AlexGustafsson/bake/runtime"
 	"github.com/urfave/cli/v2"
 )
@@ -22,18 +23,30 @@ func runCommand(context *cli.Context) error {
 	}
 
 	input := string(inputBytes)
-	program, errs := runtime.CreateProgram(input)
+	program := runtime.CreateProgram(input, runtime.CreateDefaultRuntime())
+
+	program.DefineBuiltinFunction("print", -1, func(engine *runtime.Engine, arguments []*runtime.Value) *runtime.Value {
+		for i, argument := range arguments {
+			if i > 0 {
+				fmt.Print(" ")
+			}
+			fmt.Print(argument)
+		}
+		fmt.Println()
+		return nil
+	})
+
+	errs := program.Run()
 	if len(errs) > 0 {
 		for _, err := range errs {
-			fmt.Println(err)
+			if treeError, ok := err.(*ast.TreeError); ok {
+				// Print the formatted error
+				fmt.Fprint(os.Stderr, treeError.ErrorWithLine(input))
+			} else {
+				fmt.Fprintln(os.Stderr, err)
+			}
 		}
 		return fmt.Errorf("invalid program")
-	}
-
-	engine := runtime.CreateEngine(runtime.CreateDefaultRuntime())
-	err = engine.Evaluate(program)
-	if err != nil {
-		return err
 	}
 
 	return nil

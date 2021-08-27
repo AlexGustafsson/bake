@@ -230,6 +230,14 @@ func (validator *Validator) Validate(root ast.Node) {
 				validator.CurrentScope = scope.ParentScope
 			}
 		}
+	case *ast.ForStatement:
+		validator.Validate(node.Expression)
+
+		if scope, ok := validator.CurrentScope.ChildScopes[node.Block]; ok {
+			validator.CurrentScope = scope
+			validator.Validate(node.Block)
+			validator.CurrentScope = scope.ParentScope
+		}
 	}
 
 	validator.visited++

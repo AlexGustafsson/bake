@@ -59,6 +59,13 @@ func (builder *Builder) Build(root ast.Node) {
 			builder.Build(node.NegativeBranch)
 		}
 		builder.popScope()
+	case *ast.ForStatement:
+		builder.pushScope(node.Block)
+		symbol := CreateSymbol(node.Identifier.Value, TraitAny, node.Identifier)
+		builder.insertInScope(symbol)
+
+		builder.Build(node.Block)
+		builder.popScope()
 	case *ast.RuleFunctionDeclaration:
 		symbol := CreateSymbol(node.Identifier, TraitCallable, node)
 		if node.Signature != nil {

@@ -264,6 +264,8 @@ func parseStatement(parser *Parser) ast.Node {
 		return ast.CreateReturnStatement(createRangeFromItem(startToken), value)
 	case lexing.ItemKeywordIf:
 		return parseIfStatement(parser)
+	case lexing.ItemKeywordFor:
+		return parseForStatement(parser)
 	default:
 		return parseSimpleStatement(parser)
 	}
@@ -285,6 +287,16 @@ func parseIfStatement(parser *Parser) *ast.IfStatement {
 	}
 
 	return ast.CreateIfStatement(createRangeFromItem(startToken), expression, positiveBranch, negativeBranch)
+}
+
+func parseForStatement(parser *Parser) *ast.ForStatement {
+	startToken := parser.require(lexing.ItemKeywordFor)
+	identifier := parser.require(lexing.ItemIdentifier)
+	parser.require(lexing.ItemKeywordIn)
+	expression := parseExpression(parser)
+	block := parseBlock(parser)
+
+	return ast.CreateForStatement(createRangeFromItem(startToken), ast.CreateIdentifier(createRangeFromItem(identifier), identifier.Value), expression, block)
 }
 
 func parseSimpleStatement(parser *Parser) ast.Node {

@@ -273,6 +273,14 @@ func formatTree(root ast.Node) string {
 			fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"negative branch\"];\n", node, node.NegativeBranch)
 			builder.WriteString(formatTree(node.NegativeBranch))
 		}
+	case *ast.ForStatement:
+		fmt.Fprintf(&builder, "\"%p\" [label=\"for statement\"];\n", node)
+		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"identifier\"];\n", node, node.Identifier)
+		builder.WriteString(formatTree(node.Identifier))
+		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"expression\"];\n", node, node.Expression)
+		builder.WriteString(formatTree(node.Expression))
+		fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, node.Block)
+		builder.WriteString(formatTree(node.Block))
 	default:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"UNKNOWN '%s'\"", node, node.Type().String())
 	}

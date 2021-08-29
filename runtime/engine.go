@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/AlexGustafsson/bake/ast"
+	log "github.com/sirupsen/logrus"
 )
 
 type Engine struct {
@@ -31,11 +32,11 @@ func (engine *Engine) Evaluate(source *ast.Block) (err error) {
 func (engine *Engine) EvaluateTask(task string) (err error) {
 	defer engine.recover(&err)
 
+	log.Debugf("resolving task '%s'", task)
 	value := engine.Delegate.Resolve(task)
-	if value == nil || !value.Exported {
-		panic(fmt.Errorf("no such exported task '%s'", task))
-	}
+	log.Debugf("resolved task '%s': %s", task, value)
 
+	log.Debugf("evaluating task '%s'", task)
 	engine.evaluateTask(value)
 
 	return nil
@@ -44,6 +45,10 @@ func (engine *Engine) EvaluateTask(task string) (err error) {
 func (engine *Engine) evaluateTask(value *Value) {
 	switch value.Type {
 	case ValueTypeFunction:
+		if !value.Exported {
+			panic(fmt.Errorf("cannot invoke a private function"))
+		}
+
 		function := value.Value.(*Function)
 		// The function is a builtin - don't call
 		if function.Block == nil {
@@ -67,11 +72,27 @@ func (engine *Engine) evaluateTask(value *Value) {
 		engine.Delegate.PopScope()
 		engine.returnValue = nil
 	case ValueTypeAlias:
+		if !value.Exported {
+			panic(fmt.Errorf("cannot invoke a private alias"))
+		}
+
 		// TODO: Build dependency table (don't run twice, watch for changes etc.)
 		alias := value.Value.(*Alias)
 		for _, dependency := range alias.Dependencies {
 			engine.evaluateTask(dependency)
 		}
+	case ValueTypeString:
+		engine.EvaluateTask(value.Value.(string))
+	case ValueTypeRule:
+		rule := value.Value.(*Rule)
+		// Create a function scope
+		engine.Delegate.PushScope()
+
+		// Evaluate block
+		engine.evaluate(rule.Block)
+
+		// Leave function scope
+		engine.Delegate.PopScope()
 	default:
 		panic(fmt.Errorf("cannot invoke type '%s'", value.Type))
 	}

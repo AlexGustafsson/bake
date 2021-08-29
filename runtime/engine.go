@@ -36,12 +36,18 @@ func (engine *Engine) EvaluateTask(task string) (err error) {
 		panic(fmt.Errorf("no such exported task '%s'", task))
 	}
 
+	engine.evaluateTask(value)
+
+	return nil
+}
+
+func (engine *Engine) evaluateTask(value *Value) {
 	switch value.Type {
 	case ValueTypeFunction:
 		function := value.Value.(*Function)
 		// The function is a builtin - don't call
 		if function.Block == nil {
-			panic(fmt.Errorf("function '%s' not callable", task))
+			panic(fmt.Errorf("function not callable"))
 		}
 
 		// TODO: parse arguments
@@ -61,13 +67,14 @@ func (engine *Engine) EvaluateTask(task string) (err error) {
 		engine.Delegate.PopScope()
 		engine.returnValue = nil
 	case ValueTypeAlias:
-		// TODO: invoke alias
-		panic(fmt.Errorf("cannot invoke alias - not implemented"))
+		// TODO: Build dependency table (don't run twice, watch for changes etc.)
+		alias := value.Value.(*Alias)
+		for _, dependency := range alias.Dependencies {
+			engine.evaluateTask(dependency)
+		}
 	default:
 		panic(fmt.Errorf("cannot invoke type '%s'", value.Type))
 	}
-
-	return nil
 }
 
 func (engine *Engine) evaluate(rootNode ast.Node) *Value {

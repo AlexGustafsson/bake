@@ -58,6 +58,8 @@ func (value *Value) String() string {
 type Rule struct {
 	Outputs      []string
 	Dependencies []*Value
+	// Block is the AST block that will be executed on invocation
+	Block *ast.Block
 }
 
 type FunctionHandler func(engine *Engine, arguments []*Value) *Value

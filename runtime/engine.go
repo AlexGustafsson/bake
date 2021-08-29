@@ -290,9 +290,37 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 				value := &Value{Type: ValueTypeRuleFunction, Value: function}
 				engine.Delegate.Define(declaration.Identifier, value)
 			case *ast.RuleDeclaration:
-				// rule := &Rule{}
-				// value := &Value{Type: ValueTypeRule, Value: rule}
-				// engine.Delegate.Define(declaration.Identifier, value)
+				rule := &Rule{
+					Outputs:      make([]string, 0),
+					Dependencies: make([]*Value, 0),
+				}
+
+				value := &Value{Type: ValueTypeRule, Value: rule}
+
+				for _, outputNode := range declaration.Outputs {
+					output := engine.evaluate(outputNode)
+					if output.Type != ValueTypeString {
+						panic(fmt.Errorf("an output evaluate to a string"))
+					}
+
+					rule.Outputs = append(rule.Outputs, output.Value.(string))
+					engine.Delegate.Define(output.Value.(string), value)
+				}
+
+				for _, dependencyNode := range declaration.Dependencies {
+					dependency := engine.evaluate(dependencyNode)
+					switch dependency.Type {
+					case ValueTypeFunction, ValueTypeString, ValueTypeAlias:
+						// Do nothing, valid types
+						rule.Dependencies = append(rule.Dependencies, dependency)
+					default:
+						panic(fmt.Errorf("invalid dependency type '%s'", dependency.Type))
+					}
+				}
+
+				rule.Block = declaration.Block
+
+				// TODO: Add support for derived rules (syntax sugar for another block?)
 			case *ast.AliasDeclaration:
 				// TODO: This is not compatible with the syntax for derived functions: alias build : c::build(param)
 				// For now, only support array dependencies

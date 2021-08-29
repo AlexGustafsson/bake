@@ -12,6 +12,10 @@ import (
 
 func runCommand(context *cli.Context) error {
 	inputPath := context.String("input")
+	if inputPath == "" {
+		inputPath = "Bakefile"
+	}
+
 	file, err := os.Open(inputPath)
 	if err != nil {
 		return err
@@ -23,7 +27,7 @@ func runCommand(context *cli.Context) error {
 	}
 
 	input := string(inputBytes)
-	program := runtime.CreateProgram(input)
+	program := runtime.CreateProgram(input, runtime.CreateDefaultRuntime())
 	builtins.Register(program)
 
 	err = program.Parse()
@@ -46,9 +50,19 @@ func runCommand(context *cli.Context) error {
 		return fmt.Errorf("validation failed")
 	}
 
-	runtime := runtime.CreateDefaultRuntime()
+	program.DefineBuiltinValues()
 
-	program.DefineBuiltinValues(runtime)
+	err = program.Run()
+	if err != nil {
+		return err
+	}
 
-	return program.Run(runtime)
+	for _, task := range context.Args().Slice() {
+		err = program.RunTask(task)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

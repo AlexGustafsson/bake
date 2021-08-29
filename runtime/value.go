@@ -23,8 +23,9 @@ const (
 )
 
 type Value struct {
-	Type  ValueType
-	Value interface{}
+	Type     ValueType
+	Value    interface{}
+	Exported bool
 }
 
 func (value *Value) String() string {

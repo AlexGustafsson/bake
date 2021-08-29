@@ -28,6 +28,48 @@ func (engine *Engine) Evaluate(source *ast.Block) (err error) {
 	return nil
 }
 
+func (engine *Engine) EvaluateTask(task string) (err error) {
+	defer engine.recover(&err)
+
+	value := engine.Delegate.Resolve(task)
+	if value == nil || !value.Exported {
+		panic(fmt.Errorf("no such exported task '%s'", task))
+	}
+
+	switch value.Type {
+	case ValueTypeFunction:
+		function := value.Value.(*Function)
+		// The function is a builtin - don't call
+		if function.Block == nil {
+			panic(fmt.Errorf("function '%s' not callable", task))
+		}
+
+		// TODO: parse arguments
+		if len(function.Arguments) > 0 {
+			panic(fmt.Errorf("missing arguments"))
+		}
+
+		// Create a function scope
+		engine.Delegate.PushScope()
+
+		// TODO: define arguments
+
+		// Evaluate block
+		engine.evaluate(function.Block)
+
+		// Leave function scope
+		engine.Delegate.PopScope()
+		engine.returnValue = nil
+	case ValueTypeAlias:
+		// TODO: invoke alias
+		panic(fmt.Errorf("cannot invoke alias - not implemented"))
+	default:
+		panic(fmt.Errorf("cannot invoke type '%s'", value.Type))
+	}
+
+	return nil
+}
+
 func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 	switch node := rootNode.(type) {
 	case *ast.VariableDeclaration:
@@ -277,7 +319,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 					}
 				}
 
-				value := &Value{Type: ValueTypeFunction, Value: function}
+				value := &Value{Type: ValueTypeFunction, Value: function, Exported: declaration.Exported}
 				engine.Delegate.Define(declaration.Identifier, value)
 			case *ast.RuleFunctionDeclaration:
 				function := &Function{Arguments: make([]string, 0), IsRuleFunction: true, Block: declaration.Block}
@@ -287,7 +329,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 					}
 				}
 
-				value := &Value{Type: ValueTypeRuleFunction, Value: function}
+				value := &Value{Type: ValueTypeRuleFunction, Value: function, Exported: declaration.Exported}
 				engine.Delegate.Define(declaration.Identifier, value)
 			case *ast.RuleDeclaration:
 				rule := &Rule{
@@ -340,7 +382,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 				}
 
 				alias := &Alias{Dependencies: dependencies}
-				value := &Value{Type: ValueTypeAlias, Value: alias}
+				value := &Value{Type: ValueTypeAlias, Value: alias, Exported: declaration.Exported}
 				engine.Delegate.Define(declaration.Identifier, value)
 			}
 		}
@@ -391,7 +433,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			value := engine.evaluate(element)
 			elements[i] = value
 		}
-		return &Value{ValueTypeArray, elements}
+		return &Value{Type: ValueTypeArray, Value: elements}
 	}
 
 	panic(fmt.Errorf("unimplemented type %s", rootNode.Type()))

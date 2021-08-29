@@ -36,10 +36,11 @@ var commands = []*cli.Command{
 		Action: runCommand,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:     "input",
-				Aliases:  []string{"i"},
-				Usage:    "Path to input file",
-				Required: true,
+				Name:        "input",
+				Aliases:     []string{"i"},
+				Usage:       "Path to input file",
+				DefaultText: "Bakefile",
+				Required:    false,
 			},
 		},
 	},

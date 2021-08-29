@@ -31,7 +31,7 @@ func validateCommand(context *cli.Context) error {
 	}
 
 	input := string(inputBytes)
-	program := runtime.CreateProgram(input)
+	program := runtime.CreateProgram(input, nil)
 	builtins.Register(program)
 
 	err = program.Parse()

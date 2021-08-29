@@ -11,6 +11,8 @@ type Program struct {
 	Source    *ast.Block
 	RootScope *semantics.Scope
 	Builtins  map[string]*Builtin
+	Engine    *Engine
+	Delegate  Delegate
 }
 
 // Builtin is a globally available value
@@ -20,10 +22,12 @@ type Builtin struct {
 	Value      *Value
 }
 
-func CreateProgram(input string) *Program {
+func CreateProgram(input string, delegate Delegate) *Program {
 	return &Program{
 		Input:    input,
 		Builtins: make(map[string]*Builtin),
+		Delegate: delegate,
+		Engine:   CreateEngine(delegate),
 	}
 }
 
@@ -55,9 +59,9 @@ func (program *Program) DefineBuiltinSymbols() {
 }
 
 // DefineBuiltinSymbols defines the values in the delegate's scope
-func (program *Program) DefineBuiltinValues(delegate Delegate) {
+func (program *Program) DefineBuiltinValues() {
 	for _, builtin := range program.Builtins {
-		delegate.Define(builtin.Identifier, builtin.Value)
+		program.Delegate.Define(builtin.Identifier, builtin.Value)
 	}
 }
 
@@ -66,9 +70,20 @@ func (program *Program) Validate() []error {
 }
 
 // Run executes a program
-func (program *Program) Run(delegate Delegate) error {
-	engine := CreateEngine(delegate)
-	return engine.Evaluate(program.Source)
+func (program *Program) Run() error {
+	return program.Engine.Evaluate(program.Source)
+}
+
+// RunTask executes a specific task
+func (program *Program) RunTask(task string) error {
+	// First run the top-level code
+	err := program.Engine.Evaluate(program.Source)
+	if err != nil {
+		return err
+	}
+
+	// Run the specified task
+	return program.Engine.EvaluateTask(task)
 }
 
 // DefineBuiltinFunction defines as new, globally available function

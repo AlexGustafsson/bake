@@ -114,7 +114,7 @@ func (handler *Handler) handleSave(context *glsp.Context, parameters *protocol.D
 	document.ClearDiagnostics()
 	defer document.PublishDiagnostics(context)
 
-	program := runtime.CreateProgram(document.Content)
+	program := runtime.CreateProgram(document.Content, nil)
 	builtins.Register(program)
 
 	err = program.Parse()

@@ -21,6 +21,8 @@ type Delegate interface {
 	Not(operand *Value) *Value
 	Negative(operand *Value) *Value
 
+	Shell(script string)
+
 	Define(identifier string, value *Value)
 	Resolve(identifier string) *Value
 	SetScope(scope *Scope)

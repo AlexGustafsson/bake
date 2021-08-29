@@ -462,6 +462,19 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			elements[i] = value
 		}
 		return &Value{Type: ValueTypeArray, Value: elements}
+	case *ast.ShellStatement:
+		var builder strings.Builder
+		for _, part := range node.Parts {
+			switch partNode := part.(type) {
+			case *ast.StringPart:
+				builder.WriteString(partNode.Content)
+			default:
+				value := engine.evaluate(partNode)
+				builder.WriteString(value.String())
+			}
+		}
+		engine.Delegate.Shell(builder.String())
+		return nil
 	}
 
 	panic(fmt.Errorf("unimplemented type %s", rootNode.Type()))

@@ -1,6 +1,9 @@
 package runtime
 
-import "fmt"
+import (
+	"fmt"
+	"os/exec"
+)
 
 type DefaultRuntime struct {
 	scope *Scope
@@ -243,6 +246,18 @@ func (runtime *DefaultRuntime) Negative(operand *Value) *Value {
 	default:
 		panic(fmt.Errorf("invalid operation for type %s", operand.Type))
 	}
+}
+
+func (runtime *DefaultRuntime) Shell(script string) {
+	cmd := exec.Command("/bin/bash", "-c", script)
+	stdout, err := cmd.Output()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	// TODO: Use streams for realtime output
+	fmt.Println(string(stdout))
 }
 
 func (runtime *DefaultRuntime) Define(identifier string, value *Value) {

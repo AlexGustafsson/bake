@@ -242,6 +242,10 @@ func (validator *Validator) Validate(root ast.Node) {
 			validator.Validate(node.Block)
 			validator.CurrentScope = scope.ParentScope
 		}
+	case *ast.Array:
+		for _, element := range node.Elements {
+			validator.Validate(element)
+		}
 	}
 
 	validator.visited++

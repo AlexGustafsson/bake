@@ -54,7 +54,7 @@ func validateCommand(context *cli.Context) error {
 		return fmt.Errorf("validation failed")
 	}
 
-	output := dot.FormatScope(program.RootScope)
+	output := dot.FormatScope(program.MainModule.RootScope)
 
 	if outputType == "dot" {
 		fmt.Print(output)

@@ -3,6 +3,7 @@ module github.com/AlexGustafsson/bake
 go 1.16
 
 require (
+	github.com/go-git/go-git/v5 v5.4.2
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/sirupsen/logrus v1.8.1
 	github.com/tliron/glsp v0.0.0-20210824162824-d103e5701036

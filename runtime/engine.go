@@ -299,7 +299,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		// Evaluate all statements
 		for _, statement := range node.Statements {
 			switch statement.Type() {
-			case ast.NodeTypeFunctionDeclaration, ast.NodeTypeRuleFunctionDeclaration, ast.NodeTypeRuleDeclaration:
+			case ast.NodeTypeFunctionDeclaration, ast.NodeTypeRuleFunctionDeclaration, ast.NodeTypeRuleDeclaration, ast.NodeTypeImportsDeclaration:
 				// Do nothing
 			case ast.NodeTypeReturnStatement:
 				returnStatement := statement.(*ast.ReturnStatement)

@@ -32,7 +32,14 @@ func runCommand(context *cli.Context) error {
 		return fmt.Errorf("parsing failed")
 	}
 
-	errs := program.BuildSymbols()
+	// TODO: Lookup the .bake directory (bake init?)
+	errs := program.ResolveImports("./.bake/dependencies/")
+	if len(errs) > 0 {
+		PrintPrettyErrors(errs, input)
+		return fmt.Errorf("failed to resolve imports")
+	}
+
+	errs = program.BuildSymbols()
 	if len(errs) > 0 {
 		PrintPrettyErrors(errs, input)
 		return fmt.Errorf("validation failed")

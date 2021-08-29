@@ -293,13 +293,34 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 				// rule := &Rule{}
 				// value := &Value{Type: ValueTypeRule, Value: rule}
 				// engine.Delegate.Define(declaration.Identifier, value)
+			case *ast.AliasDeclaration:
+				// TODO: This is not compatible with the syntax for derived functions: alias build : c::build(param)
+				// For now, only support array dependencies
+				expression := engine.evaluate(declaration.Expression)
+				if expression.Type != ValueTypeArray {
+					panic(fmt.Errorf("invalid dependencies - expected array"))
+				}
+
+				dependencies := expression.Value.([]*Value)
+				for _, dependency := range dependencies {
+					switch dependency.Type {
+					case ValueTypeFunction, ValueTypeString, ValueTypeAlias:
+						// Do nothing, valid types
+					default:
+						panic(fmt.Errorf("invalid dependency type '%s'", dependency.Type))
+					}
+				}
+
+				alias := &Alias{Dependencies: dependencies}
+				value := &Value{Type: ValueTypeAlias, Value: alias}
+				engine.Delegate.Define(declaration.Identifier, value)
 			}
 		}
 
 		// Evaluate all statements
 		for _, statement := range node.Statements {
 			switch statement.Type() {
-			case ast.NodeTypeFunctionDeclaration, ast.NodeTypeRuleFunctionDeclaration, ast.NodeTypeRuleDeclaration:
+			case ast.NodeTypeFunctionDeclaration, ast.NodeTypeRuleFunctionDeclaration, ast.NodeTypeRuleDeclaration, ast.NodeTypeAliasDeclaration:
 				// Do nothing
 			case ast.NodeTypeReturnStatement:
 				returnStatement := statement.(*ast.ReturnStatement)

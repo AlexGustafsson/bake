@@ -19,6 +19,7 @@ const (
 	ValueTypeRule
 	ValueTypeNone
 	ValueTypeArray
+	ValueTypeAlias
 )
 
 type Value struct {
@@ -69,4 +70,8 @@ type Function struct {
 	// Handler is the callback that should handle the invocation. Block and Handler are mutually exclusive.
 	Handler        FunctionHandler
 	IsRuleFunction bool
+}
+
+type Alias struct {
+	Dependencies []*Value
 }

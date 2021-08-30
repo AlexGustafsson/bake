@@ -350,6 +350,14 @@ func (runtime *DefaultRuntime) Selector(value *Value, identifier string) *Value 
 		default:
 			panic(fmt.Errorf("arrays have no such property '%s'", identifier))
 		}
+	case ValueTypeString:
+		text := value.Value.(string)
+		switch identifier {
+		case "length":
+			return &Value{Type: ValueTypeNumber, Value: len(text)}
+		default:
+			panic(fmt.Errorf("strings have no such property '%s'", identifier))
+		}
 	default:
 		panic(fmt.Errorf("invalid operand on non-object '%s'", value.Type))
 	}

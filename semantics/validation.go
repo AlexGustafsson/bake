@@ -249,6 +249,10 @@ func (validator *Validator) Validate(root ast.Node) {
 	case *ast.Selector:
 		// TODO: Validate that it's an object
 		validator.Validate(node.Operand)
+	case *ast.Object:
+		for _, value := range node.Pairs {
+			validator.Validate(value)
+		}
 	}
 
 	validator.visited++

@@ -124,15 +124,18 @@ unary_operator = "-" | "!" | "..." .
 
 Primary = Operand { Selector | Index | Arguments } .
 
-Operand = Literal | Array | ImportSelector | identifier | "(" Expression ")" .
+Operand = Literal | Array | Object | ImportSelector | identifier | "(" Expression ")" .
 Literal = boolean_literal | integer_literal | string_literal .
 Array = "[" [ ExpressionList ] "]" .
+Object = "{" [ KeyValueList ] "}" .
 ImportSelector = identifier "::" identifier .
 
 Selector = "." identifier .
 Index = "[" Expression "]" .
 Arguments = "(" [ ExpressionList ] ")" .
 ExpressionList = Expression { "," Expression } .
+KeyValue = identifier ":" Expression
+KeyValueList = KeyValue { "," KeyValue } .
 ```
 
 ## Tokens

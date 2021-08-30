@@ -535,31 +535,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 	case *ast.Index:
 		value := engine.evaluate(node.Operand)
 		index := engine.evaluate(node.Expression)
-
-		if value.Type == ValueTypeObject {
-			if index.Type == ValueTypeString {
-				object := value.Value.(Object)
-				if value, ok := object[index.Value.(string)]; ok {
-					return value
-				} else {
-					return &Value{Type: ValueTypeNone}
-				}
-			} else {
-				panic(fmt.Errorf("an object can only be indexed with a string"))
-			}
-		} else if value.Type == ValueTypeArray {
-			if index.Type == ValueTypeNumber {
-				index := index.Value.(int)
-				array := value.Value.(Array)
-				if index >= 0 && index < len(array) {
-					return array[index]
-				} else {
-					panic(fmt.Errorf("index is out of bounds"))
-				}
-			}
-		} else {
-			panic(fmt.Errorf("cannot index a value of type '%s'", value.Type))
-		}
+		return engine.Delegate.Index(value, index)
 	case *ast.Object:
 		object := make(Object)
 

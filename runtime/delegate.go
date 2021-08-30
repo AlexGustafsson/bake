@@ -24,6 +24,8 @@ type Delegate interface {
 	Shell(script string)
 	ShellFormat(value *Value) string
 
+	Index(left *Value, right *Value) *Value
+
 	ResolveEscapes(value string) string
 
 	Define(identifier string, value *Value)

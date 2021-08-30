@@ -304,6 +304,35 @@ func (runtime *DefaultRuntime) ShellFormat(value *Value) string {
 	}
 }
 
+func (runtime *DefaultRuntime) Index(left *Value, right *Value) *Value {
+	if left.Type == ValueTypeObject {
+		if right.Type == ValueTypeString {
+			object := left.Value.(Object)
+			if value, ok := object[right.Value.(string)]; ok {
+				return value
+			} else {
+				return &Value{Type: ValueTypeNone}
+			}
+		} else {
+			panic(fmt.Errorf("an object can only be indexed with a string"))
+		}
+	} else if left.Type == ValueTypeArray {
+		if right.Type == ValueTypeNumber {
+			index := right.Value.(int)
+			array := left.Value.(Array)
+			if index >= 0 && index < len(array) {
+				return array[index]
+			} else {
+				panic(fmt.Errorf("index is out of bounds"))
+			}
+		} else {
+			panic(fmt.Errorf("an array can only be indexed with a number"))
+		}
+	} else {
+		panic(fmt.Errorf("cannot index a value of type '%s'", left.Type))
+	}
+}
+
 func (runtime *DefaultRuntime) Define(identifier string, value *Value) {
 	runtime.scope.Define(identifier, value)
 }

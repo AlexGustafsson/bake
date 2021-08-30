@@ -17,6 +17,24 @@ One may also access objects using the index syntax.
 print(env["MY-ENV-VAR"])
 ```
 
+Objects may also be defined using the following syntax.
+
+```bake
+let a = {
+  b: 1,
+  c: "foo",
+  d: {
+    e: 2
+  }
+}
+
+print(a)
+```
+
+```
+{b: 1, c: "foo", d: {e: 2}}
+```
+
 Arrays are defined in two main ways.
 
 ```bake

@@ -24,6 +24,8 @@ type Delegate interface {
 	Shell(script string)
 	ShellFormat(value *Value) string
 
+	ResolveEscapes(value string) string
+
 	Define(identifier string, value *Value)
 	Resolve(identifier string) *Value
 	SetScope(scope *Scope)

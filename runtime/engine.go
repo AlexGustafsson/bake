@@ -481,12 +481,12 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 				builder.WriteString(partNode.Content)
 			default:
 				value := engine.evaluate(partNode)
-				builder.WriteString(value.String())
+				builder.WriteString(engine.Delegate.ShellFormat(value))
 			}
 		}
 		return &Value{
 			Type:  ValueTypeString,
-			Value: builder.String(),
+			Value: engine.Delegate.ResolveEscapes(builder.String()),
 		}
 	case *ast.Array:
 		elements := make(Array, len(node.Elements))

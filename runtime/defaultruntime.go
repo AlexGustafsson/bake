@@ -253,6 +253,10 @@ func (runtime *DefaultRuntime) Negative(operand *Value) *Value {
 func (runtime *DefaultRuntime) Shell(script string) {
 	cmd := exec.Command("/bin/bash")
 	var stdout, stderr bytes.Buffer
+	// Always end the script with a newline to ensure it's executed
+	if !strings.HasSuffix(script, "\n") {
+		script += "\n"
+	}
 	cmd.Stdin = strings.NewReader(script)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -265,6 +269,14 @@ func (runtime *DefaultRuntime) Shell(script string) {
 		shell["stderr"].Value = strings.TrimSpace(stderr.String())
 		shell["status"].Value = cmd.ProcessState.ExitCode()
 	}
+}
+
+func (runtime *DefaultRuntime) ResolveEscapes(value string) string {
+	value = strings.ReplaceAll(value, "\\\"", "\"")
+	value = strings.ReplaceAll(value, "\\t", "\t")
+	value = strings.ReplaceAll(value, "\\n", "\n")
+	value = strings.ReplaceAll(value, "\\$", "$")
+	return value
 }
 
 func (runtime *DefaultRuntime) ShellFormat(value *Value) string {

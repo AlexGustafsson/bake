@@ -40,7 +40,10 @@ var commands = []*cli.Command{
 				Aliases:     []string{"i"},
 				Usage:       "Path to input file",
 				DefaultText: "Bakefile",
-				Required:    false,
+			},
+			&cli.StringFlag{
+				Name:  "in",
+				Usage: "The directory in which to run bake",
 			},
 		},
 	},

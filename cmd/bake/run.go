@@ -7,6 +7,7 @@ import (
 
 	"github.com/AlexGustafsson/bake/builtins"
 	"github.com/AlexGustafsson/bake/runtime"
+	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 )
 
@@ -14,6 +15,15 @@ func runCommand(context *cli.Context) error {
 	inputPath := context.String("input")
 	if inputPath == "" {
 		inputPath = "Bakefile"
+	}
+
+	directory := context.String("in")
+	if directory != "" {
+		log.Debugf("changing directory to '%s'", directory)
+		err := os.Chdir(directory)
+		if err != nil {
+			return err
+		}
 	}
 
 	file, err := os.Open(inputPath)

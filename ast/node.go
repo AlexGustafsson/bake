@@ -62,4 +62,5 @@ const (
 	NodeTypeStringPart
 	NodeTypeForStatement
 	NodeTypeModuloAssignment
+	NodeTypeObject
 )

@@ -21,7 +21,7 @@ ifeq ($(shell uname),Darwin)
 	CC=clang
 endif
 
-.PHONY: help build tools vscode nano prism format lint test install-tools clean
+.PHONY: help build release build-specified tools vscode nano prism format lint test install-tools clean
 
 # Produce a short description of available make commands
 help:
@@ -29,6 +29,15 @@ help:
 
 # Build for the native platform
 build: build/bake build/bagels
+
+# Package for release
+release: tools
+	GOOS=darwin GOARCH=amd64 $(MAKE) build-specified
+	GOOS=darwin GOARCH=arm64 $(MAKE) build-specified
+	GOOS=linux GOARCH=amd64 $(MAKE) build-specified
+	GOOS=linux GOARCH=arm64 $(MAKE) build-specified
+	GOOS=windows GOARCH=amd64 $(MAKE) build-specified
+	GOOS=windows GOARCH=arm64 $(MAKE) build-specified
 
 # Format Go code
 format: $(server_source) Makefile
@@ -56,11 +65,26 @@ build/bagels: $(server_source) Makefile
 	go generate ./...
 	go build $(BUILD_FLAGS) -o $@ cmd/bagels/*.go
 
+# Build for the specified platform
+build-specified: build/bake-$(GOOS)-$(GOARCH) build/bagels-$(GOOS)-$(GOARCH)
+	tar -czf build/bake-$(GOOS)-$(GOARCH).tgz build/bake-$(GOOS)-$(GOARCH)
+	tar -czf build/bagels-$(GOOS)-$(GOARCH).tgz build/bagels-$(GOOS)-$(GOARCH)
+
+# Build for the specified platform
+build/bake-$(GOOS)-$(GOARCH):
+	go generate ./...
+	go build $(BUILD_FLAGS) -o $@ cmd/bake/*.go
+
+# Build for the specified platform
+build/bagels-$(GOOS)-$(GOARCH):
+	go generate ./...
+	go build $(BUILD_FLAGS) -o $@ cmd/bagels/*.go
+
 install-tools:
 	cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %
 
 # Build tools
-tools: vscode nano
+tools: vscode nano prism
 
 # Build the vscode tool
 vscode:

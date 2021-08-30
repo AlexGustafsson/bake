@@ -62,18 +62,19 @@ func _() {
 	_ = x[ItemKeywordLet-51]
 	_ = x[ItemKeywordShell-52]
 	_ = x[ItemKeywordAlias-53]
-	_ = x[ItemIdentifier-54]
-	_ = x[ItemNewline-55]
-	_ = x[ItemWhitespace-56]
-	_ = x[ItemStringPart-57]
-	_ = x[ItemInteger-58]
-	_ = x[ItemBoolean-59]
-	_ = x[ItemComment-60]
+	_ = x[ItemKeywordBreak-54]
+	_ = x[ItemIdentifier-55]
+	_ = x[ItemNewline-56]
+	_ = x[ItemWhitespace-57]
+	_ = x[ItemStringPart-58]
+	_ = x[ItemInteger-59]
+	_ = x[ItemBoolean-60]
+	_ = x[ItemComment-61]
 }
 
-const _ItemType_name = "ItemStartOfInputItemEndOfInputItemErrorItemAdditionItemAdditionAssignItemSubtractionItemSubtractionAssignItemMultiplicationItemMultiplicationAssignItemDivisionItemDivisionAssignItemAssignmentItemLooseAssignmentItemEqualsItemNotItemNotEqualItemLessThanItemLessThanOrEqualItemGreaterThanItemGreaterThanOrEqualItemAndItemOrItemSpreadItemIncrementItemDecrementItemModuloItemModuloAssignItemLeftParenthesesItemRightParenthesesItemLeftBracketItemRightBracketItemLeftCurlyItemRightCurlyItemColonItemColonColonItemCommaItemDotItemSubstitutionStartItemSubstitutionEndItemDoubleQuoteItemBacktickItemKeywordPackageItemKeywordImportItemKeywordFuncItemKeywordRuleItemKeywordExportItemKeywordIfItemKeywordForItemKeywordInItemKeywordElseItemKeywordReturnItemKeywordLetItemKeywordShellItemKeywordAliasItemIdentifierItemNewlineItemWhitespaceItemStringPartItemIntegerItemBooleanItemComment"
+const _ItemType_name = "ItemStartOfInputItemEndOfInputItemErrorItemAdditionItemAdditionAssignItemSubtractionItemSubtractionAssignItemMultiplicationItemMultiplicationAssignItemDivisionItemDivisionAssignItemAssignmentItemLooseAssignmentItemEqualsItemNotItemNotEqualItemLessThanItemLessThanOrEqualItemGreaterThanItemGreaterThanOrEqualItemAndItemOrItemSpreadItemIncrementItemDecrementItemModuloItemModuloAssignItemLeftParenthesesItemRightParenthesesItemLeftBracketItemRightBracketItemLeftCurlyItemRightCurlyItemColonItemColonColonItemCommaItemDotItemSubstitutionStartItemSubstitutionEndItemDoubleQuoteItemBacktickItemKeywordPackageItemKeywordImportItemKeywordFuncItemKeywordRuleItemKeywordExportItemKeywordIfItemKeywordForItemKeywordInItemKeywordElseItemKeywordReturnItemKeywordLetItemKeywordShellItemKeywordAliasItemKeywordBreakItemIdentifierItemNewlineItemWhitespaceItemStringPartItemIntegerItemBooleanItemComment"
 
-var _ItemType_index = [...]uint16{0, 16, 30, 39, 51, 69, 84, 105, 123, 147, 159, 177, 191, 210, 220, 227, 239, 251, 270, 285, 307, 314, 320, 330, 343, 356, 366, 382, 401, 421, 436, 452, 465, 479, 488, 502, 511, 518, 539, 558, 573, 585, 603, 620, 635, 650, 667, 680, 694, 707, 722, 739, 753, 769, 785, 799, 810, 824, 838, 849, 860, 871}
+var _ItemType_index = [...]uint16{0, 16, 30, 39, 51, 69, 84, 105, 123, 147, 159, 177, 191, 210, 220, 227, 239, 251, 270, 285, 307, 314, 320, 330, 343, 356, 366, 382, 401, 421, 436, 452, 465, 479, 488, 502, 511, 518, 539, 558, 573, 585, 603, 620, 635, 650, 667, 680, 694, 707, 722, 739, 753, 769, 785, 801, 815, 826, 840, 854, 865, 876, 887}
 
 func (i ItemType) String() string {
 	if i < 0 || i >= ItemType(len(_ItemType_index)-1) {

@@ -308,6 +308,8 @@ func lexRoot(lexer *Lexer) stateModifier {
 					lexer.Emit(ItemKeywordElse)
 				case "return":
 					lexer.Emit(ItemKeywordReturn)
+				case "break":
+					lexer.Emit(ItemKeywordBreak)
 				case "let":
 					lexer.Emit(ItemKeywordLet)
 				case "shell":

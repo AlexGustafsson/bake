@@ -65,6 +65,7 @@ const (
 	ItemKeywordLet
 	ItemKeywordShell
 	ItemKeywordAlias
+	ItemKeywordBreak
 
 	// Identifiers
 	ItemIdentifier

@@ -61,7 +61,7 @@ func (engine *Engine) evaluateTask(value *Value) {
 		}
 
 		// Create a function scope
-		engine.Delegate.PushScope()
+		engine.Delegate.PushScope(ScopeTypeFunction)
 
 		// TODO: define arguments
 
@@ -85,8 +85,25 @@ func (engine *Engine) evaluateTask(value *Value) {
 		engine.EvaluateTask(value.Value.(string))
 	case ValueTypeRule:
 		rule := value.Value.(*Rule)
+
 		// Create a function scope
-		engine.Delegate.PushScope()
+		engine.Delegate.PushScope(ScopeTypeRule)
+
+		// TODO: Evaluate dependencies
+		contextValue := engine.Delegate.Resolve("context")
+		context := contextValue.Value.(Object)
+
+		outputs := make(Array, len(rule.Outputs))
+		context["output"].Value = outputs
+		for i, output := range rule.Outputs {
+			outputs[i] = &Value{Type: ValueTypeString, Value: output}
+		}
+
+		inputs := make(Array, len(rule.Dependencies))
+		context["input"].Value = inputs
+		for i, dependency := range rule.Dependencies {
+			inputs[i] = dependency
+		}
 
 		// Evaluate block
 		engine.evaluate(rule.Block)
@@ -295,7 +312,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 					}
 
 					// Create a function scope
-					engine.Delegate.PushScope()
+					engine.Delegate.PushScope(ScopeTypeFunction)
 
 					// Define arguments
 					for i, parameter := range function.Arguments {
@@ -328,11 +345,11 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		}
 
 		if condition.Value.(bool) {
-			engine.Delegate.PushScope()
+			engine.Delegate.PushScope(ScopeTypeGeneric)
 			engine.evaluate(node.PositiveBranch)
 			engine.Delegate.PopScope()
 		} else if node.NegativeBranch != nil {
-			engine.Delegate.PushScope()
+			engine.Delegate.PushScope(ScopeTypeGeneric)
 			engine.evaluate(node.NegativeBranch)
 			engine.Delegate.PopScope()
 		}
@@ -345,7 +362,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 
 		collection := value.Value.(Array)
 		for _, currentValue := range collection {
-			engine.Delegate.PushScope()
+			engine.Delegate.PushScope(ScopeTypeGeneric)
 			engine.Delegate.Define(node.Identifier.Value, currentValue)
 			engine.evaluate(node.Block)
 			engine.Delegate.PopScope()
@@ -486,7 +503,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 				builder.WriteString(partNode.Content)
 			default:
 				value := engine.evaluate(partNode)
-				builder.WriteString(value.String())
+				builder.WriteString(engine.Delegate.ShellFormat(value))
 			}
 		}
 		engine.Delegate.Shell(builder.String())

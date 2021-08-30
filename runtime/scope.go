@@ -1,14 +1,26 @@
 package runtime
 
+type ScopeType int
+
+const (
+	ScopeTypeFunction ScopeType = iota
+	ScopeTypeRuleFunction
+	ScopeTypeRule
+	ScopeTypeGeneric
+	ScopeTypeGlobal
+)
+
 type Scope struct {
 	ParentScope *Scope
 	Values      map[string]*Value
+	Type        ScopeType
 }
 
-func CreateScope(parentScope *Scope) *Scope {
+func CreateScope(parentScope *Scope, scopeType ScopeType) *Scope {
 	return &Scope{
 		ParentScope: parentScope,
 		Values:      make(map[string]*Value),
+		Type:        scopeType,
 	}
 }
 
@@ -29,6 +41,6 @@ func (scope *Scope) Define(identifier string, value *Value) {
 	scope.Values[identifier] = value
 }
 
-func (scope *Scope) CreateScope() *Scope {
-	return CreateScope(scope)
+func (scope *Scope) CreateScope(scopeType ScopeType) *Scope {
+	return CreateScope(scope, scopeType)
 }

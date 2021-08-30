@@ -53,6 +53,7 @@ func (program *Program) BuildSymbols() []error {
 
 // DefineBuiltinSymbols declares symbols in the global scope
 func (program *Program) DefineBuiltinSymbols() {
+	// TODO: Define before others
 	for _, builtin := range program.Builtins {
 		program.RootScope.SymbolTable.Insert(builtin.Symbol)
 	}
@@ -60,6 +61,7 @@ func (program *Program) DefineBuiltinSymbols() {
 
 // DefineBuiltinSymbols defines the values in the delegate's scope
 func (program *Program) DefineBuiltinValues() {
+	// TODO: Define before others
 	for _, builtin := range program.Builtins {
 		program.Delegate.Define(builtin.Identifier, builtin.Value)
 	}

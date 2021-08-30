@@ -22,11 +22,12 @@ type Delegate interface {
 	Negative(operand *Value) *Value
 
 	Shell(script string)
+	ShellFormat(value *Value) string
 
 	Define(identifier string, value *Value)
 	Resolve(identifier string) *Value
 	SetScope(scope *Scope)
 	Scope() *Scope
-	PushScope()
+	PushScope(scopeType ScopeType)
 	PopScope()
 }

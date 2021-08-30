@@ -1,8 +1,10 @@
 package runtime
 
 import (
+	"bytes"
 	"fmt"
 	"os/exec"
+	"strings"
 )
 
 type DefaultRuntime struct {
@@ -11,7 +13,7 @@ type DefaultRuntime struct {
 
 func CreateDefaultRuntime() *DefaultRuntime {
 	return &DefaultRuntime{
-		scope: CreateScope(nil),
+		scope: CreateScope(nil, ScopeTypeGlobal),
 	}
 }
 
@@ -249,15 +251,45 @@ func (runtime *DefaultRuntime) Negative(operand *Value) *Value {
 }
 
 func (runtime *DefaultRuntime) Shell(script string) {
-	cmd := exec.Command("/bin/bash", "-c", script)
-	stdout, err := cmd.Output()
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
+	cmd := exec.Command("/bin/bash")
+	var stdout, stderr bytes.Buffer
+	cmd.Stdin = strings.NewReader(script)
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	cmd.Run()
 
-	// TODO: Use streams for realtime output
-	fmt.Println(string(stdout))
+	context := runtime.Resolve("context").Value.(Object)
+	if shellValue, ok := context["shell"]; ok {
+		shell := shellValue.Value.(Object)
+		shell["stdout"].Value = strings.TrimSpace(stdout.String())
+		shell["stderr"].Value = strings.TrimSpace(stderr.String())
+		shell["status"].Value = cmd.ProcessState.ExitCode()
+	}
+}
+
+func (runtime *DefaultRuntime) ShellFormat(value *Value) string {
+	switch value.Type {
+	case ValueTypeNone:
+		return ""
+	case ValueTypeNumber:
+		return fmt.Sprintf("%d", value.Value)
+	case ValueTypeString:
+		return fmt.Sprintf("%s", value.Value)
+	case ValueTypeBool:
+		return fmt.Sprintf("%t", value.Value)
+	case ValueTypeArray:
+		array := value.Value.(Array)
+		var builder strings.Builder
+		for i, x := range array {
+			if i > 0 {
+				builder.WriteString(" ")
+			}
+			builder.WriteString(runtime.ShellFormat(x))
+		}
+		return builder.String()
+	default:
+		panic(fmt.Errorf("cannot format value '%s' for current shell", value.String()))
+	}
 }
 
 func (runtime *DefaultRuntime) Define(identifier string, value *Value) {
@@ -281,8 +313,45 @@ func (runtime *DefaultRuntime) Scope() *Scope {
 	return runtime.scope
 }
 
-func (runtime *DefaultRuntime) PushScope() {
-	runtime.scope = runtime.scope.CreateScope()
+func (runtime *DefaultRuntime) PushScope(scopeType ScopeType) {
+	runtime.scope = runtime.scope.CreateScope(scopeType)
+	if scopeType == ScopeTypeFunction || scopeType == ScopeTypeRuleFunction || scopeType == ScopeTypeRule {
+		context := make(Object)
+
+		shell := make(Object)
+		shell["stdout"] = &Value{
+			Type:  ValueTypeString,
+			Value: "",
+		}
+		shell["stderr"] = &Value{
+			Type:  ValueTypeString,
+			Value: "",
+		}
+		shell["status"] = &Value{
+			Type:  ValueTypeNumber,
+			Value: 0,
+		}
+
+		context["shell"] = &Value{
+			Type:  ValueTypeObject,
+			Value: shell,
+		}
+
+		if scopeType == ScopeTypeRule || scopeType == ScopeTypeRuleFunction {
+			context["input"] = &Value{
+				Type:  ValueTypeArray,
+				Value: make(Array, 0),
+			}
+
+			context["output"] = &Value{
+				Type:  ValueTypeArray,
+				Value: make(Array, 0),
+			}
+		}
+
+		value := &Value{Type: ValueTypeObject, Value: context}
+		runtime.Define("context", value)
+	}
 }
 
 func (runtime *DefaultRuntime) PopScope() {

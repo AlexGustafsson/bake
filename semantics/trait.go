@@ -23,6 +23,8 @@ const (
 	TraitImport
 	// TraitString indicates that the symbol may be treated as a string
 	TraitString
+	// TraitObject indiciates that the symbol may be treated as a string
+	TraitObject
 )
 
 // Has checks whether or not a trait has the specified trait

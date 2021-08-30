@@ -1,5 +1,6 @@
 * Getting Started
   * [Quick Start](guide.md)
+  * [Roadmap](roadmap.md)
 
 * Examples
   * [Rules](examples/rules.md)

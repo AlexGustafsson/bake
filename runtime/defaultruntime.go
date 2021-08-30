@@ -305,30 +305,43 @@ func (runtime *DefaultRuntime) ShellFormat(value *Value) string {
 }
 
 func (runtime *DefaultRuntime) Index(left *Value, right *Value) *Value {
-	if left.Type == ValueTypeObject {
-		if right.Type == ValueTypeString {
-			object := left.Value.(Object)
-			if value, ok := object[right.Value.(string)]; ok {
-				return value
-			} else {
-				return &Value{Type: ValueTypeNone}
-			}
-		} else {
+	switch left.Type {
+	case ValueTypeObject:
+		if right.Type != ValueTypeString {
 			panic(fmt.Errorf("an object can only be indexed with a string"))
 		}
-	} else if left.Type == ValueTypeArray {
-		if right.Type == ValueTypeNumber {
-			index := right.Value.(int)
-			array := left.Value.(Array)
-			if index >= 0 && index < len(array) {
-				return array[index]
-			} else {
-				panic(fmt.Errorf("index is out of bounds"))
-			}
+
+		object := left.Value.(Object)
+		if value, ok := object[right.Value.(string)]; ok {
+			return value
 		} else {
+			return &Value{Type: ValueTypeNone}
+		}
+	case ValueTypeArray:
+		if right.Type != ValueTypeNumber {
 			panic(fmt.Errorf("an array can only be indexed with a number"))
 		}
-	} else {
+
+		index := right.Value.(int)
+		array := left.Value.(Array)
+		if index >= 0 && index < len(array) {
+			return array[index]
+		} else {
+			panic(fmt.Errorf("index is out of bounds"))
+		}
+	case ValueTypeString:
+		if right.Type != ValueTypeNumber {
+			panic(fmt.Errorf("an array can only be indexed with a number"))
+		}
+
+		index := right.Value.(int)
+		text := left.Value.(string)
+		if index >= 0 && index < len(text) {
+			return &Value{Type: ValueTypeString, Value: string(text[index])}
+		} else {
+			panic(fmt.Errorf("index is out of bounds"))
+		}
+	default:
 		panic(fmt.Errorf("cannot index a value of type '%s'", left.Type))
 	}
 }

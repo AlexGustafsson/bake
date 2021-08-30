@@ -14,8 +14,6 @@ The [VSCode plugin](tools/editors.md) supports the language server natively.
 
 ### Using Homebrew
 
-Upcoming.
-
 ```shell
 brew install alexgustafsson/tap/bagels
 ```

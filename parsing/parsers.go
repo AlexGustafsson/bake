@@ -572,6 +572,8 @@ func parseOperand(parser *Parser) ast.Node {
 		return expression
 	case lexing.ItemLeftBracket:
 		return parseArray(parser)
+	case lexing.ItemLeftCurly:
+		return parseObject(parser)
 	default:
 		// TODO: do we need to consume the peeked token here?
 		parser.tokenErrorf(token, "expected operand, got '%s'", token.Type.String())
@@ -584,6 +586,51 @@ func parseArray(parser *Parser) *ast.Array {
 	array := ast.CreateArray(createRangeFromItem(startToken), make([]ast.Node, 0))
 	array.Elements = parseExpressionList(parser, lexing.ItemLeftBracket, lexing.ItemRightBracket)
 	return array
+}
+
+func parseObject(parser *Parser) *ast.Object {
+	startToken := parser.require(lexing.ItemLeftCurly)
+
+	pairs := make(map[*ast.Identifier]ast.Node)
+
+dec:
+	for {
+		token := parser.peek()
+		switch token.Type {
+		case lexing.ItemNewline:
+			// Ignore
+			parser.nextItem()
+		case lexing.ItemEndOfInput:
+			parser.tokenErrorf(token, "unexpected end of input - missing '}'")
+		case lexing.ItemRightCurly:
+			parser.nextItem()
+			break dec
+		case lexing.ItemComma:
+			parser.nextItem()
+			if len(pairs) == 0 {
+				parser.tokenErrorf(token, "unexpected comma - missing key-value pair")
+			}
+
+			// Don't allow two commas after each other - this is done here so that the main switch
+			// loop may be reused each iteration to handle whitespace uniformly etc.
+			if token, ok := parser.expectPeek(lexing.ItemComma); ok {
+				parser.tokenErrorf(token, "unexpected comma")
+			}
+		default:
+			identifier := parser.nextItem()
+			// Allow keywords not lexed as identifiers to be used in selections
+			if identifier.Type != lexing.ItemIdentifier && !identifier.IsKeyword() {
+				parser.tokenErrorf(identifier, "expected identifier, got '%s'", identifier.Value)
+			}
+
+			parser.require(lexing.ItemColon)
+			expression := parseExpression(parser)
+			identifierNode := ast.CreateIdentifier(createRangeFromItem(identifier), identifier.Value)
+			pairs[identifierNode] = expression
+		}
+	}
+
+	return ast.CreateObject(createRangeFromItem(startToken), pairs)
 }
 
 func parseExpressionList(parser *Parser, start lexing.ItemType, end lexing.ItemType) []ast.Node {

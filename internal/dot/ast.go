@@ -281,6 +281,14 @@ func formatTree(root ast.Node) string {
 		builder.WriteString(formatTree(node.Expression))
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, node.Block)
 		builder.WriteString(formatTree(node.Block))
+	case *ast.Object:
+		fmt.Fprintf(&builder, "\"%p\" [label=\"object\"];\n", node)
+		for key, value := range node.Pairs {
+			fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", node, key)
+			builder.WriteString(formatTree(key))
+			fmt.Fprintf(&builder, "\"%p\" -> \"%p\";\n", key, value)
+			builder.WriteString(formatTree(value))
+		}
 	default:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"UNKNOWN '%s'\"", node, node.Type().String())
 	}

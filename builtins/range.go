@@ -19,7 +19,7 @@ func registerRange(program *runtime.Program) {
 			panic(fmt.Errorf("stop cannot be less than start"))
 		}
 
-		elements := make([]*runtime.Value, stop-start)
+		elements := make(runtime.Array, stop-start)
 		for i := 0; i < stop-start; i++ {
 			elements[i] = &runtime.Value{Type: runtime.ValueTypeNumber, Value: start + i}
 		}

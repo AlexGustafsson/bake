@@ -103,6 +103,8 @@ func formatTree(root ast.Node) string {
 		fmt.Fprintf(&builder, "\"%p\" [label=\"return\"];\n", node)
 		fmt.Fprintf(&builder, "\"%p\" -> \"%p\" [label=\"value\"];\n", node, node.Value)
 		builder.WriteString(formatTree(node.Value))
+	case *ast.BreakStatement:
+		fmt.Fprintf(&builder, "\"%p\" [label=\"break\"];\n", node)
 	case *ast.RuleDeclaration:
 		fmt.Fprintf(&builder, "\"%p\" [label=\"rule\"];\n", node)
 

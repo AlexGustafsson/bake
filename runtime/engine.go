@@ -415,7 +415,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 					panic(fmt.Errorf("invalid dependencies - expected array"))
 				}
 
-				dependencies := expression.Value.([]*Value)
+				dependencies := expression.Value.(Array)
 				for _, dependency := range dependencies {
 					switch dependency.Type {
 					case ValueTypeFunction, ValueTypeString, ValueTypeAlias:

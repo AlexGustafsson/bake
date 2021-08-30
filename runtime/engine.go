@@ -163,6 +163,8 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		switch node.Operator {
 		case ast.ComparisonOperatorEquals:
 			return engine.Delegate.Equals(left, right)
+		case ast.ComparisonOperatorNotEquals:
+			return engine.Delegate.NotEquals(left, right)
 		case ast.ComparisonOperatorGreaterThan:
 			return engine.Delegate.GreaterThan(left, right)
 		case ast.ComparisonOperatorGreaterThanOrEqual:

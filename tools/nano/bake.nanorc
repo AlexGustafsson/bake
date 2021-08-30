@@ -19,7 +19,7 @@ color red "\<([a-zA-Z_]\w*\.[a-zA-Z_]\w*)\>"
 color brightyellow "\<(if|else|for|in)\>"
 
 # Control flow
-color magenta "\<(return)\>"
+color magenta "\<(return|break)\>"
 
 # Declarations
 color magenta "^\<(package|import|export)\>"

@@ -11,6 +11,7 @@ type Scope struct {
 	// SymbolTable is the table of symbols defined within the scope
 	SymbolTable   *SymbolTable
 	HasSeenReturn bool
+	HasSeenBreak  bool
 }
 
 func CreateScope(parent *Scope) *Scope {

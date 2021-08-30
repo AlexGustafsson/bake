@@ -15,6 +15,7 @@ type Validator struct {
 	seenImports  bool
 	seenPackage  bool
 	mayReturn    bool
+	mayBreak     bool
 }
 
 func CreateValidator(rootNode ast.Node, rootScope *Scope) *Validator {
@@ -153,10 +154,19 @@ func (validator *Validator) Validate(root ast.Node) {
 
 		validator.Validate(node.Value)
 
-		if validator.CurrentScope.HasSeenReturn {
+		if validator.CurrentScope.HasSeenReturn || validator.CurrentScope.HasSeenBreak {
 			validator.errorf(node, "dead return")
 		}
 		validator.CurrentScope.HasSeenReturn = true
+	case *ast.BreakStatement:
+		if !validator.mayBreak {
+			validator.errorf(node, "cannot break here")
+		}
+
+		if validator.CurrentScope.HasSeenReturn || validator.CurrentScope.HasSeenBreak {
+			validator.errorf(node, "dead break")
+		}
+		validator.CurrentScope.HasSeenBreak = true
 	case *ast.Assignment:
 		validator.Validate(node.Expression)
 		validator.Validate(node.Value)
@@ -239,7 +249,10 @@ func (validator *Validator) Validate(root ast.Node) {
 
 		if scope, ok := validator.CurrentScope.ChildScopes[node.Block]; ok {
 			validator.CurrentScope = scope
+			previous := validator.mayBreak
+			validator.mayBreak = true
 			validator.Validate(node.Block)
+			validator.mayBreak = previous
 			validator.CurrentScope = scope.ParentScope
 		}
 	case *ast.Array:

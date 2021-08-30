@@ -43,6 +43,9 @@ func (builder *Builder) Build(root ast.Node) {
 		builder.insertInScope(symbol)
 
 		builder.pushScope(node)
+		// Create the context object
+		builder.insertInScope(CreateSymbol("context", TraitObject, nil))
+
 		if node.Signature != nil {
 			builder.Build(node.Signature)
 		}
@@ -74,6 +77,10 @@ func (builder *Builder) Build(root ast.Node) {
 		builder.insertInScope(symbol)
 
 		builder.pushScope(node)
+		// Create the context object
+		builder.insertInScope(CreateSymbol("context", TraitObject, nil))
+
+		builder.insertInScope(symbol)
 		if node.Signature != nil {
 			builder.Build(node.Signature)
 		}
@@ -83,6 +90,8 @@ func (builder *Builder) Build(root ast.Node) {
 	case *ast.RuleDeclaration:
 		if node.Block != nil {
 			builder.pushScope(node)
+			// Create the context object
+			builder.insertInScope(CreateSymbol("context", TraitObject, nil))
 			builder.Build(node.Block)
 			builder.popScope()
 		}

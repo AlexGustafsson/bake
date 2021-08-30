@@ -8,7 +8,7 @@ type Trait uint64
 const TraitNone Trait = 0
 
 // definedTraits are the number of available traits (excluding TraitNone)
-const definedTraits = 3
+const definedTraits = 7
 
 const (
 	// TraitNumeric indicates that the symbol may be used for numeric operations

@@ -75,12 +75,15 @@ Statement = Declaration
           | IfStatement
           | ForStatement
           | ReturnStatement
+          | BreakStatement
           | ShellStatement
           .
 
 Declaration = FunctionDeclaration | VarDeclaration .
 
 ReturnStatement = "return" Expression .
+
+BreakStatement = "break" .
 
 IfStatement = "if" Expression Block [ "else" ( IfStatement | Block ) ] .
 
@@ -174,6 +177,7 @@ shell
 true
 false
 alias
+break
 ```
 
 ### Operators

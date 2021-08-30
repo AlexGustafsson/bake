@@ -81,3 +81,4 @@ type Alias struct {
 }
 
 type Object map[string]*Value
+type Array []*Value

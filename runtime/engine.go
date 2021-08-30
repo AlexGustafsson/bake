@@ -175,7 +175,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		return engine.Delegate.Resolve(node.Value)
 	case *ast.Assignment:
 		value := engine.evaluate(node.Value)
-		// TODO: Implement objects
+		// TODO: Implement objects and indexed values
 		if identifier, ok := node.Expression.(*ast.Identifier); ok {
 			engine.Delegate.Define(identifier.Value, value)
 		} else {
@@ -330,7 +330,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			panic(fmt.Errorf("invalid collection"))
 		}
 
-		collection := value.Value.([]*Value)
+		collection := value.Value.(Array)
 		for _, currentValue := range collection {
 			engine.Delegate.PushScope()
 			engine.Delegate.Define(node.Identifier.Value, currentValue)
@@ -459,7 +459,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			Value: builder.String(),
 		}
 	case *ast.Array:
-		elements := make([]*Value, len(node.Elements))
+		elements := make(Array, len(node.Elements))
 		for i, element := range node.Elements {
 			value := engine.evaluate(element)
 			elements[i] = value
@@ -489,6 +489,34 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			return value
 		} else {
 			return &Value{Type: ValueTypeNone}
+		}
+	case *ast.Index:
+		value := engine.evaluate(node.Operand)
+		index := engine.evaluate(node.Expression)
+
+		if value.Type == ValueTypeObject {
+			if index.Type == ValueTypeString {
+				object := value.Value.(Object)
+				if value, ok := object[index.Value.(string)]; ok {
+					return value
+				} else {
+					return &Value{Type: ValueTypeNone}
+				}
+			} else {
+				panic(fmt.Errorf("an object can only be indexed with a string"))
+			}
+		} else if value.Type == ValueTypeArray {
+			if index.Type == ValueTypeNumber {
+				index := index.Value.(int)
+				array := value.Value.(Array)
+				if index >= 0 && index < len(array) {
+					return array[index]
+				} else {
+					panic(fmt.Errorf("index is out of bounds"))
+				}
+			}
+		} else {
+			panic(fmt.Errorf("cannot index a value of type '%s'", value.Type))
 		}
 	}
 

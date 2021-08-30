@@ -333,6 +333,19 @@ func (runtime *DefaultRuntime) Index(left *Value, right *Value) *Value {
 	}
 }
 
+func (runtime *DefaultRuntime) Selector(value *Value, identifier string) *Value {
+	if value.Type == ValueTypeObject {
+		object := value.Value.(Object)
+		if value, ok := object[identifier]; ok {
+			return value
+		} else {
+			return &Value{Type: ValueTypeNone}
+		}
+	} else {
+		panic(fmt.Errorf("invalid operand on non-object '%s'", value.Type))
+	}
+}
+
 func (runtime *DefaultRuntime) Define(identifier string, value *Value) {
 	runtime.scope.Define(identifier, value)
 }

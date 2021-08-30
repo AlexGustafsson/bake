@@ -25,6 +25,7 @@ type Delegate interface {
 	ShellFormat(value *Value) string
 
 	Index(left *Value, right *Value) *Value
+	Selector(value *Value, identifier string) *Value
 
 	ResolveEscapes(value string) string
 

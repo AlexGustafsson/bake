@@ -522,16 +522,7 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		return nil
 	case *ast.Selector:
 		value := engine.evaluate(node.Operand)
-		if value.Type != ValueTypeObject {
-			panic(fmt.Errorf("invalid operand on non-object '%s'", value.Type))
-		}
-
-		object := value.Value.(Object)
-		if value, ok := object[node.Identifier]; ok {
-			return value
-		} else {
-			return &Value{Type: ValueTypeNone}
-		}
+		return engine.Delegate.Selector(value, node.Identifier)
 	case *ast.Index:
 		value := engine.evaluate(node.Operand)
 		index := engine.evaluate(node.Expression)

@@ -239,16 +239,21 @@ func lexRoot(lexer *Lexer) stateModifier {
 		return lexRoot
 	case '`':
 		lexer.Next()
+		lexer.Emit(ItemBacktick)
 		for {
-			rune := lexer.Next()
+			rune := lexer.Peek()
 			if rune == '`' {
+				lexer.Emit(ItemStringPart)
+				lexer.Next()
+				lexer.Emit(ItemBacktick)
 				break
 			} else if rune == eof {
 				lexer.errorf("unexpected end of file")
 				return nil
+			} else {
+				lexer.Next()
 			}
 		}
-		lexer.Emit(ItemRawString)
 		return lexRoot
 	case '"':
 		lexer.Next()

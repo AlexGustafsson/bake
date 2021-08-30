@@ -49,6 +49,7 @@ const (
 	ItemSubstitutionStart
 	ItemSubstitutionEnd
 	ItemDoubleQuote
+	ItemBacktick
 
 	// Keywords
 	ItemKeywordPackage
@@ -73,7 +74,6 @@ const (
 	ItemWhitespace
 
 	// Strings etc.
-	ItemRawString
 	ItemStringPart
 
 	// Numbers

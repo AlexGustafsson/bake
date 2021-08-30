@@ -48,32 +48,32 @@ func _() {
 	_ = x[ItemSubstitutionStart-37]
 	_ = x[ItemSubstitutionEnd-38]
 	_ = x[ItemDoubleQuote-39]
-	_ = x[ItemKeywordPackage-40]
-	_ = x[ItemKeywordImport-41]
-	_ = x[ItemKeywordFunc-42]
-	_ = x[ItemKeywordRule-43]
-	_ = x[ItemKeywordExport-44]
-	_ = x[ItemKeywordIf-45]
-	_ = x[ItemKeywordFor-46]
-	_ = x[ItemKeywordIn-47]
-	_ = x[ItemKeywordElse-48]
-	_ = x[ItemKeywordReturn-49]
-	_ = x[ItemKeywordLet-50]
-	_ = x[ItemKeywordShell-51]
-	_ = x[ItemKeywordAlias-52]
-	_ = x[ItemIdentifier-53]
-	_ = x[ItemNewline-54]
-	_ = x[ItemWhitespace-55]
-	_ = x[ItemRawString-56]
+	_ = x[ItemBacktick-40]
+	_ = x[ItemKeywordPackage-41]
+	_ = x[ItemKeywordImport-42]
+	_ = x[ItemKeywordFunc-43]
+	_ = x[ItemKeywordRule-44]
+	_ = x[ItemKeywordExport-45]
+	_ = x[ItemKeywordIf-46]
+	_ = x[ItemKeywordFor-47]
+	_ = x[ItemKeywordIn-48]
+	_ = x[ItemKeywordElse-49]
+	_ = x[ItemKeywordReturn-50]
+	_ = x[ItemKeywordLet-51]
+	_ = x[ItemKeywordShell-52]
+	_ = x[ItemKeywordAlias-53]
+	_ = x[ItemIdentifier-54]
+	_ = x[ItemNewline-55]
+	_ = x[ItemWhitespace-56]
 	_ = x[ItemStringPart-57]
 	_ = x[ItemInteger-58]
 	_ = x[ItemBoolean-59]
 	_ = x[ItemComment-60]
 }
 
-const _ItemType_name = "ItemStartOfInputItemEndOfInputItemErrorItemAdditionItemAdditionAssignItemSubtractionItemSubtractionAssignItemMultiplicationItemMultiplicationAssignItemDivisionItemDivisionAssignItemAssignmentItemLooseAssignmentItemEqualsItemNotItemNotEqualItemLessThanItemLessThanOrEqualItemGreaterThanItemGreaterThanOrEqualItemAndItemOrItemSpreadItemIncrementItemDecrementItemModuloItemModuloAssignItemLeftParenthesesItemRightParenthesesItemLeftBracketItemRightBracketItemLeftCurlyItemRightCurlyItemColonItemColonColonItemCommaItemDotItemSubstitutionStartItemSubstitutionEndItemDoubleQuoteItemKeywordPackageItemKeywordImportItemKeywordFuncItemKeywordRuleItemKeywordExportItemKeywordIfItemKeywordForItemKeywordInItemKeywordElseItemKeywordReturnItemKeywordLetItemKeywordShellItemKeywordAliasItemIdentifierItemNewlineItemWhitespaceItemRawStringItemStringPartItemIntegerItemBooleanItemComment"
+const _ItemType_name = "ItemStartOfInputItemEndOfInputItemErrorItemAdditionItemAdditionAssignItemSubtractionItemSubtractionAssignItemMultiplicationItemMultiplicationAssignItemDivisionItemDivisionAssignItemAssignmentItemLooseAssignmentItemEqualsItemNotItemNotEqualItemLessThanItemLessThanOrEqualItemGreaterThanItemGreaterThanOrEqualItemAndItemOrItemSpreadItemIncrementItemDecrementItemModuloItemModuloAssignItemLeftParenthesesItemRightParenthesesItemLeftBracketItemRightBracketItemLeftCurlyItemRightCurlyItemColonItemColonColonItemCommaItemDotItemSubstitutionStartItemSubstitutionEndItemDoubleQuoteItemBacktickItemKeywordPackageItemKeywordImportItemKeywordFuncItemKeywordRuleItemKeywordExportItemKeywordIfItemKeywordForItemKeywordInItemKeywordElseItemKeywordReturnItemKeywordLetItemKeywordShellItemKeywordAliasItemIdentifierItemNewlineItemWhitespaceItemStringPartItemIntegerItemBooleanItemComment"
 
-var _ItemType_index = [...]uint16{0, 16, 30, 39, 51, 69, 84, 105, 123, 147, 159, 177, 191, 210, 220, 227, 239, 251, 270, 285, 307, 314, 320, 330, 343, 356, 366, 382, 401, 421, 436, 452, 465, 479, 488, 502, 511, 518, 539, 558, 573, 591, 608, 623, 638, 655, 668, 682, 695, 710, 727, 741, 757, 773, 787, 798, 812, 825, 839, 850, 861, 872}
+var _ItemType_index = [...]uint16{0, 16, 30, 39, 51, 69, 84, 105, 123, 147, 159, 177, 191, 210, 220, 227, 239, 251, 270, 285, 307, 314, 320, 330, 343, 356, 366, 382, 401, 421, 436, 452, 465, 479, 488, 502, 511, 518, 539, 558, 573, 585, 603, 620, 635, 650, 667, 680, 694, 707, 722, 739, 753, 769, 785, 799, 810, 824, 838, 849, 860, 871}
 
 func (i ItemType) String() string {
 	if i < 0 || i >= ItemType(len(_ItemType_index)-1) {

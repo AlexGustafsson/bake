@@ -84,7 +84,7 @@ func parseTopLevelDeclaration(parser *Parser) ast.Node {
 		default:
 			parser.tokenErrorf(token, "unexpected %s", token.Type.String())
 		}
-	case lexing.ItemDoubleQuote, lexing.ItemRawString, lexing.ItemLeftBracket:
+	case lexing.ItemDoubleQuote, lexing.ItemBacktick, lexing.ItemLeftBracket:
 		return parseRule(parser)
 	default:
 		return parseStatement(parser)
@@ -219,9 +219,9 @@ func parseRule(parser *Parser) *ast.RuleDeclaration {
 	case lexing.ItemDoubleQuote:
 		node := parseEvaluatedString(parser)
 		outputs = append(outputs, node)
-	case lexing.ItemRawString:
-		parser.nextItem()
-		outputs = append(outputs, ast.CreateRawString(createRangeFromItem(startToken), startToken.Value))
+	case lexing.ItemBacktick:
+		value := parseRawString(parser)
+		outputs = append(outputs, value)
 	case lexing.ItemLeftBracket:
 		array := parseArray(parser)
 		outputs = array.Elements
@@ -549,9 +549,8 @@ func parseOperand(parser *Parser) ast.Node {
 		return ast.CreateInteger(createRangeFromItem(token), token.Value)
 	case lexing.ItemDoubleQuote:
 		return parseEvaluatedString(parser)
-	case lexing.ItemRawString:
-		parser.nextItem()
-		return ast.CreateRawString(createRangeFromItem(token), token.Value)
+	case lexing.ItemBacktick:
+		return parseRawString(parser)
 	case lexing.ItemIdentifier:
 		parser.nextItem()
 		if _, ok := parser.expectPeek(lexing.ItemColonColon); ok {
@@ -690,4 +689,11 @@ func parseEvaluatedString(parser *Parser) *ast.EvaluatedString {
 			return ast.CreateEvaluatedString(r, children)
 		}
 	}
+}
+
+func parseRawString(parser *Parser) *ast.RawString {
+	startToken := parser.nextItem()
+	content := parser.require(lexing.ItemStringPart)
+	parser.require(lexing.ItemBacktick)
+	return ast.CreateRawString(createRangeFromItem(startToken), content.Value)
 }

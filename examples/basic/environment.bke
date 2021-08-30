@@ -1,0 +1,8 @@
+// Environment variables may not always be set
+let compiler = env.CC
+
+print("You've configured the following compiler: '$(compiler)'")
+
+// Set the compiler to a default if none was configured by the user
+compiler ?= "gcc"
+print("We'll be using the following compiler: '$(compiler)'")

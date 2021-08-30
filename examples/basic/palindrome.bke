@@ -1,0 +1,23 @@
+let tests = [
+  {word: "palindrome", expected: false},
+  {word: "paris", expected: false},
+  {word: "racecar", expected: true}
+]
+
+for i in range(0, tests.length) {
+  let is_palindrome = true
+  let test = tests[i]
+
+  for i in range(0, test.word.length) {
+    if test.word[i] != test.word[test.word.length - i - 1] {
+      is_palindrome = false
+      break
+    }
+  }
+
+  print("Is '$(test.word)' a palindrome?")
+  print(is_palindrome)
+  print("Was the outcome expected?")
+  print(is_palindrome == test.expected)
+  print("-----------------------------")
+}

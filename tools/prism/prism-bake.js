@@ -40,7 +40,6 @@
 			pattern: /"(?:\\[\s\S]|\$\((?:[^()]|\((?:[^()]|\([^)]*\))*\))+\)|(?!\$\()[^\\"])*"/,
 			inside: evaluation,
 		},
-		// TODO: Doesn't work for context.shell.stdout.string etc. as shell* will be marked as a string. Add an assert for only whitespace before the shell expression
 		"shell-block": {
 			pattern: /(shell\s*\{)[^}]*\}/,
 			lookbehind: true,
@@ -53,9 +52,15 @@
 				...evaluation,
 			},
 		},
-		// TODO: Doesn't work for context.shell.stdout.string etc. as shell* will be marked as a string. Add an assert for only whitespace before the shell expression
 		"shell": {
-			pattern: /(shell)(?!\s*\{).*/,
+			pattern: /([ \t]+shell)(?!\s*\{).*/,
+			greedy: true,
+			lookbehind: true,
+			inside: evaluation,
+			alias: "string",
+		},
+		"shell-alt": {
+			pattern: /^(shell)(?!\s*\{).*/m,
 			greedy: true,
 			lookbehind: true,
 			inside: evaluation,

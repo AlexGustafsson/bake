@@ -250,8 +250,14 @@ func (validator *Validator) Validate(root ast.Node) {
 		// TODO: Validate that it's an object
 		validator.Validate(node.Operand)
 	case *ast.Object:
-		for _, value := range node.Pairs {
+		seenKeys := make(map[string]bool)
+		for key, value := range node.Pairs {
 			validator.Validate(value)
+			if _, ok := seenKeys[key.Value]; ok {
+				validator.errorf(key, "duplicate key")
+			} else {
+				seenKeys[key.Value] = true
+			}
 		}
 	}
 

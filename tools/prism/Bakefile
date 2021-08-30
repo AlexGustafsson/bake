@@ -1,0 +1,10 @@
+export alias build : ["build/prism-bake.min.js"]
+
+// Requires esbuild:
+// npm install --global esbuild
+"build/prism-bake.min.js" ["prism-bake.js"] {
+	shell {
+		mkdir -p build
+		esbuild --sourcemap --minify $(context.input) --outfile=$(context.output)
+	}
+}

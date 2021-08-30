@@ -1,17 +1,12 @@
-import (
-  "github.com/AlexGustafsson/bake/stdlib/js"
-)
-
-let version = js::package_version
-let source = find_source()
-
-func find_source {
-  shell find . -iname '*.js' -or -iname '*.json' | grep -v node_modules
-  return context.shell.stdout.string
+func get_version {
+  shell grep package.json -e '"version":' | grep -oe '\d\+\.\d\+\.\d\+'
+  return context.shell.stdout
 }
 
-alias package : "bake-lsp-$(version).vsix"
+let version = get_version()
 
-"bake-lsp-$(version).vsix" [...source] {
-	shell yarn package
+export alias package : ["bake-lsp-$(version).vsix"]
+
+"bake-lsp-$(version).vsix" {
+  shell yarn package
 }

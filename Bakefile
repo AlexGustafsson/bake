@@ -1,93 +1,103 @@
-import (
-  "github.com/AlexGustafsson/bake/stdlib/go"
-  "github.com/AlexGustafsson/bake/stdlib/util"
-  "github.com/AlexGustafsson/bake/stdlib/git"
-)
-
-// Always use clang, no matter if GCC is configured
-env.CXX = "clang"
-env.CPP = "clang"
-env.CC = "clang"
-
-// Add build-time variables
-let version = "v0.1.0"
-let commit = git::commit()
-let go_version = go::version()
-let compile_time = util::date()
-
-let build_variables = "-X $(prefix).Version=$(version) -X $(prefix).Commit=$(commit) -X $(prefix).GoVersion=$(go_version) -X $(prefix).CompileTime=$(compile_time)"
-let build_flags = "-ldflags '$(build_variables)'"
-
-let server_source = util::find("*.go")
-
-func version_prefix {
+func get_prefix {
   shell go list ./internal/version
-  return context.shell.stdout.string
+  return context.shell.stdout
 }
 
-// Generate clients etc.
-// Requires openapi-generator
-// `brew install openapi-generator`
-func generate {
+func get_commit {
+ shell git rev-parse --short HEAD 2>/dev/null
+ return context.shell.stdout
+}
+
+func get_go_version {
+  shell go version
+  return context.shell.stdout
+}
+
+export func get_compile_time {
+  shell LC_ALL=en_US date
+  return context.shell.stdout
+}
+
+let prefix = get_prefix()
+let version = "v0.1.0"
+let commit = get_commit()
+let go_version = get_go_version()
+let compile_time = get_compile_time()
+let build_variables = "-X \"$(prefix).Version=$(version)\" -X \"$(prefix).Commit=$(commit)\" -X \"$(prefix).GoVersion=$(go_version)\" -X \"$(prefix).CompileTime=$(compile_time)\""
+let build_flags = "-ldflags '$(build_variables)'"
+
+// Build for the native platform
+export alias build: ["build/bake", "build/bagels"]
+
+"build/bake" {
   shell {
-    openapi-generator generate --package-name api --generator-name go --input-spec api.yml --output api
-    # The code is not automatically formatted after generation
-    gofmt -l -s -w api
+    go generate ./...
+	  go build $(build_flags) -o $(context.output) cmd/bake/*.go
+  }
+}
+
+"build/bagels" {
+  shell {
+    go generate ./...
+	  go build $(build_flags) -o $(context.output) cmd/bagels/*.go
   }
 }
 
 // Format Go code
-func format {
-  shell gofmt -l -s -w
+export func format {
+	shell gofmt -l -s -w .
 }
 
 // Lint Go code
-func lint {
-  shell golint .
+export func lint {
+	shell golint .
 }
 
 // Vet Go code
-func vet {
-	shell go vet ./...
+export func vet {
+  shell go vet ./...
 }
 
 // Test Go code
-func test {
-  shell go test -v ./...
+export func test {
+	shell go test -v ./...
 }
 
-// Build for the native platform
-"build/upmon" [...server_source, "Makefile"] {
+export func install_tools {
+	shell cat tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %
+}
+
+// Copy the nanorc file to the build output
+export alias nano : ["tools/nano/bake.nanorc"]
+"tools/nano/bake.nanorc" {
   shell {
-    go generate ./...
-	  go build $(BUILD_FLAGS) -o $@ cmd/upmon.go
+    mkdir -p build
+    cp tools/nano/bake.nanorc build
   }
 }
 
-alias install_tools : go::install_tools
-
-alias build : "build/upmon"
-
-// Build tools
-alias tools : ["vscode", "nano"]
-
 // Build the vscode tool
-func vscode {
+export func vscode {
   shell {
-    bake --in tools/vscode
+    bake run --in tools/vscode package
     mkdir -p build
     cp tools/vscode/bake-lsp*.vsix build
   }
 }
 
-// Copy the nanorc file to the build output
-func nano {
+// Build the PrismJS grammar
+export func prism {
   shell {
+    bake run --in tools/prism build
     mkdir -p build
-	  cp tools/nano/bake.nanorc build
+    cp tools/prism/build/* build/
   }
 }
 
-func clean {
-  shell rm -rf ./build &> /dev/null || true
+// Build tools
+export alias tools: [vscode, nano, prism]
+
+// Clean all dynamically created files
+export func clean {
+	shell rm -rf ./build &> /dev/null || true
 }

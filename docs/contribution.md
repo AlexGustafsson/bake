@@ -51,8 +51,37 @@ The syntax is documented [here](grammar.md). The grammar is kept up-to-date with
 
 ```shell
 # Clone the repository
-https://github.com/AlexGustafsson/upmon.git && cd upmon
+https://github.com/AlexGustafsson/bake.git && cd bake
+```
 
+### Build using bake
+
+Bake is bootstrapped and may be used to build itself.
+
+```shell
+## Building
+
+# Build the project
+bake run build
+
+## Code quality
+
+# Format code
+bake run format
+# Lint code
+bake run lint
+# Vet the code
+bake run vet
+
+## Testing
+
+# Run tests
+bake run test
+```
+
+### Build using Make
+
+```shell
 # Show available commands
 make help
 

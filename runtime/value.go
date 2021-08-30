@@ -30,21 +30,20 @@ type Value struct {
 }
 
 func (value *Value) String() string {
-	if value.Type == ValueTypeNone {
+	switch value.Type {
+	case ValueTypeNone:
 		return "none"
-	}
-
-	switch cast := value.Value.(type) {
-	case int:
-		return fmt.Sprintf("%d", cast)
-	case string:
-		return fmt.Sprintf("\"%s\"", cast)
-	case bool:
-		return fmt.Sprintf("%t", cast)
-	case Array:
+	case ValueTypeNumber:
+		return fmt.Sprintf("%d", value.Value)
+	case ValueTypeString:
+		return fmt.Sprintf("\"%s\"", value.Value)
+	case ValueTypeBool:
+		return fmt.Sprintf("%t", value.Value)
+	case ValueTypeArray:
+		array := value.Value.(Array)
 		var builder strings.Builder
 		builder.WriteRune('[')
-		for i, x := range cast {
+		for i, x := range array {
 			if i > 0 {
 				builder.WriteString(", ")
 			}
@@ -52,20 +51,23 @@ func (value *Value) String() string {
 		}
 		builder.WriteRune(']')
 		return builder.String()
-	case Object:
+	case ValueTypeObject:
+		object := value.Value.(Object)
 		var builder strings.Builder
 		builder.WriteRune('{')
 		i := 0
-		for key, value := range cast {
+		for key, value := range object {
 			if i > 0 {
 				builder.WriteString(", ")
 			}
-			fmt.Fprintf(&builder, "'%s': %s", key, value.String())
+			fmt.Fprintf(&builder, "%s: %s", key, value.String())
 			i++
 		}
+		builder.WriteRune('}')
+		return builder.String()
+	default:
+		return fmt.Sprintf("<unknown %s>", value.Type)
 	}
-
-	return fmt.Sprintf("<unknown %s>", value.Type)
 }
 
 type Rule struct {

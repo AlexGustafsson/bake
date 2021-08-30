@@ -20,6 +20,7 @@
 * Usage
   * [CLI](cli.md)
   * [Builtins](builtins.md)
+  * [Types](types.md)
 
 * Syntax
   * [Grammar](grammar.md)

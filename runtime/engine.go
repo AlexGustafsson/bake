@@ -197,7 +197,9 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		value := engine.evaluate(node.Value)
 		// TODO: Implement objects and indexed values
 		if identifier, ok := node.Expression.(*ast.Identifier); ok {
-			engine.Delegate.Define(identifier.Value, value)
+			stored := engine.Delegate.Resolve(identifier.Value)
+			stored.Type = value.Type
+			stored.Value = value.Value
 		} else {
 			panic(fmt.Errorf("cannot assign to type %s", node.Type()))
 		}

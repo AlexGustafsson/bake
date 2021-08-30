@@ -13,6 +13,7 @@ import (
 type Engine struct {
 	Delegate    Delegate
 	returnValue *Value
+	broke       bool
 }
 
 func CreateEngine(delegate Delegate) *Engine {
@@ -367,6 +368,10 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 			engine.evaluate(node.Block)
 			engine.Delegate.PopScope()
 		}
+
+		// Clear any potential break (they don't bubble)
+		engine.broke = false
+
 		return nil
 	case *ast.Block:
 		// Define all functions, rule functions and rules first
@@ -450,6 +455,16 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 
 		// Evaluate all statements
 		for _, statement := range node.Statements {
+			// Prematurely stop evaluating the block if returned
+			if engine.returnValue != nil {
+				return nil
+			}
+
+			// Prematurely stop evaluating the block if broke
+			if engine.broke {
+				return nil
+			}
+
 			switch statement.Type() {
 			case ast.NodeTypeFunctionDeclaration, ast.NodeTypeRuleFunctionDeclaration, ast.NodeTypeRuleDeclaration, ast.NodeTypeAliasDeclaration:
 				// Do nothing
@@ -457,13 +472,10 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 				returnStatement := statement.(*ast.ReturnStatement)
 				value := engine.evaluate(returnStatement.Value)
 				engine.returnValue = value
+			case ast.NodeTypeBreakStatement:
+				engine.broke = true
 			default:
 				engine.evaluate(statement)
-			}
-
-			// Prematurely stop evaluating the block if returned
-			if engine.returnValue != nil {
-				return nil
 			}
 		}
 		return nil

@@ -6,7 +6,7 @@
 			greedy: true,
 			alias: "string",
 		},
-		"keyword": /\b(package|import|func|rule|export|if|else|for|in|return|shell|let)\b/,
+		"keyword": /\b(package|import|func|rule|export|if|else|for|in|return|shell|let|break)\b/,
 		"boolean": /\b(?:true|false)\b/,
 		"number": /\b((0x[0-9a-fA-F]+)|(0[0-7]+i?)|(\d+([Ee]\d+)?i?)|(\d+[Ee][-+]\d+i?))\b/i,
 		"function": /[a-zA-Z_]\w*(?=\()/,

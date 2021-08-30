@@ -102,3 +102,12 @@ func (program *Program) DefineBuiltinFunction(identifier string, arguments int, 
 
 	program.Builtins[identifier] = &Builtin{identifier, symbol, value}
 }
+
+func (program *Program) DefineBuiltinValue(identifier string, valueType ValueType, traits semantics.Trait, value interface{}) {
+	symbol := semantics.CreateSymbol(identifier, traits, nil)
+	program.Builtins[identifier] = &Builtin{
+		Identifier: identifier,
+		Symbol:     symbol,
+		Value:      &Value{Type: valueType, Value: value},
+	}
+}

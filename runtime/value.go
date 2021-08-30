@@ -20,6 +20,7 @@ const (
 	ValueTypeNone
 	ValueTypeArray
 	ValueTypeAlias
+	ValueTypeObject
 )
 
 type Value struct {
@@ -78,3 +79,5 @@ type Function struct {
 type Alias struct {
 	Dependencies []*Value
 }
+
+type Object map[string]*Value

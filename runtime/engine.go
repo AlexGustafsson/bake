@@ -478,6 +478,18 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		}
 		engine.Delegate.Shell(builder.String())
 		return nil
+	case *ast.Selector:
+		value := engine.evaluate(node.Operand)
+		if value.Type != ValueTypeObject {
+			panic(fmt.Errorf("invalid operand on non-object '%s'", value.Type))
+		}
+
+		object := value.Value.(Object)
+		if value, ok := object[node.Identifier]; ok {
+			return value
+		} else {
+			return &Value{Type: ValueTypeNone}
+		}
 	}
 
 	if rootNode == nil {

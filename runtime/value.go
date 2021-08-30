@@ -36,7 +36,7 @@ func (value *Value) String() string {
 	case ValueTypeNumber:
 		return fmt.Sprintf("%d", value.Value)
 	case ValueTypeString:
-		return fmt.Sprintf("\"%s\"", value.Value)
+		return fmt.Sprintf("%s", value.Value)
 	case ValueTypeBool:
 		return fmt.Sprintf("%t", value.Value)
 	case ValueTypeArray:
@@ -47,7 +47,7 @@ func (value *Value) String() string {
 			if i > 0 {
 				builder.WriteString(", ")
 			}
-			builder.WriteString(x.String())
+			builder.WriteString(x.escapedString())
 		}
 		builder.WriteRune(']')
 		return builder.String()
@@ -60,13 +60,23 @@ func (value *Value) String() string {
 			if i > 0 {
 				builder.WriteString(", ")
 			}
-			fmt.Fprintf(&builder, "%s: %s", key, value.String())
+			fmt.Fprintf(&builder, "%s: %s", key, value.escapedString())
 			i++
 		}
 		builder.WriteRune('}')
 		return builder.String()
 	default:
 		return fmt.Sprintf("<unknown %s>", value.Type)
+	}
+}
+
+func (value *Value) escapedString() string {
+	if value.Type == ValueTypeString {
+		escaped := strings.ReplaceAll(value.Value.(string), "\"", "\\\"")
+		escaped = strings.ReplaceAll(escaped, "\n", "\\n")
+		return fmt.Sprintf("\"%s\"", escaped)
+	} else {
+		return value.String()
 	}
 }
 

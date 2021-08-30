@@ -101,7 +101,10 @@ func (engine *Engine) evaluateTask(value *Value) {
 func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 	switch node := rootNode.(type) {
 	case *ast.VariableDeclaration:
-		value := engine.evaluate(node.Expression)
+		value := &Value{Type: ValueTypeNone}
+		if node.Expression != nil {
+			value = engine.evaluate(node.Expression)
+		}
 		engine.Delegate.Define(node.Identifier, value)
 		return nil
 	case *ast.Term:
@@ -477,7 +480,11 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		return nil
 	}
 
-	panic(fmt.Errorf("unimplemented type %s", rootNode.Type()))
+	if rootNode == nil {
+		panic(fmt.Errorf("got nil node"))
+	} else {
+		panic(fmt.Errorf("unimplemented type %s", rootNode.Type()))
+	}
 }
 
 func (engine *Engine) recover(errp *error) {

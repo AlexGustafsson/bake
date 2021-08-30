@@ -531,6 +531,15 @@ func (engine *Engine) evaluate(rootNode ast.Node) *Value {
 		} else {
 			panic(fmt.Errorf("cannot index a value of type '%s'", value.Type))
 		}
+	case *ast.Object:
+		object := make(Object)
+
+		for key, valueNode := range node.Pairs {
+			value := engine.evaluate(valueNode)
+			object[key.Value] = value
+		}
+
+		return &Value{Type: ValueTypeObject, Value: object}
 	}
 
 	if rootNode == nil {

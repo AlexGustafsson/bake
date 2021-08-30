@@ -63,4 +63,5 @@ const (
 	NodeTypeForStatement
 	NodeTypeModuloAssignment
 	NodeTypeObject
+	NodeTypeBreakStatement
 )

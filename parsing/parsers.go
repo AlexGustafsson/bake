@@ -262,6 +262,9 @@ func parseStatement(parser *Parser) ast.Node {
 		startToken := parser.nextItem()
 		value := parseExpression(parser)
 		return ast.CreateReturnStatement(createRangeFromItem(startToken), value)
+	case lexing.ItemKeywordBreak:
+		startToken := parser.nextItem()
+		return ast.CreateBreakStatement(createRangeFromItem(startToken))
 	case lexing.ItemKeywordIf:
 		return parseIfStatement(parser)
 	case lexing.ItemKeywordFor:
